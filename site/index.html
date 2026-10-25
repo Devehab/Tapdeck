@@ -1,0 +1,1291 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tapdeck</title>
+<meta name="description" content="Tapdeck puts small, focused tools in the macOS Control Center and menu bar: turn the screen off while your agent keeps working, and keep your Mac awake with the lid closed.">
+<meta name="theme-color" content="#F3F3F1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0E0F11" media="(prefers-color-scheme: dark)">
+<meta property="og:title" content="Tapdeck">
+<meta property="og:description" content="One-tap Mac tools for people who vibe code. Lights Out and Stay Awake, in Control Center and the menu bar.">
+<meta property="og:image" content="https://devehab.github.io/Tapdeck/assets/icon-512.png">
+<meta property="og:url" content="https://devehab.github.io/Tapdeck/">
+<link rel="canonical" href="https://devehab.github.io/Tapdeck/">
+<link rel="icon" type="image/png" href="assets/favicon-64.png">
+<link rel="apple-touch-icon" href="assets/icon-512.png">
+<script>
+  // Pick the language before first paint so the page never flashes the wrong one.
+  (function () {
+    var lang = null;
+    try { lang = localStorage.getItem("tapdeck-lang"); } catch (e) {}
+    if (lang !== "ar" && lang !== "en") {
+      lang = (navigator.language || "").toLowerCase().indexOf("ar") === 0 ? "ar" : "en";
+    }
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@500..800&family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Geist:wght@400..700&family=Geist+Mono:wght@400;500&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
+<style>
+  /* Layout: an asymmetric headline over one full-width, working macOS desktop (the only loud
+     element); everything after it sits on a quiet 1200px column, with the install guide as a
+     stepper that shows the real screen for each step. */
+  :root {
+    --paper: #F3F3F1;
+    --surface: #FFFFFF;
+    --surface-2: #EBEBE8;
+    --ink: #141518;
+    --ink-2: #4A4D55;
+    --ink-3: #6E727A;
+    --line: #E1E1DD;
+    --line-strong: #CDCDC8;
+    --amber: #F2A31B;
+    --amber-ink: #1C1300;
+    --amber-text: #8F5408;
+    --amber-soft: #FCEFD6;
+    --graphite: #16181B;
+    --note-bg: #FFF7E8;
+    --note-line: #EED3A1;
+    --code-bg: #15171A;
+    --code-ink: #E8E8E5;
+    --shadow-lg: 0 50px 100px -40px rgba(12, 18, 22, .45), 0 20px 40px -24px rgba(12, 18, 22, .35);
+    --shadow-sm: 0 1px 2px rgba(20, 21, 24, .05), 0 10px 30px -18px rgba(20, 21, 24, .25);
+
+    --display: "Bricolage Grotesque", "Geist", system-ui, sans-serif;
+    --body: "Geist", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --mac: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", system-ui, sans-serif;
+
+    --wrap: 1200px;
+    --gutter: max(20px, env(safe-area-inset-left, 0px));
+    --ease: cubic-bezier(.2, .8, .2, 1);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #0E0F11; --surface: #15171A; --surface-2: #1C1F23; --ink: #EFEFEC; --ink-2: #B3B6BC; --ink-3: #878B93;
+      --line: #24272C; --line-strong: #33373D; --amber-text: #F5B54B; --amber-soft: rgba(242, 163, 27, .12);
+      --note-bg: rgba(242, 163, 27, .07); --note-line: rgba(242, 163, 27, .28); --code-bg: #08090A;
+      --shadow-lg: 0 50px 100px -40px rgba(0, 0, 0, .8), 0 20px 40px -24px rgba(0, 0, 0, .6);
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 30px -18px rgba(0, 0, 0, .7);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #0E0F11; --surface: #15171A; --surface-2: #1C1F23; --ink: #EFEFEC; --ink-2: #B3B6BC; --ink-3: #878B93;
+    --line: #24272C; --line-strong: #33373D; --amber-text: #F5B54B; --amber-soft: rgba(242, 163, 27, .12);
+    --note-bg: rgba(242, 163, 27, .07); --note-line: rgba(242, 163, 27, .28); --code-bg: #08090A;
+    --shadow-lg: 0 50px 100px -40px rgba(0, 0, 0, .8), 0 20px 40px -24px rgba(0, 0, 0, .6);
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 30px -18px rgba(0, 0, 0, .7);
+    color-scheme: dark;
+  }
+  html[lang="ar"] {
+    --display: "Alexandria", "IBM Plex Sans Arabic", system-ui, sans-serif;
+    --body: "IBM Plex Sans Arabic", "Geist", system-ui, sans-serif;
+  }
+
+  /* One page, two languages: show only the text that matches <html lang>. */
+  html[lang="en"] body [lang="ar"],
+  html[lang="ar"] body [lang="en"] { display: none !important; }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; scroll-padding-top: 88px; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font: 400 16px/1.6 var(--body); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+  }
+  html[lang="ar"] body { line-height: 1.85; }
+  html[lang="ar"] * { letter-spacing: 0 !important; }
+  img, svg { display: block; max-width: 100%; }
+  a { color: inherit; }
+  h1, h2, h3, h4, p, figure { margin: 0; }
+  ul, ol { margin: 0; padding: 0; list-style: none; }
+  button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; border-radius: 8px; }
+  .wrap { max-width: calc(var(--wrap) + 2 * var(--gutter)); margin-inline: auto; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+  .icon { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+  .ui { font-family: var(--mac); font-weight: 600; color: var(--ink); unicode-bidi: isolate; white-space: nowrap; }
+  :not(.code) > code {
+    font: 500 .86em/1.4 var(--mono); background: var(--surface-2); border: 1px solid var(--line);
+    border-radius: 6px; padding: 1px 6px; direction: ltr; unicode-bidi: isolate; white-space: nowrap;
+  }
+
+  /* Header */
+  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--paper); }
+  .header {
+    position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
+    background: color-mix(in srgb, var(--paper) 82%, transparent);
+    backdrop-filter: saturate(170%) blur(16px); -webkit-backdrop-filter: saturate(170%) blur(16px);
+    border-bottom: 1px solid transparent; transition: border-color .2s ease;
+  }
+  .header.is-scrolled { border-bottom-color: var(--line); }
+  .header .wrap { display: flex; align-items: center; gap: 32px; height: 68px; }
+  .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font: 700 18px/1 var(--display); letter-spacing: -.02em; }
+  .brand svg { width: 30px; height: 30px; }
+  .nav { display: flex; gap: 26px; }
+  .nav a { text-decoration: none; color: var(--ink-2); font-size: 14.5px; font-weight: 500; transition: color .15s ease; }
+  .nav a:hover { color: var(--ink); }
+  .header-actions { margin-inline-start: auto; display: flex; align-items: center; gap: 10px; }
+  .lang-btn { height: 38px; padding-inline: 14px; border-radius: 10px; border: 1px solid var(--line-strong); font-size: 14px; font-weight: 600; transition: background-color .15s ease; }
+  .lang-btn:hover { background: var(--surface-2); }
+  .lang-btn [lang="en"] { font-family: "IBM Plex Sans Arabic", system-ui, sans-serif; }
+  .lang-btn [lang="ar"] { font-family: "Geist", system-ui, sans-serif; }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 9px; height: 50px; padding-inline: 22px;
+    border-radius: 14px; border: 1px solid transparent; font-weight: 600; font-size: 16px; text-decoration: none; white-space: nowrap;
+    transition: transform .2s var(--ease), box-shadow .2s var(--ease), background-color .2s ease;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+  .btn-primary { background: var(--amber); color: var(--amber-ink); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .4), 0 10px 24px -12px rgba(242, 163, 27, .9); }
+  .btn-primary:hover { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .4), 0 14px 30px -12px rgba(242, 163, 27, 1); }
+  .btn-ghost { color: var(--ink); border-color: var(--line-strong); background: var(--surface); }
+  .btn-ghost:hover { background: var(--surface-2); }
+  .btn-sm { height: 38px; padding-inline: 14px; font-size: 14px; border-radius: 10px; }
+  .btn .icon { width: 18px; height: 18px; }
+
+  /* Hero */
+  .hero { padding-block: 56px 0; }
+  .hero-top { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 32px 64px; align-items: end; }
+  .eyebrow { display: inline-flex; align-items: center; gap: 10px; font: 500 14px/1 var(--body); color: var(--ink-2); }
+  .eyebrow .key { width: 18px; height: 18px; }
+  h1 {
+    margin-top: 22px; font: 750 clamp(2.7rem, 6.2vw, 5.4rem)/.98 var(--display); letter-spacing: -.045em;
+    font-variation-settings: "opsz" 96; text-wrap: balance;
+  }
+  html[lang="ar"] h1 { font-weight: 700; line-height: 1.3; font-size: clamp(2.1rem, 4vw, 3.5rem); }
+  html[lang="ar"] .chip, html[lang="ar"] .once { font-family: "IBM Plex Sans Arabic", system-ui, sans-serif; font-weight: 600; }
+  h1 .lit { color: var(--amber-text); }
+  .hero-side { padding-bottom: 8px; }
+  .lead { font-size: 1.14rem; color: var(--ink-2); max-width: 32em; }
+  .cta { margin-top: 28px; display: flex; flex-wrap: wrap; gap: 12px; }
+  .meta { margin-top: 16px; color: var(--ink-3); font-size: 13.5px; }
+
+  /* The stage: a working macOS desktop. Always left-to-right, like an English macOS. */
+  .stage-wrap { margin-top: 56px; }
+  .stage {
+    position: relative; overflow: hidden; border-radius: 26px; aspect-ratio: 16 / 7; min-height: 470px; max-width: 100%;
+    background:
+      radial-gradient(70% 90% at 12% 8%, rgba(108, 160, 152, .38), transparent 60%),
+      radial-gradient(60% 70% at 92% 100%, rgba(242, 163, 27, .16), transparent 60%),
+      linear-gradient(170deg, #22333A 0%, #172328 48%, #0D1316 100%);
+    box-shadow: var(--shadow-lg), 0 0 0 1px rgba(0, 0, 0, .1);
+    font-family: var(--mac); color: #fff; user-select: none; -webkit-user-select: none;
+  }
+  .mb {
+    position: relative; z-index: 3; height: 30px; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding-inline: 18px; font-size: 13px; background: rgba(10, 14, 16, .32);
+    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  }
+  .mb-left, .mb-right { display: flex; align-items: center; gap: 18px; white-space: nowrap; }
+  .mb-left b { font-weight: 700; }
+  .mb-left span { opacity: .9; }
+  .mb-right .icon { width: 16px; height: 16px; stroke-width: 2; }
+  .mb-item { display: grid; place-items: center; width: 30px; height: 22px; border-radius: 6px; color: #fff; transition: background-color .15s ease; }
+  .mb-item:hover { background: rgba(255, 255, 255, .16); }
+  .stay-on .mb-stay { color: var(--amber); background: rgba(255, 255, 255, .14); }
+  .term {
+    position: absolute; left: 4%; top: 72px; width: 44%; border-radius: 13px; overflow: hidden;
+    background: rgba(13, 15, 17, .9); border: 1px solid rgba(255, 255, 255, .09); box-shadow: 0 30px 60px -20px rgba(0, 0, 0, .6);
+    display: flex; flex-direction: column;
+  }
+  .win-bar { height: 34px; flex: none; display: flex; align-items: center; gap: 8px; padding-inline: 14px; border-bottom: 1px solid rgba(255, 255, 255, .06); font-size: 12.5px; color: rgba(255, 255, 255, .55); }
+  .win-bar i { width: 12px; height: 12px; border-radius: 50%; background: #FF5F57; }
+  .win-bar i:nth-child(2) { background: #FEBC2E; }
+  .win-bar i:nth-child(3) { background: #28C840; margin-inline-end: 10px; }
+  .term pre { margin: 0; padding: 18px 20px; font: 400 13px/1.75 var(--mono); color: #C9CDD2; white-space: pre-wrap; overflow: hidden; }
+  .term .p { color: #7E8790; }
+  .term .ok { color: #7BD389; }
+  .term .run { color: var(--amber); }
+  .term .dim { color: #5F676F; }
+  .cc {
+    position: absolute; z-index: 2; top: 42px; right: 18px; width: 348px; max-width: calc(100% - 36px); padding: 12px;
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: 68px; gap: 10px;
+    border-radius: 32px; background: rgba(46, 58, 62, .45); border: 1px solid rgba(255, 255, 255, .15);
+    backdrop-filter: blur(30px) saturate(160%); -webkit-backdrop-filter: blur(30px) saturate(160%);
+    box-shadow: 0 30px 60px -24px rgba(0, 0, 0, .55);
+    transform-origin: 85% 0;
+  }
+  .t {
+    display: flex; align-items: center; gap: 9px; min-width: 0; padding: 0 10px; text-align: left; color: #fff;
+    border-radius: 999px; background: rgba(255, 255, 255, .12); border: 1px solid rgba(255, 255, 255, .09);
+  }
+  .t.wide { grid-column: span 2; }
+  .t.round { justify-content: center; padding: 0; border-radius: 50%; aspect-ratio: 1; height: 100%; justify-self: center; }
+  .t.full { grid-column: span 4; flex-direction: column; align-items: stretch; justify-content: center; gap: 9px; padding: 0 18px; border-radius: 28px; }
+  .t .bub { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; flex: none; background: #fff; color: #0A84FF; transition: background-color .25s ease, color .25s ease; }
+  .t .bub .icon { width: 19px; height: 19px; stroke-width: 2; }
+  .t .lbl { display: flex; flex-direction: column; min-width: 0; line-height: 1.2; }
+  .t .lbl b { font-size: 13px; font-weight: 600; white-space: nowrap; }
+  .t .lbl small { font-size: 11px; opacity: .75; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .t.muted { opacity: .5; }
+  .t.round .icon { width: 22px; height: 22px; }
+  .bar { height: 8px; border-radius: 9px; background: rgba(255, 255, 255, .22); position: relative; overflow: hidden; }
+  .bar::before { content: ""; position: absolute; inset: 0 auto 0 0; width: var(--v, 50%); background: #fff; border-radius: inherit; }
+  .bar-row { display: flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 600; }
+  .ours { position: relative; cursor: pointer; transition: background-color .15s ease, transform .15s var(--ease); }
+  .ours::after { content: ""; position: absolute; inset: -4px; border-radius: inherit; border: 2px solid rgba(242, 163, 27, .9); pointer-events: none; }
+  .ours:hover { background: rgba(255, 255, 255, .2); }
+  .ours:active { transform: scale(.97); }
+  .stay .bub { background: rgba(255, 255, 255, .22); color: #fff; }
+  .stay-on .stay .bub { background: var(--amber); color: var(--amber-ink); }
+  [data-stay-scope]:not(.stay-on) .when-on, [data-stay-scope].stay-on .when-off { display: none !important; }
+  .tag {
+    position: absolute; z-index: 2; display: inline-flex; align-items: center; gap: 8px; padding: 7px 12px 7px 10px; border-radius: 999px;
+    background: rgba(10, 13, 15, .62); border: 1px solid rgba(242, 163, 27, .55); font: 500 12.5px/1.2 var(--body); color: #F4F4F2;
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); white-space: nowrap;
+  }
+  html[lang="ar"] .tag { font-family: "IBM Plex Sans Arabic", system-ui, sans-serif; }
+  .tag .icon { width: 15px; height: 15px; color: var(--amber); stroke-width: 2.2; }
+  .tag-mb { top: 46px; right: 392px; }
+  .tag-cc { top: 176px; right: 392px; }
+  .blackout {
+    position: absolute; inset: 0; z-index: 5; display: grid; place-items: center; padding: 24px; text-align: center;
+    background: #000; opacity: 0; pointer-events: none; transition: opacity .45s ease;
+  }
+  .blackout p { max-width: 30em; color: #3E4246; font: 500 13.5px/1.6 var(--body); opacity: 0; transition: opacity .3s ease 1s; }
+  html[lang="ar"] .blackout p { font-family: "IBM Plex Sans Arabic", system-ui, sans-serif; }
+  .is-dark > .blackout { opacity: 1; pointer-events: auto; }
+  .is-dark > .blackout p { opacity: 1; }
+  .stage-hint { margin-top: 18px; display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--ink-3); font-size: 14px; }
+  .stage-hint .icon { width: 16px; height: 16px; }
+
+  /* Facts */
+  .facts { margin-top: 64px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-block: 1px solid var(--line); }
+  .fact { padding: 26px 28px; display: flex; align-items: baseline; gap: 16px; }
+  .fact + .fact { border-inline-start: 1px solid var(--line); }
+  .fact b { direction: ltr; unicode-bidi: isolate; font: 500 2rem/1 var(--mono); letter-spacing: -.03em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .fact span { color: var(--ink-2); font-size: 14.5px; line-height: 1.45; }
+
+  /* Sections */
+  section { padding-block: 120px; }
+  .band { background: var(--surface); border-block: 1px solid var(--line); }
+  .head { max-width: 44rem; margin-bottom: 52px; }
+  .kicker { display: inline-flex; align-items: center; gap: 8px; color: var(--amber-text); font: 600 13px/1 var(--body); }
+  html[lang="en"] .kicker { text-transform: uppercase; letter-spacing: .1em; }
+  .kicker::before { content: ""; width: 10px; height: 10px; border-radius: 3px; background: var(--amber); }
+  h2 { margin-top: 16px; font: 700 clamp(2rem, 3.6vw, 3rem)/1.06 var(--display); letter-spacing: -.035em; text-wrap: balance; font-variation-settings: "opsz" 72; }
+  html[lang="ar"] h2 { line-height: 1.4; font-size: clamp(1.8rem, 3.2vw, 2.6rem); }
+  .head p { margin-top: 16px; font-size: 1.1rem; color: var(--ink-2); text-wrap: pretty; }
+  h3 { font: 650 1.3rem/1.25 var(--display); letter-spacing: -.02em; }
+
+  /* Tools */
+  .tools { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+  .tool { display: flex; flex-direction: column; border-radius: 24px; background: var(--surface); border: 1px solid var(--line); overflow: hidden; transition: transform .3s var(--ease), box-shadow .3s var(--ease); }
+  .band .tool { background: var(--paper); }
+  .tool:hover { transform: translateY(-3px); box-shadow: var(--shadow-sm); }
+  .viz { position: relative; height: 210px; display: grid; place-items: center; background: var(--surface-2); border-bottom: 1px solid var(--line); overflow: hidden; }
+  .tool-body { padding: 30px 32px 34px; display: flex; flex-direction: column; gap: 18px; flex: 1; }
+  .tool-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .chip { font: 500 12px/1 var(--mono); color: var(--ink-3); border: 1px solid var(--line-strong); border-radius: 999px; padding: 6px 10px; white-space: nowrap; }
+  .tool-lead { font-size: 1.06rem; font-weight: 500; }
+  .checks { display: grid; gap: 11px; }
+  .checks li { display: flex; gap: 11px; color: var(--ink-2); font-size: 15px; }
+  .checks .icon { width: 18px; height: 18px; margin-top: 3px; color: var(--amber-text); stroke-width: 2.3; }
+  .states { display: grid; gap: 8px; }
+  .state { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 14px; background: var(--surface-2); font-size: 14.5px; color: var(--ink-2); }
+  .state b { color: var(--ink); font: 600 14.5px/1.3 var(--mac); }
+  .dot { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; flex: none; }
+  .dot .icon { width: 17px; height: 17px; stroke-width: 2.2; }
+  .dot.sun { background: var(--amber); color: var(--amber-ink); }
+  .dot.moon { background: var(--line-strong); color: var(--ink); }
+  .dot.bulb { background: var(--graphite); color: #fff; }
+  .note { display: flex; gap: 10px; padding: 12px 14px; border-radius: 14px; background: var(--note-bg); border: 1px solid var(--note-line); color: var(--ink-2); font-size: 14px; margin-top: auto; }
+  .note .icon { width: 18px; height: 18px; margin-top: 2px; color: var(--amber-text); }
+  .more { margin-top: 24px; display: flex; align-items: center; gap: 22px; padding: 22px 28px; border-radius: 20px; border: 1px dashed var(--line-strong); color: var(--ink-2); }
+  .more b { color: var(--ink); }
+  .deck { display: grid; grid-template-columns: repeat(4, 18px); gap: 6px; flex: none; }
+  .deck i { height: 18px; border-radius: 5px; border: 1px dashed var(--line-strong); }
+  .deck i:nth-child(1) { background: var(--surface-2); border-style: solid; }
+  .deck i:nth-child(2) { background: var(--amber); border-color: transparent; }
+
+  /* Tool visuals (hover to see each tool act) */
+  .screen { position: relative; width: 210px; height: 128px; border-radius: 12px; border: 4px solid #2B2E33; overflow: hidden; background: linear-gradient(160deg, #3D6068, #1A2A30); transition: background .6s ease; }
+  .screen::before { content: ""; position: absolute; left: 14px; top: 14px; width: 112px; height: 74px; border-radius: 6px; background: rgba(13, 15, 17, .85); transition: opacity .6s ease; }
+  .screen::after { content: ""; position: absolute; left: 24px; top: 30px; width: 70px; height: 4px; border-radius: 2px; background: #7BD389; box-shadow: 0 10px 0 #C9CDD2, 0 20px 0 var(--amber); transition: opacity .6s ease; }
+  .keyrow { margin-top: 16px; display: grid; grid-template-columns: repeat(8, 20px); gap: 5px; justify-content: center; }
+  .keyrow i { height: 16px; border-radius: 4px; background: #2B2E33; box-shadow: 0 0 0 1px rgba(255, 255, 255, .05) inset, 0 0 10px rgba(242, 163, 27, .55); border-bottom: 2px solid var(--amber); transition: box-shadow .6s ease, border-color .6s ease; }
+  .viz-stack { display: grid; justify-items: center; }
+  .tool:hover .screen { background: #000; }
+  .tool:hover .screen::before, .tool:hover .screen::after { opacity: 0; }
+  .tool:hover .keyrow i { box-shadow: 0 0 0 1px rgba(255, 255, 255, .05) inset; border-bottom-color: #3A3E44; }
+  .laptop { position: relative; width: 210px; height: 176px; }
+  .laptop .base { position: absolute; left: 0; bottom: 12px; width: 210px; height: 12px; border-radius: 3px 3px 8px 8px; background: #2B2E33; }
+  .laptop .lid { position: absolute; left: 6px; bottom: 24px; width: 192px; height: 10px; border-radius: 4px; background: linear-gradient(90deg, #3A3E44, #2B2E33); transform-origin: 4px 50%; transform: rotate(-50deg); transition: transform .8s var(--ease); }
+  .laptop .glow { position: absolute; right: -24px; top: 18px; display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px 6px 6px; border-radius: 999px; background: var(--graphite); color: #fff; font: 600 12px/1 var(--mac); }
+  .laptop .glow span { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: var(--amber); color: var(--amber-ink); }
+  .laptop .glow .icon { width: 14px; height: 14px; stroke-width: 2.4; }
+  .tool:hover .laptop .lid { transform: rotate(0deg); }
+
+  /* Menu bar section */
+  .split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 72px; align-items: center; }
+  .split .head { margin-bottom: 0; }
+  .legend { margin-top: 32px; display: grid; gap: 10px; }
+  .how { margin-top: 28px; padding-top: 22px; border-top: 1px solid var(--line); color: var(--ink-2); font-size: 15px; display: grid; gap: 12px; }
+  .menubar-demo {
+    position: relative; border-radius: 22px; padding: 26px 26px 34px; overflow: hidden;
+    background: linear-gradient(170deg, #22333A, #10181B); box-shadow: var(--shadow-lg); font-family: var(--mac); color: #fff;
+  }
+  .mbz { display: flex; align-items: center; justify-content: flex-end; gap: 6px; height: 46px; padding-inline: 14px; border-radius: 14px; background: rgba(255, 255, 255, .1); border: 1px solid rgba(255, 255, 255, .1); font-size: 15px; }
+  .mbz .mb-item { width: 42px; height: 32px; border-radius: 9px; }
+  .mbz .mb-item .icon, .mbz > .icon { width: 20px; height: 20px; stroke-width: 2; }
+  .mbz > .icon { margin-inline: 8px; }
+  .mbz time { margin-inline-start: 10px; font-weight: 500; }
+  .mbz .ours::after { border-radius: 11px; }
+  .pop {
+    position: relative; margin: 18px 0 0 auto; width: max-content; max-width: 100%; display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px 12px 12px; border-radius: 16px; background: rgba(255, 255, 255, .12); border: 1px solid rgba(255, 255, 255, .14);
+    margin-inline-end: 196px;
+  }
+  .pop::before { content: ""; position: absolute; top: -7px; right: 26px; width: 12px; height: 12px; background: inherit; border-left: 1px solid rgba(255, 255, 255, .14); border-top: 1px solid rgba(255, 255, 255, .14); transform: rotate(45deg); }
+  .pop .bub { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: rgba(255, 255, 255, .22); transition: background-color .25s ease, color .25s ease; }
+  .stay-on .pop .bub { background: var(--amber); color: var(--amber-ink); }
+  .pop .bub .icon { width: 19px; height: 19px; stroke-width: 2.2; }
+  .pop b { display: block; font-size: 14px; }
+  .pop small { font-size: 12.5px; opacity: .75; }
+  .menubar-demo .caption { margin-top: 26px; display: flex; align-items: center; gap: 8px; color: rgba(255, 255, 255, .6); font: 400 13.5px/1.4 var(--body); }
+  html[lang="ar"] .menubar-demo .caption { font-family: "IBM Plex Sans Arabic", system-ui, sans-serif; }
+  .menubar-demo .caption .icon { width: 16px; height: 16px; }
+
+  /* Crumbs for System Settings paths */
+  .crumbs { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px 2px; vertical-align: middle; }
+  .crumbs b { font: 600 13px/1.5 var(--mac); color: var(--ink); background: var(--surface); border: 1px solid var(--line-strong); border-radius: 7px; padding: 1px 8px; direction: ltr; unicode-bidi: isolate; white-space: nowrap; }
+  .crumbs i { width: 7px; height: 7px; border-top: 1.6px solid var(--ink-3); border-right: 1.6px solid var(--ink-3); transform: rotate(45deg); margin-inline: 5px 7px; }
+  [dir="rtl"] .crumbs i { transform: rotate(-135deg); }
+
+  /* Shortcuts */
+  .pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+  .panel { border-radius: 24px; background: var(--paper); border: 1px solid var(--line); padding: 32px; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  .panel-title { display: flex; align-items: center; gap: 14px; }
+  .tile-ico { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; background: var(--surface); border: 1px solid var(--line); flex: none; }
+  .panel p { color: var(--ink-2); }
+  .spot { margin-top: 8px; border-radius: 18px; overflow: hidden; background: var(--surface); border: 1px solid var(--line-strong); box-shadow: var(--shadow-sm); font-family: var(--mac); direction: ltr; text-align: left; }
+  .spot .field { display: flex; align-items: center; gap: 12px; padding: 16px 18px; font-size: 19px; border-bottom: 1px solid var(--line); }
+  .spot .field .icon { color: var(--ink-3); }
+  .caret { width: 2px; height: 22px; margin-inline-start: -8px; background: var(--amber); animation: blink 1.1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .spot .res { display: flex; align-items: center; gap: 12px; padding: 12px 18px; font-size: 14.5px; }
+  .spot .res.on { background: color-mix(in srgb, var(--amber) 18%, transparent); }
+  .spot .res svg { width: 26px; height: 26px; }
+  .spot .res small { margin-left: auto; color: var(--ink-3); font-size: 12.5px; }
+  .numbered { display: grid; gap: 14px; counter-reset: n; }
+  .numbered > li { counter-increment: n; display: flex; gap: 14px; color: var(--ink-2); }
+  .numbered > li::before {
+    content: counter(n); flex: none; width: 28px; height: 28px; margin-top: 1px; border-radius: 9px; display: grid; place-items: center;
+    background: var(--surface); border: 1px solid var(--line-strong); color: var(--ink); font: 500 13px/1 var(--mono);
+  }
+  .numbered > li > div { min-width: 0; }
+
+  /* Install stepper */
+  .stepper { display: grid; grid-template-columns: minmax(0, 420px) minmax(0, 1fr); column-gap: 64px; }
+  .step { display: contents; }
+  .step-head {
+    grid-column: 1; display: flex; gap: 18px; padding: 22px 4px 22px 0; text-align: start; border-top: 1px solid var(--line);
+    color: var(--ink-3); transition: color .2s ease;
+  }
+  .step:last-child .step-head { border-bottom: 1px solid var(--line); }
+  .step-head:hover { color: var(--ink-2); }
+  .step-num {
+    position: relative; flex: none; width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center;
+    font: 500 14px/1 var(--mono); border: 1px solid var(--line-strong); color: var(--ink-2); background: var(--surface); transition: all .25s ease;
+  }
+  .step-copy { display: grid; gap: 6px; min-width: 0; }
+  .step-copy b { font: 650 1.12rem/1.3 var(--display); letter-spacing: -.015em; color: var(--ink-2); transition: color .2s ease; }
+  .step-copy span { font-size: 15px; line-height: 1.6; }
+  .once { display: inline-block; margin-inline-start: 8px; padding: 2px 8px; border-radius: 999px; background: var(--amber-soft); color: var(--amber-text); font: 500 11.5px/1.5 var(--mono); vertical-align: 2px; }
+  .step.is-active .step-head { color: var(--ink-2); }
+  .step.is-active .step-copy b { color: var(--ink); }
+  .step.is-active .step-num { background: var(--amber); border-color: transparent; color: var(--amber-ink); box-shadow: 0 8px 18px -10px rgba(242, 163, 27, .9); }
+  .step-visual {
+    grid-column: 2; grid-row: 1 / span 5; align-self: center; min-width: 0;
+    display: grid; place-items: center; min-height: 440px; padding: 32px; border-radius: 26px;
+    background:
+      radial-gradient(80% 80% at 20% 0%, rgba(108, 160, 152, .3), transparent 60%),
+      linear-gradient(170deg, #22333A, #10181B);
+    opacity: 0; visibility: hidden; transform: translateY(10px) scale(.99); transition: opacity .35s ease, transform .45s var(--ease), visibility 0s .35s;
+    font-family: var(--mac); color: #1D1D1F; direction: ltr; text-align: left;
+  }
+  .step.is-active .step-visual { opacity: 1; visibility: visible; transform: none; transition: opacity .35s ease, transform .45s var(--ease), visibility 0s; }
+
+  /* macOS mocks used by the stepper */
+  .mwin { width: min(100%, 460px); border-radius: 14px; overflow: hidden; background: #F6F6F6; box-shadow: 0 30px 60px -20px rgba(0, 0, 0, .6), 0 0 0 1px rgba(0, 0, 0, .25); }
+  .mwin .win-bar { color: #6E6E73; background: #ECECEC; border-bottom-color: #D9D9D9; justify-content: flex-start; }
+  .mwin .win-bar span { flex: 1; text-align: center; font-weight: 600; margin-inline-end: 52px; }
+  .dl { display: flex; align-items: center; gap: 14px; padding: 18px; background: #fff; }
+  .dl .disk { width: 44px; height: 44px; border-radius: 10px; background: linear-gradient(160deg, #E9E9EB, #C7C7CC); display: grid; place-items: center; }
+  .dl .disk i { width: 22px; height: 22px; border-radius: 50%; background: radial-gradient(circle, #8E8E93 0 3px, #D1D1D6 3.5px); }
+  .dl div { flex: 1; min-width: 0; }
+  .dl b { display: block; font-size: 14px; }
+  .dl small { color: #6E6E73; font-size: 12.5px; }
+  .dl .open { padding: 6px 14px; border-radius: 7px; background: #0A84FF; color: #fff; font-size: 13px; font-weight: 600; box-shadow: 0 0 0 4px rgba(242, 163, 27, .55); }
+  .finder { position: relative; display: flex; align-items: center; justify-content: space-around; height: 220px; background: #fff; }
+  .finder figure { display: grid; justify-items: center; gap: 10px; font-size: 13px; color: #1D1D1F; }
+  .finder svg.app { width: 84px; height: 84px; }
+  .folder { width: 92px; height: 74px; position: relative; }
+  .folder::before { content: ""; position: absolute; left: 0; top: 0; width: 40px; height: 16px; border-radius: 6px 6px 0 0; background: #4FA4F5; }
+  .folder::after { content: ""; position: absolute; left: 0; top: 10px; right: 0; bottom: 0; border-radius: 4px 8px 8px 8px; background: linear-gradient(180deg, #7CC0FA, #3E95EE); }
+  .folder span { position: absolute; z-index: 1; inset: 30px 0 0; display: grid; place-items: center; color: rgba(255, 255, 255, .85); font-size: 22px; font-weight: 700; }
+  .drag-line { width: 90px; border-top: 3px dashed #C7C7CC; position: relative; }
+  .drag-line::after { content: ""; position: absolute; right: -2px; top: -8px; width: 12px; height: 12px; border-top: 3px solid #C7C7CC; border-right: 3px solid #C7C7CC; transform: rotate(45deg); }
+  .ghost { position: absolute; left: calc(50% - 150px); top: 52px; width: 60px; height: 60px; opacity: 0; }
+  .step.is-active .ghost { animation: drag 2.6s var(--ease) infinite .4s; }
+  @keyframes drag {
+    0% { opacity: 0; transform: translate(0, 0) scale(.9); }
+    15% { opacity: .9; }
+    70% { opacity: .9; transform: translate(255px, 6px) scale(.75); }
+    85%, 100% { opacity: 0; transform: translate(255px, 6px) scale(.6); }
+  }
+  .alert { width: min(100%, 300px); padding: 22px 20px 18px; border-radius: 22px; background: rgba(246, 246, 246, .98); box-shadow: 0 30px 60px -20px rgba(0, 0, 0, .6), 0 0 0 1px rgba(0, 0, 0, .2); text-align: center; }
+  .alert svg { width: 56px; height: 56px; margin: 0 auto 12px; }
+  .alert b { display: block; font-size: 14px; }
+  .alert p { margin-top: 6px; font-size: 12px; line-height: 1.45; color: #3A3A3C; }
+  .alert .btns { margin-top: 16px; display: grid; gap: 8px; }
+  .alert .btns span { padding: 7px; border-radius: 10px; background: #E3E3E5; font-size: 13px; font-weight: 500; }
+  .alert .btns .hl { background: #fff; box-shadow: 0 0 0 3px var(--amber); font-weight: 600; }
+  .settings-row { width: min(100%, 460px); margin-top: 16px; display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 14px; background: #fff; box-shadow: 0 20px 40px -20px rgba(0, 0, 0, .55); }
+  .settings-row div { flex: 1; min-width: 0; }
+  .settings-row small { display: block; color: #6E6E73; font-size: 11.5px; }
+  .settings-row b { font-size: 13px; font-weight: 500; }
+  .mbtn { flex: none; padding: 6px 12px; border-radius: 7px; background: #fff; border: 1px solid #D1D1D6; font-size: 12.5px; font-weight: 500; white-space: nowrap; }
+  .mbtn.hl { box-shadow: 0 0 0 3px var(--amber); border-color: transparent; font-weight: 600; }
+  .gk { display: grid; justify-items: center; width: 100%; }
+  .edit { display: grid; grid-template-columns: 150px 1fr; min-height: 280px; }
+  .edit-side { padding: 12px 10px; background: rgba(255, 255, 255, .55); border-right: 1px solid #E1E1E1; display: grid; gap: 2px; align-content: start; font-size: 12.5px; }
+  .edit-side .search { margin-bottom: 8px; padding: 6px 10px; border-radius: 8px; background: #fff; border: 1px solid #DCDCDC; color: #8E8E93; }
+  .edit-side span { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 7px; }
+  .edit-side span i { width: 16px; height: 16px; border-radius: 4px; background: #C7C7CC; }
+  .edit-side span.sel { background: rgba(10, 132, 255, .14); font-weight: 600; }
+  .edit-side span.sel svg { width: 16px; height: 16px; }
+  .edit-main { position: relative; padding: 16px 18px; display: flex; flex-direction: column; gap: 14px; background: #fff; }
+  .edit-main > b { font-size: 14px; color: #0A5BC4; }
+  .edit-ctrls { display: flex; align-items: flex-start; gap: 16px; }
+  .edit-ctrls figure { display: grid; justify-items: center; gap: 6px; font-size: 11.5px; color: #3A3A3C; }
+  .mini-round { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; background: #E5E9EC; color: #1D1D1F; }
+  .mini-wide { height: 56px; padding: 0 14px 0 8px; border-radius: 999px; display: flex; align-items: center; gap: 8px; background: #E5E9EC; font-size: 12px; font-weight: 600; }
+  .mini-wide .b { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: var(--amber); color: var(--amber-ink); }
+  .mini-round .icon, .mini-wide .icon { width: 19px; height: 19px; stroke-width: 2; }
+  .drops { display: flex; flex-wrap: wrap; gap: 8px; }
+  .drops span { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; border: 1.5px dashed var(--amber); color: #8F5408; background: #FFF7E8; font-size: 12px; font-weight: 600; }
+  .drops .icon { width: 14px; height: 14px; stroke-width: 2.4; }
+  .edit-foot { margin-top: auto; font-size: 12px; color: #6E6E73; }
+  .login { padding: 16px; background: #fff; display: grid; gap: 10px; }
+  .login small { color: #6E6E73; font-size: 12px; font-weight: 600; }
+  .lrow { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px; background: #F5F5F7; }
+  .lrow svg { width: 34px; height: 34px; }
+  .lrow div { flex: 1; min-width: 0; }
+  .lrow b { display: block; font-size: 13px; }
+  .lrow span { color: #6E6E73; font-size: 11.5px; }
+  .lrow.hl { box-shadow: 0 0 0 3px var(--amber); background: #fff; }
+  .switch { width: 38px; height: 22px; border-radius: 11px; background: #D1D1D6; position: relative; flex: none; transition: background-color .3s ease .5s; }
+  .switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, .3); transition: transform .3s var(--ease) .5s; }
+  .step.is-active .hl .switch { background: #34C759; }
+  .step.is-active .hl .switch::after { transform: translateX(16px); }
+  .lrow.faint { opacity: .55; }
+  .lrow.faint i { width: 34px; height: 34px; border-radius: 8px; background: #D1D1D6; }
+
+  /* Permissions */
+  .perm { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+  .ptable { border-radius: 20px; overflow: hidden; border: 1px solid var(--line); background: var(--surface); }
+  .prow { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 22px; }
+  .prow + .prow { border-top: 1px solid var(--line); }
+  .prow > span:first-child { font-weight: 600; }
+  .badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 999px; font-size: 13.5px; font-weight: 600; white-space: nowrap; }
+  .badge .icon { width: 15px; height: 15px; stroke-width: 2.3; }
+  .badge.none { background: var(--surface-2); color: var(--ink-2); }
+  .badge.needs { background: var(--amber-soft); color: var(--amber-text); }
+  .why { display: grid; gap: 18px; padding: 26px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); color: var(--ink-2); }
+  .why p { display: flex; gap: 12px; }
+  .why .icon { margin-top: 3px; color: var(--ink-3); }
+
+  /* Help */
+  .help { display: grid; grid-template-columns: minmax(0, 360px) minmax(0, 1fr); gap: 72px; align-items: start; }
+  .help .head { position: sticky; top: 110px; margin-bottom: 0; }
+  .faq { border-top: 1px solid var(--line-strong); min-width: 0; }
+  .faq details { border-bottom: 1px solid var(--line); }
+  .faq summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 22px 2px; font: 600 1.05rem/1.4 var(--body); }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary .pm { position: relative; flex: none; width: 26px; height: 26px; border-radius: 8px; border: 1px solid var(--line-strong); }
+  .faq summary .pm::before, .faq summary .pm::after { content: ""; position: absolute; left: 50%; top: 50%; width: 10px; height: 1.6px; background: var(--ink-2); transform: translate(-50%, -50%); transition: transform .25s var(--ease); }
+  .faq summary .pm::after { transform: translate(-50%, -50%) rotate(90deg); }
+  .faq details[open] summary .pm::after { transform: translate(-50%, -50%) rotate(0deg); }
+  .faq .answer { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; padding: 0 2px 26px; color: var(--ink-2); max-width: 46em; }
+  .code { display: flex; align-items: center; gap: 12px; min-width: 0; padding: 8px 8px 8px 16px; border-radius: 12px; background: var(--code-bg); color: var(--code-ink); direction: ltr; text-align: left; }
+  .code code { flex: 1; min-width: 0; overflow-x: auto; white-space: nowrap; font: 400 13.5px/1.8 var(--mono); scrollbar-width: thin; }
+  .code code::before { content: "$ "; color: #7C828B; }
+  .copy { flex: none; height: 30px; padding-inline: 11px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, .14); background: rgba(255, 255, 255, .06); color: #E8E8E5; font-size: 12.5px; font-weight: 600; }
+  .copy:hover { background: rgba(255, 255, 255, .12); }
+  .copy .done-t, .copy.done .idle-t { display: none; }
+  .copy.done .done-t { display: inline; }
+  .copy [lang="ar"] { font-family: "IBM Plex Sans Arabic", system-ui, sans-serif; }
+
+  /* Final band */
+  .final { padding-block: 120px; }
+  .final-card {
+    position: relative; overflow: hidden; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 48px;
+    padding: 64px; border-radius: 32px; color: #F2F2EF;
+    background: radial-gradient(60% 120% at 100% 100%, rgba(242, 163, 27, .22), transparent 60%), linear-gradient(170deg, #22333A, #0F161A);
+  }
+  .final-card h2 { margin-top: 0; color: #fff; }
+  .final-card p { margin-top: 14px; color: rgba(242, 242, 239, .72); font-size: 1.1rem; }
+  .final-card .btn-ghost { background: rgba(255, 255, 255, .08); border-color: rgba(255, 255, 255, .2); color: #fff; }
+  .final-card .btn-ghost:hover { background: rgba(255, 255, 255, .14); }
+  .final-logo { width: 168px; height: 168px; filter: drop-shadow(0 30px 40px rgba(0, 0, 0, .45)); }
+  footer { border-top: 1px solid var(--line); padding-block: 32px; color: var(--ink-3); font-size: 14px; }
+  footer .wrap { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 28px; }
+  footer .brand { font-size: 16px; color: var(--ink); }
+  footer .brand svg { width: 24px; height: 24px; }
+  .foot-facts, .foot-links { display: flex; flex-wrap: wrap; gap: 6px 20px; }
+  .foot-links a { color: var(--ink-2); text-decoration: none; }
+  .foot-links a:hover { color: var(--ink); text-decoration: underline; }
+
+  /* Motion */
+  @media (prefers-reduced-motion: no-preference) {
+    .hero h1, .hero .eyebrow, .hero-side { animation: rise .9s var(--ease) both; }
+    .hero .eyebrow { animation-delay: .05s; }
+    .hero h1 { animation-delay: .12s; }
+    .hero-side { animation-delay: .24s; }
+    .stage { animation: rise 1.1s var(--ease) .3s both; }
+    .cc { animation: drop .7s var(--ease) 1.05s both; }
+    .tag { animation: fade .6s ease 1.6s both; }
+    @keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+    @keyframes drop { from { opacity: 0; transform: translateY(-14px) scale(.96); } to { opacity: 1; transform: none; } }
+    @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+    @supports (animation-timeline: view()) {
+      .rv { animation: rv linear both; animation-timeline: view(); animation-range: entry 0% entry 70%; }
+      @keyframes rv { from { opacity: 0; transform: translateY(32px); } to { opacity: 1; transform: none; } }
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+
+  /* Responsive */
+  @media (max-width: 1140px) {
+    .tag { display: none; }
+  }
+  @media (max-width: 1000px) {
+    .hero-top { grid-template-columns: 1fr; }
+    .split, .help, .perm { grid-template-columns: minmax(0, 1fr); gap: 48px; }
+    .help .head { position: static; }
+    .stepper { grid-template-columns: minmax(0, 1fr); }
+    .step { display: block; }
+    .step-head { width: 100%; cursor: default; color: var(--ink-2); }
+    .step-copy b { color: var(--ink); }
+    .step-num { background: var(--amber); border-color: transparent; color: var(--amber-ink); }
+    .step-visual { opacity: 1; visibility: visible; transform: none; min-height: 0; margin-bottom: 28px; padding: 28px 18px; }
+    .step:last-child .step-head { border-bottom: 0; }
+    .step .ghost { animation: drag 2.6s var(--ease) infinite .4s; }
+    .step .hl .switch { background: #34C759; }
+    .step .hl .switch::after { transform: translateX(16px); }
+    .term { width: 46%; }
+  }
+  @media (max-width: 860px) {
+    .nav { display: none; }
+    .term, .mb-left span { display: none; }
+    .stage { aspect-ratio: auto; min-height: 420px; }
+    .cc { left: 0; right: 0; margin-inline: auto; transform-origin: 50% 0; }
+    .tools, .pair { grid-template-columns: minmax(0, 1fr); }
+    .facts { grid-template-columns: minmax(0, 1fr); }
+    .fact + .fact { border-inline-start: 0; border-top: 1px solid var(--line); }
+    .final-card { grid-template-columns: minmax(0, 1fr); padding: 40px 28px; }
+    .final-logo { width: 112px; height: 112px; order: -1; }
+    .pop { margin-inline-end: 120px; }
+  }
+  @media (max-width: 560px) {
+    .header .wrap { gap: 12px; height: 62px; }
+    .header .btn-sm .dl-t { display: none; }
+    .hero { padding-top: 36px; }
+    section { padding-block: 80px; }
+    .stage { border-radius: 20px; min-height: 400px; }
+    .mb { padding-inline: 12px; font-size: 12px; }
+    .mb-right { gap: 8px; }
+    .mb-date { display: none; }
+    .cc { width: calc(100% - 24px); max-width: 348px; top: 40px; padding: 10px; gap: 8px; grid-auto-rows: 62px; border-radius: 28px; }
+    .t .bub { width: 34px; height: 34px; }
+    .t.wide { padding: 0 8px; gap: 7px; }
+    .tool-body, .panel { padding: 24px; }
+    .viz { height: 180px; }
+    .more { flex-direction: column; align-items: flex-start; padding: 20px; }
+    .mbz { gap: 2px; padding-inline: 8px; font-size: 13px; }
+    .mbz .mb-item { width: 34px; }
+    .mbz time { display: none; }
+    .pop { margin-inline-end: 54px; }
+    .edit { grid-template-columns: 1fr; }
+    .edit-side { display: none; }
+    .final { padding-bottom: 80px; }
+    .fact { padding: 20px 4px; }
+  }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20.5 14.2A8.5 8.5 0 1 1 9.8 3.5a6.8 6.8 0 0 0 10.7 10.7z"/></symbol>
+    <symbol id="i-bulb-off" viewBox="0 0 24 24"><path d="M9.2 18.5h5.6M10.3 21.5h3.4"/><path d="M15.6 15.4c.4-.6.9-1 1.3-1.6A6 6 0 0 0 8 6.2M6.6 9.2A6 6 0 0 0 7.1 13.8c.5.6 1.1 1.1 1.5 1.7.3.5.4 1 .4 1.5h6"/><path d="M3.5 3.5l17 17"/></symbol>
+    <symbol id="i-wifi" viewBox="0 0 24 24"><path d="M2.5 9a14 14 0 0 1 19 0M5.5 12.5a9.5 9.5 0 0 1 13 0M8.6 16a5 5 0 0 1 6.8 0"/><circle cx="12" cy="19.4" r=".6" fill="currentColor"/></symbol>
+    <symbol id="i-bt" viewBox="0 0 24 24"><path d="M7 7.5l10 9-5 4.5V3l5 4.5-10 9"/></symbol>
+    <symbol id="i-screen" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="12" rx="2"/><path d="M8.5 20h7"/></symbol>
+    <symbol id="i-battery" viewBox="0 0 24 24"><rect x="2.5" y="7.5" width="17" height="9" rx="2.5"/><path d="M22 10.5v3"/><rect x="5" y="10" width="11" height="4" rx="1" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-cc" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="7" rx="3.5"/><circle cx="16.5" cy="7.5" r="1.6" fill="currentColor"/><rect x="3" y="13" width="18" height="7" rx="3.5"/><circle cx="7.5" cy="16.5" r="1.6" fill="currentColor"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.3-4.3"/></symbol>
+    <symbol id="i-pointer" viewBox="0 0 24 24"><path d="M5 3.5l13.5 7-6 1.6-2.6 5.9L5 3.5z"/></symbol>
+    <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 3.8L2.8 19.5h18.4L12 3.8z"/><path d="M12 9.5v4.5M12 17h.01"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7.5 3v5.5c0 4.6-3.1 8.3-7.5 9.5-4.4-1.2-7.5-4.9-7.5-9.5V6L12 3z"/><path d="M9 12l2.2 2.2L15.5 10"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></symbol>
+    <symbol id="i-keyboard" viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="2.5"/><path d="M6.5 10h.01M10 10h.01M14 10h.01M17.5 10h.01M8 14h8"/></symbol>
+    <symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
+    <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-arrow-ne" viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8"/></symbol>
+    <symbol id="i-logo" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#16181B"/><rect x=".5" y=".5" width="31" height="31" rx="7.5" fill="none" stroke="#fff" stroke-opacity=".1"/><rect x="6.5" y="6.5" width="8.5" height="8.5" rx="2.2" fill="#DCDDE0"/><rect x="17" y="6.5" width="8.5" height="8.5" rx="2.2" fill="#F2A31B"/><rect x="6.5" y="17" width="8.5" height="8.5" rx="2.2" fill="#DCDDE0"/><rect x="17" y="17" width="8.5" height="8.5" rx="2.2" fill="#DCDDE0"/></symbol>
+  </defs>
+</svg>
+
+<header class="header" data-header>
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Tapdeck">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><use href="#i-logo"/></svg>
+      Tapdeck
+    </a>
+    <nav class="nav" aria-label="Main">
+      <a href="#tools"><span lang="en">Tools</span><span lang="ar">الأدوات</span></a>
+      <a href="#menu-bar"><span lang="en">Menu bar</span><span lang="ar">شريط القوائم</span></a>
+      <a href="#shortcuts"><span lang="en">Shortcuts</span><span lang="ar">الاختصارات</span></a>
+      <a href="#install"><span lang="en">Install</span><span lang="ar">التثبيت</span></a>
+      <a href="#help"><span lang="en">Help</span><span lang="ar">المساعدة</span></a>
+      <a href="https://github.com/Devehab/Tapdeck">GitHub</a>
+    </nav>
+    <div class="header-actions">
+      <button class="lang-btn" type="button" data-toggle-lang aria-label="Switch language / تغيير اللغة">
+        <span lang="en" aria-hidden="true">العربية</span><span lang="ar" aria-hidden="true">English</span>
+      </button>
+      <a class="btn btn-primary btn-sm" href="https://github.com/Devehab/Tapdeck/releases/latest/download/Tapdeck.dmg">
+        <svg class="icon" aria-hidden="true"><use href="#i-download"/></svg>
+        <span class="dl-t"><span lang="en">Download</span><span lang="ar">تحميل</span></span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="wrap">
+      <div class="hero-top">
+        <div>
+          <span class="eyebrow">
+            <svg class="key" viewBox="0 0 32 32" aria-hidden="true"><use href="#i-logo"/></svg>
+            <span lang="en">Control Center tools for vibe coders</span>
+            <span lang="ar">أدوات Control Center لمن يبرمج بالـ vibe coding</span>
+          </span>
+          <h1>
+            <span lang="en">One tap. <span class="lit">Your Mac</span> handles the rest.</span>
+            <span lang="ar">ضغطة واحدة، <span class="lit">والماك</span> يتكفّل بالباقي.</span>
+          </h1>
+        </div>
+        <div class="hero-side">
+          <p class="lead" lang="en">Tapdeck puts small, focused tools in Control Center and the menu bar. Turn the screen off while your agent keeps working, keep the Mac running with the lid closed, and get back to building.</p>
+          <p class="lead" lang="ar">يضع Tapdeck أدوات صغيرة ومركّزة في Control Center وشريط القوائم. أطفئ الشاشة ووكيلك البرمجي يكمل عمله، وأبقِ الماك شغّالاً والغطاء مغلق، ثم ارجع لما تبنيه.</p>
+          <div class="cta">
+            <a class="btn btn-primary" href="https://github.com/Devehab/Tapdeck/releases/latest/download/Tapdeck.dmg">
+              <svg class="icon" aria-hidden="true"><use href="#i-download"/></svg>
+              <span lang="en">Download for macOS</span><span lang="ar">تحميل لنظام macOS</span>
+            </a>
+            <a class="btn btn-ghost" href="#install"><span lang="en">How to install</span><span lang="ar">طريقة التثبيت</span></a>
+          </div>
+          <p class="meta" lang="en">Free · Version 1.0 · macOS 26 Tahoe or later · Apple silicon &amp; Intel</p>
+          <p class="meta" lang="ar">مجاني · الإصدار 1.0 · <bdi>macOS 26 Tahoe</bdi> أو أحدث · Apple silicon و Intel</p>
+        </div>
+      </div>
+
+      <div class="stage-wrap">
+        <div class="stage stay-on" dir="ltr" data-stay-scope data-dark-scope>
+          <div class="mb">
+            <div class="mb-left" aria-hidden="true"><b>Terminal</b><span>Shell</span><span>Edit</span><span>View</span><span>Window</span><span>Help</span></div>
+            <div class="mb-right">
+              <button class="mb-item mb-stay" type="button" data-stay-toggle aria-pressed="true" aria-label="Stay Awake">
+                <svg class="icon when-on" aria-hidden="true"><use href="#i-sun"/></svg><svg class="icon when-off" aria-hidden="true"><use href="#i-moon"/></svg>
+              </button>
+              <svg class="icon" aria-hidden="true"><use href="#i-wifi"/></svg>
+              <svg class="icon" aria-hidden="true"><use href="#i-battery"/></svg>
+              <svg class="icon" aria-hidden="true"><use href="#i-cc"/></svg>
+              <span class="mb-date" aria-hidden="true">Sat Oct 24&nbsp;&nbsp;2:21 PM</span>
+            </div>
+          </div>
+
+          <div class="term" aria-hidden="true">
+            <div class="win-bar"><i></i><i></i><i></i>~/projects/shop — agent</div>
+<pre><span class="p">$</span> agent run "move checkout to the new payments API"
+<span class="dim">  Planning changes across 38 files…</span>
+<span class="ok">  ✓</span> Updated api/checkout.ts
+<span class="ok">  ✓</span> Updated api/refunds.ts
+<span class="ok">  ✓</span> Migrated 12 database queries
+<span class="run">  <span data-spin>◐</span></span> Running test suite <span data-tests>142</span>/310
+<span class="dim">  Elapsed <span data-elapsed>14:08</span></span></pre>
+          </div>
+
+          <div class="cc">
+            <div class="t wide" aria-hidden="true">
+              <span class="bub"><svg class="icon"><use href="#i-wifi"/></svg></span>
+              <span class="lbl"><b>Wi‑Fi</b><small>Home</small></span>
+            </div>
+            <button class="t wide ours stay" type="button" data-stay-toggle aria-pressed="true" aria-label="Stay Awake">
+              <span class="bub"><svg class="icon when-on" aria-hidden="true"><use href="#i-sun"/></svg><svg class="icon when-off" aria-hidden="true"><use href="#i-moon"/></svg></span>
+              <span class="lbl"><b>Stay Awake</b><small class="when-on">Won't Sleep</small><small class="when-off">Sleeps Normally</small></span>
+            </button>
+            <div class="t wide muted" aria-hidden="true">
+              <span class="bub"><svg class="icon"><use href="#i-bt"/></svg></span>
+              <span class="lbl"><b>Bluetooth</b><small>On</small></span>
+            </div>
+            <button class="t round ours" type="button" data-lights aria-label="Lights Out">
+              <svg class="icon" aria-hidden="true"><use href="#i-bulb-off"/></svg>
+            </button>
+            <div class="t round muted" aria-hidden="true"><svg class="icon"><use href="#i-screen"/></svg></div>
+            <div class="t full" aria-hidden="true"><div class="bar-row">Display</div><div class="bar" style="--v: 42%"></div></div>
+            <div class="t full" aria-hidden="true"><div class="bar-row">Sound</div><div class="bar" style="--v: 28%"></div></div>
+          </div>
+
+          <span class="tag tag-mb"><span lang="en">Stay Awake, pinned to the menu bar</span><span lang="ar">Stay Awake مثبّت في شريط القوائم</span><svg class="icon" aria-hidden="true"><use href="#i-arrow-ne"/></svg></span>
+          <span class="tag tag-cc"><span lang="en">Tapdeck controls in Control Center</span><span lang="ar">أزرار Tapdeck داخل Control Center</span><svg class="icon" aria-hidden="true"><use href="#i-arrow-right"/></svg></span>
+
+          <div class="blackout" aria-live="polite">
+            <p><span lang="en">Screen and keyboard light are off, and the agent is still running. Move the pointer or press a key to wake.</span><span lang="ar">الشاشة وإضاءة الكيبورد مطفأة، والوكيل ما زال يعمل. حرّك المؤشر أو اضغط أي زر لإعادتها.</span></p>
+          </div>
+        </div>
+        <p class="stage-hint">
+          <svg class="icon" aria-hidden="true"><use href="#i-pointer"/></svg>
+          <span lang="en">This is a live demo. Tap Stay Awake or Lights Out.</span>
+          <span lang="ar">هذا عرض تفاعلي. اضغط Stay Awake أو Lights Out.</span>
+        </p>
+      </div>
+
+      <div class="facts">
+        <div class="fact"><b>532 KB</b><span lang="en">One universal download for Apple silicon and Intel</span><span lang="ar">تحميل واحد يعمل على Apple silicon و Intel</span></div>
+        <div class="fact"><b>0</b><span lang="en">Network requests. No account, no tracking</span><span lang="ar">طلبات إنترنت. بلا حساب وبلا تتبّع</span></div>
+        <div class="fact"><b>1</b><span lang="en">Approval to give, and only for Stay Awake</span><span lang="ar">موافقة واحدة فقط، ولـ Stay Awake وحده</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tools -->
+  <section id="tools">
+    <div class="wrap">
+      <div class="head rv">
+        <span class="kicker"><span lang="en">Tools</span><span lang="ar">الأدوات</span></span>
+        <h2><span lang="en">Two tools today. A deck that keeps growing.</span><span lang="ar">أداتان اليوم، ومجموعة تكبر باستمرار.</span></h2>
+        <p lang="en">Each tool is a native control. Put it in Control Center, pin it to the menu bar, or run it from Spotlight.</p>
+        <p lang="ar">كل أداة زر أصلي في macOS. ضعه في Control Center، أو ثبّته في شريط القوائم، أو شغّله من Spotlight.</p>
+      </div>
+
+      <div class="tools">
+        <article class="tool rv">
+          <div class="viz" aria-hidden="true">
+            <div class="viz-stack"><div class="screen"></div><div class="keyrow"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+          </div>
+          <div class="tool-body">
+            <div class="tool-title"><h3>Lights Out</h3><span class="chip"><span lang="en">Button</span><span lang="ar">زر</span></span></div>
+            <p class="tool-lead" lang="en">Turns off the screen and keyboard light while the Mac keeps running.</p>
+            <p class="tool-lead" lang="ar">يطفئ الشاشة وإضاءة الكيبورد والماك يبقى شغّالاً.</p>
+            <ul class="checks">
+              <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span lang="en">Remembers your exact brightness and keyboard light first.</span><span lang="ar">يحفظ سطوع الشاشة وإضاءة الكيبورد كما هي قبل الإطفاء.</span></li>
+              <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span lang="en">Touch the trackpad or press any key, and everything comes back as it was.</span><span lang="ar">المس التراكباد أو اضغط أي زر، فيرجع كل شيء كما كان.</span></li>
+              <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span lang="en">Keeps the Mac awake while dark, so running work isn't interrupted.</span><span lang="ar">يبقي الماك مستيقظاً والشاشة مطفأة، فلا تتوقف المهام الشغّالة.</span></li>
+              <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span lang="en">Needs no permissions.</span><span lang="ar">لا يحتاج أي صلاحيات.</span></li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="tool rv">
+          <div class="viz" aria-hidden="true">
+            <div class="laptop"><div class="lid"></div><div class="base"></div><span class="glow"><span><svg class="icon"><use href="#i-sun"/></svg></span>Won't Sleep</span></div>
+          </div>
+          <div class="tool-body">
+            <div class="tool-title"><h3>Stay Awake</h3><span class="chip"><span lang="en">Toggle</span><span lang="ar">زر تبديل</span></span></div>
+            <p class="tool-lead" lang="en">Keeps the Mac running, even with the lid closed.</p>
+            <p class="tool-lead" lang="ar">يبقي الماك شغّالاً حتى لو أغلقت الغطاء.</p>
+            <div class="states">
+              <div class="state"><span class="dot sun"><svg class="icon" aria-hidden="true"><use href="#i-sun"/></svg></span><span><b>Won't Sleep</b> · <span lang="en">stays on, lid open or closed</span><span lang="ar">يبقى شغّالاً، والغطاء مفتوح أو مغلق</span></span></div>
+              <div class="state"><span class="dot moon"><svg class="icon" aria-hidden="true"><use href="#i-moon"/></svg></span><span><b>Sleeps Normally</b> · <span lang="en">regular macOS sleep</span><span lang="ar">ينام كالعادة</span></span></div>
+            </div>
+            <ul class="checks">
+              <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span lang="en">One tap to switch. It always shows the real system state.</span><span lang="ar">ضغطة واحدة للتبديل، ويعرض دائماً حالة النظام الحقيقية.</span></li>
+              <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span lang="en">Same as <code>sudo pmset -a disablesleep 1</code>, without Terminal.</span><span lang="ar">مثل <code>sudo pmset -a disablesleep 1</code> لكن بدون Terminal.</span></li>
+            </ul>
+            <div class="note">
+              <svg class="icon" aria-hidden="true"><use href="#i-warn"/></svg>
+              <span lang="en">Don't carry a closed Mac in a bag with Stay Awake on. It keeps running, gets warm and drains the battery.</span>
+              <span lang="ar">لا تضع الماك مغلقاً في حقيبة و Stay Awake مفعّل، فهو يبقى شغّالاً فيسخن ويستهلك البطارية.</span>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <div class="more rv">
+        <span class="deck" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        <p lang="en"><b>More tools are on the way.</b> They arrive as new controls in the same app: update Tapdeck and drag them in from Edit Controls.</p>
+        <p lang="ar"><b>أدوات أخرى في الطريق.</b> تصل كأزرار جديدة في نفس التطبيق: حدّث Tapdeck واسحبها من Edit Controls.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Menu bar -->
+  <section id="menu-bar" class="band">
+    <div class="wrap split">
+      <div class="head rv">
+        <span class="kicker"><span lang="en">Menu bar</span><span lang="ar">شريط القوائم</span></span>
+        <h2><span lang="en">Pin any tool to the menu bar</span><span lang="ar">ثبّت أي أداة في شريط القوائم</span></h2>
+        <p lang="en">Every Tapdeck control can live in the menu bar as well as Control Center. One click runs it, and the icon shows the state at a glance.</p>
+        <p lang="ar">كل زر من Tapdeck يمكن وضعه في شريط القوائم إلى جانب Control Center. ضغطة واحدة تشغّله، والأيقونة تعرض الحالة من أول نظرة.</p>
+        <div class="legend">
+          <div class="state"><span class="dot sun"><svg class="icon" aria-hidden="true"><use href="#i-sun"/></svg></span><span><b>Won't Sleep</b> · <span lang="en">the Mac stays on, lid open or closed</span><span lang="ar">الماك يبقى شغّالاً، والغطاء مفتوح أو مغلق</span></span></div>
+          <div class="state"><span class="dot moon"><svg class="icon" aria-hidden="true"><use href="#i-moon"/></svg></span><span><b>Sleeps Normally</b> · <span lang="en">regular macOS sleep</span><span lang="ar">ينام كالعادة</span></span></div>
+          <div class="state"><span class="dot bulb"><svg class="icon" aria-hidden="true"><use href="#i-bulb-off"/></svg></span><span><b>Lights Out</b> · <span lang="en">one click turns the screen and keyboard light off</span><span lang="ar">ضغطة واحدة تطفئ الشاشة وإضاءة الكيبورد</span></span></div>
+        </div>
+        <div class="how">
+          <span lang="en">To add one, open:</span><span lang="ar">لإضافة زر، افتح:</span>
+          <span class="crumbs"><b>Control Center</b><i></i><b>Edit Controls</b><i></i><b>Tapdeck</b></span>
+          <span lang="en">Then drag the control up into the menu bar instead of into Control Center.</span>
+          <span lang="ar">ثم اسحب الزر إلى شريط القوائم في أعلى الشاشة بدلاً من Control Center.</span>
+        </div>
+      </div>
+
+      <div class="menubar-demo rv stay-on" dir="ltr" data-stay-scope data-dark-scope>
+        <div class="mbz">
+          <button class="mb-item ours" type="button" data-lights aria-label="Lights Out"><svg class="icon" aria-hidden="true"><use href="#i-bulb-off"/></svg></button>
+          <button class="mb-item mb-stay ours" type="button" data-stay-toggle aria-pressed="true" aria-label="Stay Awake">
+            <svg class="icon when-on" aria-hidden="true"><use href="#i-sun"/></svg><svg class="icon when-off" aria-hidden="true"><use href="#i-moon"/></svg>
+          </button>
+          <svg class="icon" aria-hidden="true"><use href="#i-wifi"/></svg>
+          <svg class="icon" aria-hidden="true"><use href="#i-battery"/></svg>
+          <svg class="icon" aria-hidden="true"><use href="#i-cc"/></svg>
+          <time>Sat 2:21 PM</time>
+        </div>
+        <div class="pop" aria-live="polite">
+          <span class="bub"><svg class="icon when-on" aria-hidden="true"><use href="#i-sun"/></svg><svg class="icon when-off" aria-hidden="true"><use href="#i-moon"/></svg></span>
+          <span><b>Stay Awake</b><small class="when-on">Won't Sleep</small><small class="when-off">Sleeps Normally</small></span>
+        </div>
+        <p class="caption">
+          <svg class="icon" aria-hidden="true"><use href="#i-pointer"/></svg>
+          <span lang="en">Click the sun to switch Stay Awake, or the bulb for Lights Out.</span>
+          <span lang="ar">اضغط على الشمس لتبديل Stay Awake، أو على المصباح لـ Lights Out.</span>
+        </p>
+        <div class="blackout" aria-live="polite">
+          <p><span lang="en">Lights out. Move the pointer or press a key to wake.</span><span lang="ar">الإضاءة مطفأة. حرّك المؤشر أو اضغط أي زر لإعادتها.</span></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Shortcuts -->
+  <section id="shortcuts">
+    <div class="wrap">
+      <div class="head rv">
+        <span class="kicker"><span lang="en">Shortcuts</span><span lang="ar">الاختصارات</span></span>
+        <h2><span lang="en">Faster than a tap: Spotlight and the keyboard</span><span lang="ar">أسرع من الضغط: Spotlight والكيبورد</span></h2>
+        <p lang="en">Every tool is also an action in Spotlight and the Shortcuts app, so you can run it without opening Control Center.</p>
+        <p lang="ar">كل أداة متاحة أيضاً كإجراء في Spotlight وتطبيق Shortcuts، فتشغّلها بدون فتح Control Center.</p>
+      </div>
+      <div class="pair">
+        <div class="panel rv">
+          <div class="panel-title"><span class="tile-ico"><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg></span><h3>Spotlight</h3></div>
+          <p lang="en">Press <span class="ui">⌘ Space</span> and type <span class="ui">Lights Out</span> or <span class="ui">Toggle Stay Awake</span>. Both work right after install.</p>
+          <p lang="ar">اضغط <span class="ui">⌘ Space</span> واكتب <span class="ui">Lights Out</span> أو <span class="ui">Toggle Stay Awake</span>. الاثنان يعملان مباشرة بعد التثبيت.</p>
+          <div class="spot" aria-hidden="true">
+            <div class="field"><svg class="icon"><use href="#i-search"/></svg>Toggle Stay Awake<span class="caret"></span></div>
+            <div class="res on"><svg viewBox="0 0 32 32"><use href="#i-logo"/></svg>Toggle Stay Awake<small>Tapdeck</small></div>
+            <div class="res"><svg viewBox="0 0 32 32"><use href="#i-logo"/></svg>Lights Out<small>Tapdeck</small></div>
+          </div>
+        </div>
+        <div class="panel rv">
+          <div class="panel-title"><span class="tile-ico"><svg class="icon" aria-hidden="true"><use href="#i-keyboard"/></svg></span><h3><span lang="en">Keyboard shortcut</span><span lang="ar">اختصار كيبورد</span></h3></div>
+          <p lang="en">Give any tool its own key combination in the Shortcuts app.</p>
+          <p lang="ar">خصّص لأي أداة مجموعة أزرار خاصة بها من تطبيق Shortcuts.</p>
+          <ol class="numbered">
+            <li><div lang="en">Open the <span class="ui">Shortcuts</span> app and create a new shortcut.</div><div lang="ar">افتح تطبيق <span class="ui">Shortcuts</span> وأنشئ اختصاراً جديداً.</div></li>
+            <li><div lang="en">Search for <span class="ui">Tapdeck</span> in the actions list and add <span class="ui">Lights Out</span> or <span class="ui">Toggle Stay Awake</span>.</div><div lang="ar">ابحث عن <span class="ui">Tapdeck</span> في قائمة الإجراءات وأضف <span class="ui">Lights Out</span> أو <span class="ui">Toggle Stay Awake</span>.</div></li>
+            <li><div lang="en">Open the shortcut's details (ⓘ), choose <span class="ui">Add Keyboard Shortcut</span> and press your keys.</div><div lang="ar">افتح تفاصيل الاختصار (ⓘ)، واختر <span class="ui">Add Keyboard Shortcut</span> ثم اضغط الأزرار التي تريدها.</div></li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Install -->
+  <section id="install" class="band">
+    <div class="wrap">
+      <div class="head rv">
+        <span class="kicker"><span lang="en">Install</span><span lang="ar">التثبيت</span></span>
+        <h2><span lang="en">Set up in five steps</span><span lang="ar">التثبيت في خمس خطوات</span></h2>
+        <p lang="en">About a minute from download to first tap. Steps 3 and 5 happen only once.</p>
+        <p lang="ar">دقيقة تقريباً من التحميل إلى أول ضغطة. الخطوتان 3 و 5 تحدثان مرة واحدة فقط.</p>
+      </div>
+
+      <ol class="stepper rv" data-stepper>
+        <li class="step is-active">
+          <button class="step-head" type="button" aria-expanded="true">
+            <span class="step-num">1</span>
+            <span class="step-copy">
+              <b><span lang="en">Download</span><span lang="ar">التحميل</span></b>
+              <span lang="en">Download <span class="ui">Tapdeck.dmg</span> (532 KB) and open it from your Downloads.</span>
+              <span lang="ar">حمّل <span class="ui">Tapdeck.dmg</span> (<bdi>532 KB</bdi>) وافتحه من مجلد التنزيلات.</span>
+            </span>
+          </button>
+          <div class="step-visual" aria-hidden="true">
+            <div class="mwin">
+              <div class="win-bar"><i></i><i></i><i></i><span>Downloads</span></div>
+              <div class="dl"><span class="disk"><i></i></span><div><b>Tapdeck.dmg</b><small>532 KB · Done</small></div><span class="open">Open</span></div>
+            </div>
+          </div>
+        </li>
+        <li class="step">
+          <button class="step-head" type="button" aria-expanded="false">
+            <span class="step-num">2</span>
+            <span class="step-copy">
+              <b><span lang="en">Drag to Applications</span><span lang="ar">اسحبه إلى Applications</span></b>
+              <span lang="en">In the window that opens, drag Tapdeck onto the Applications folder. Always run it from Applications, not from the disk image.</span>
+              <span lang="ar">في النافذة التي تظهر، اسحب Tapdeck إلى مجلد Applications. شغّله دائماً من Applications، وليس من ملف الـ DMG.</span>
+            </span>
+          </button>
+          <div class="step-visual" aria-hidden="true">
+            <div class="mwin">
+              <div class="win-bar"><i></i><i></i><i></i><span>Tapdeck</span></div>
+              <div class="finder">
+                <figure><svg class="app" viewBox="0 0 32 32"><use href="#i-logo"/></svg><figcaption>Tapdeck</figcaption></figure>
+                <span class="drag-line"></span>
+                <figure><span class="folder"><span>A</span></span><figcaption>Applications</figcaption></figure>
+                <svg class="ghost" viewBox="0 0 32 32"><use href="#i-logo"/></svg>
+              </div>
+            </div>
+          </div>
+        </li>
+        <li class="step">
+          <button class="step-head" type="button" aria-expanded="false">
+            <span class="step-num">3</span>
+            <span class="step-copy">
+              <b><span lang="en">Confirm the first launch</span><span lang="ar">أكّد أول تشغيل</span><span class="once"><span lang="en">once</span><span lang="ar">مرة واحدة</span></span></b>
+              <span lang="en">Open Tapdeck. Because it isn't notarized by Apple yet, macOS asks first: click <span class="ui">Done</span>, then go to System Settings › Privacy &amp; Security and click <span class="ui">Open Anyway</span>.</span>
+              <span lang="ar">افتح Tapdeck. لأنه غير موثّق (notarized) من Apple بعد، سيسألك macOS أولاً: اضغط <span class="ui">Done</span>، ثم اذهب إلى System Settings › Privacy &amp; Security واضغط <span class="ui">Open Anyway</span>.</span>
+            </span>
+          </button>
+          <div class="step-visual" aria-hidden="true">
+            <div class="gk">
+              <div class="alert">
+                <svg viewBox="0 0 32 32"><use href="#i-logo"/></svg>
+                <b>“Tapdeck” Not Opened</b>
+                <p>Apple could not verify “Tapdeck” is free of malware that may harm your Mac or compromise your privacy.</p>
+                <div class="btns"><span class="hl">Done</span><span>Move to Trash</span></div>
+              </div>
+              <div class="settings-row"><div><small>Privacy &amp; Security › Security</small><b>“Tapdeck” was blocked to protect your Mac.</b></div><span class="mbtn hl">Open Anyway</span></div>
+            </div>
+          </div>
+        </li>
+        <li class="step">
+          <button class="step-head" type="button" aria-expanded="false">
+            <span class="step-num">4</span>
+            <span class="step-copy">
+              <b><span lang="en">Add it to Control Center or the menu bar</span><span lang="ar">أضفه إلى Control Center أو شريط القوائم</span></b>
+              <span lang="en">Open Control Center › Edit Controls › Tapdeck. Drag Lights Out and Stay Awake into Control Center, or up into the menu bar.</span>
+              <span lang="ar">افتح Control Center › Edit Controls › Tapdeck. اسحب Lights Out و Stay Awake إلى Control Center، أو إلى شريط القوائم في الأعلى.</span>
+            </span>
+          </button>
+          <div class="step-visual" aria-hidden="true">
+            <div class="mwin">
+              <div class="edit">
+                <div class="edit-side">
+                  <span class="search">Search Controls</span>
+                  <span><i></i>Battery</span><span><i></i>Clock</span><span><i></i>Connectivity</span><span><i></i>Focus</span><span><i></i>Screenshot</span>
+                  <span class="sel"><svg viewBox="0 0 32 32"><use href="#i-logo"/></svg>Tapdeck</span>
+                </div>
+                <div class="edit-main">
+                  <b>Tapdeck</b>
+                  <div class="edit-ctrls">
+                    <figure><span class="mini-round"><svg class="icon"><use href="#i-bulb-off"/></svg></span>Lights Out</figure>
+                    <figure><span class="mini-wide"><span class="b"><svg class="icon"><use href="#i-sun"/></svg></span>Stay Awake</span>Stay Awake</figure>
+                  </div>
+                  <div class="drops"><span><svg class="icon"><use href="#i-arrow-up"/></svg>Menu Bar</span><span><svg class="icon"><use href="#i-arrow-right"/></svg>Control Center</span></div>
+                  <p class="edit-foot">Drag a control to place it in Control Center or Menu Bar…</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </li>
+        <li class="step">
+          <button class="step-head" type="button" aria-expanded="false">
+            <span class="step-num">5</span>
+            <span class="step-copy">
+              <b><span lang="en">Approve Stay Awake</span><span lang="ar">وافق على Stay Awake</span><span class="once"><span lang="en">once</span><span lang="ar">مرة واحدة</span></span></b>
+              <span lang="en">The first time you tap Stay Awake, click <span class="ui">Open System Settings</span> and turn on Tapdeck under <span class="ui">Allow in the Background</span>. Lights Out needs no approval.</span>
+              <span lang="ar">أول مرة تضغط Stay Awake، اضغط <span class="ui">Open System Settings</span> وفعّل Tapdeck تحت <span class="ui">Allow in the Background</span>. أما Lights Out فلا يحتاج أي موافقة.</span>
+            </span>
+          </button>
+          <div class="step-visual" aria-hidden="true">
+            <div class="mwin">
+              <div class="win-bar"><i></i><i></i><i></i><span>Login Items &amp; Extensions</span></div>
+              <div class="login">
+                <small>Allow in the Background</small>
+                <div class="lrow hl"><svg viewBox="0 0 32 32"><use href="#i-logo"/></svg><div><b>Tapdeck</b><span>1 item: TapdeckHelper</span></div><span class="switch"></span></div>
+                <div class="lrow faint"><i></i><div><b>Backup Agent</b><span>1 item</span></div><span class="switch"></span></div>
+              </div>
+            </div>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- Permissions -->
+  <section id="permissions">
+    <div class="wrap">
+      <div class="head rv">
+        <span class="kicker"><span lang="en">Permissions</span><span lang="ar">الصلاحيات</span></span>
+        <h2><span lang="en">What Tapdeck asks for, and why</span><span lang="ar">ما الذي يطلبه Tapdeck، ولماذا</span></h2>
+      </div>
+      <div class="perm">
+        <div class="ptable rv">
+          <div class="prow"><span>Lights Out</span><span class="badge none"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span lang="en">Nothing</span><span lang="ar">لا شيء</span></span></div>
+          <div class="prow"><span><span lang="en">Spotlight &amp; Shortcuts</span><span lang="ar">Spotlight و Shortcuts</span></span><span class="badge none"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span lang="en">Nothing</span><span lang="ar">لا شيء</span></span></div>
+          <div class="prow"><span>Stay Awake</span><span class="badge needs"><svg class="icon" aria-hidden="true"><use href="#i-lock"/></svg><span lang="en">Allow in the Background, once</span><span lang="ar">Allow in the Background، مرة واحدة</span></span></div>
+        </div>
+        <div class="why rv">
+          <p><svg class="icon" aria-hidden="true"><use href="#i-shield"/></svg><span lang="en">Changing sleep settings needs administrator rights. Tapdeck uses a tiny helper that can do exactly one thing: switch <code>disablesleep</code> on or off. It only answers requests from Tapdeck itself.</span><span lang="ar">تغيير إعدادات النوم يحتاج صلاحيات مدير. لذلك يستخدم Tapdeck برنامجاً مساعداً صغيراً لا يستطيع إلا شيئاً واحداً: تشغيل <code>disablesleep</code> أو إيقافه، ولا يقبل الطلبات إلا من Tapdeck نفسه.</span></p>
+          <p><svg class="icon" aria-hidden="true"><use href="#i-lock"/></svg><span lang="en">No Accessibility, Input Monitoring or Screen Recording access. Lights Out notices your touch without reading any keys.</span><span lang="ar">لا يحتاج Accessibility ولا Input Monitoring ولا Screen Recording. يلاحظ Lights Out لمستك دون أن يقرأ أي زر تضغطه.</span></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Help -->
+  <section id="help" class="band">
+    <div class="wrap help">
+      <div class="head">
+        <span class="kicker"><span lang="en">Help</span><span lang="ar">المساعدة</span></span>
+        <h2><span lang="en">If something didn't go as planned</span><span lang="ar">إذا لم يسر شيء كما يجب</span></h2>
+        <p lang="en">Most problems come from a permission that was skipped or switched off. Each one takes a few seconds to fix.</p>
+        <p lang="ar">أغلب المشاكل سببها صلاحية تم تخطّيها أو إيقافها، وإصلاح كل منها يأخذ ثواني.</p>
+      </div>
+      <div class="faq">
+        <details>
+          <summary><span lang="en">I clicked Cancel instead of Open System Settings</span><span lang="ar">ضغطت Cancel بدل Open System Settings</span><span class="pm" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p lang="en">Nothing is broken. Tap Stay Awake again and the request comes back. Or go there yourself and turn on Tapdeck under <span class="ui">Allow in the Background</span>:</p>
+            <p lang="ar">لم يتعطل شيء. اضغط Stay Awake مرة أخرى وسيعود الطلب. أو اذهب بنفسك وفعّل Tapdeck تحت <span class="ui">Allow in the Background</span>:</p>
+            <span class="crumbs"><b>System Settings</b><i></i><b>General</b><i></i><b>Login Items &amp; Extensions</b></span>
+          </div>
+        </details>
+        <details>
+          <summary><span lang="en">I turned Tapdeck off under Allow in the Background</span><span lang="ar">أوقفت Tapdeck من Allow in the Background</span><span class="pm" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p lang="en">Stay Awake can't change sleep settings until it's back on, and it asks each time you tap it. Turn Tapdeck on again in the same place. If Tapdeck is missing from the list, tap Stay Awake once to add it back.</p>
+            <p lang="ar">لن يستطيع Stay Awake تغيير إعدادات النوم حتى تعيد تفعيله، وسيطلب ذلك كلما ضغطته. فعّل Tapdeck من نفس المكان. وإذا لم تجده في القائمة، اضغط Stay Awake مرة واحدة ليعود إليها.</p>
+            <span class="crumbs"><b>System Settings</b><i></i><b>General</b><i></i><b>Login Items &amp; Extensions</b></span>
+          </div>
+        </details>
+        <details>
+          <summary><span lang="en">macOS says Tapdeck can't be opened, or offers Move to Trash</span><span lang="ar">يقول macOS إن Tapdeck لا يمكن فتحه، أو يقترح Move to Trash</span><span class="pm" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p lang="en">Click <span class="ui">Done</span>, then click <span class="ui">Open Anyway</span> next to Tapdeck in Privacy &amp; Security (step 3 of the <a href="#install">install guide</a>). If you already moved it to the Trash, download it again.</p>
+            <p lang="ar">اضغط <span class="ui">Done</span>، ثم اضغط <span class="ui">Open Anyway</span> بجانب Tapdeck في Privacy &amp; Security (الخطوة 3 في <a href="#install">دليل التثبيت</a>). وإذا نقلته إلى سلة المهملات، حمّله من جديد.</p>
+            <span class="crumbs"><b>System Settings</b><i></i><b>Privacy &amp; Security</b></span>
+          </div>
+        </details>
+        <details>
+          <summary><span lang="en">Tapdeck isn't listed in Edit Controls</span><span lang="ar">Tapdeck لا يظهر في Edit Controls</span><span class="pm" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p lang="en">Make sure Tapdeck is in your Applications folder, not running from the disk image, and open it once. Then close Control Center and open Edit Controls again.</p>
+            <p lang="ar">تأكّد أن Tapdeck موجود في مجلد Applications وليس شغّالاً من ملف الـ DMG، وافتحه مرة واحدة. ثم أغلق Control Center وافتح Edit Controls من جديد.</p>
+          </div>
+        </details>
+        <details>
+          <summary><span lang="en">A control looks out of date after an update</span><span lang="ar">زر يظهر بشكل قديم بعد التحديث</span><span class="pm" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p lang="en">Open Tapdeck once from Applications; it refreshes all of its controls when it starts. If one still looks old, remove it in Edit Controls and drag it in again.</p>
+            <p lang="ar">افتح Tapdeck مرة من Applications، فهو يحدّث كل أزراره عند تشغيله. وإذا بقي زر بشكل قديم، احذفه من Edit Controls واسحبه من جديد.</p>
+          </div>
+        </details>
+        <details>
+          <summary><span lang="en">The screen stayed dark after Lights Out</span><span lang="ar">بقيت الشاشة مطفأة بعد Lights Out</span><span class="pm" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p lang="en">Move the pointer or press any key; the brightness keys work too. If Tapdeck was quit while the screen was dark, open it again and it restores your saved brightness.</p>
+            <p lang="ar">حرّك المؤشر أو اضغط أي زر، وأزرار السطوع تعمل أيضاً. وإذا أُغلق Tapdeck والشاشة مطفأة، افتحه من جديد فيرجّع السطوع المحفوظ.</p>
+          </div>
+        </details>
+        <details>
+          <summary><span lang="en">How do I check Stay Awake from Terminal?</span><span lang="ar">كيف أتأكد من Stay Awake من Terminal؟</span><span class="pm" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <div class="code"><code>pmset -g | grep SleepDisabled</code><button class="copy" type="button" data-copy><span class="idle-t"><span lang="en">Copy</span><span lang="ar">نسخ</span></span><span class="done-t"><span lang="en">Copied</span><span lang="ar">تم النسخ</span></span></button></div>
+            <p lang="en"><span class="ui">SleepDisabled 1</span> means Stay Awake is on, <span class="ui">0</span> means it's off.</p>
+            <p lang="ar"><span class="ui">SleepDisabled 1</span> يعني أن Stay Awake مفعّل، و <span class="ui">0</span> يعني أنه ملغى.</p>
+            <div class="code"><code>pmset -g stats</code><button class="copy" type="button" data-copy><span class="idle-t"><span lang="en">Copy</span><span lang="ar">نسخ</span></span><span class="done-t"><span lang="en">Copied</span><span lang="ar">تم النسخ</span></span></button></div>
+            <p lang="en">To prove the Mac didn't sleep with the lid closed: note <span class="ui">Sleep Count</span>, close the lid for a minute or two, open it and run the command again. The same number means it never slept.</p>
+            <p lang="ar">للتأكد أن الماك لم ينم والغطاء مغلق: سجّل قيمة <span class="ui">Sleep Count</span>، أغلق الغطاء دقيقة أو اثنتين، افتحه وشغّل الأمر مرة أخرى. إذا بقي الرقم نفسه، فالجهاز لم ينم.</p>
+          </div>
+        </details>
+        <details>
+          <summary><span lang="en">How do I see what Tapdeck can control on my Mac?</span><span lang="ar">كيف أعرف ما يستطيع Tapdeck التحكم به في جهازي؟</span><span class="pm" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <div class="code"><code>/Applications/Tapdeck.app/Contents/MacOS/Tapdeck --status</code><button class="copy" type="button" data-copy><span class="idle-t"><span lang="en">Copy</span><span lang="ar">نسخ</span></span><span class="done-t"><span lang="en">Copied</span><span lang="ar">تم النسخ</span></span></button></div>
+            <p lang="en">It lists your displays, brightness, keyboard light, Stay Awake and the helper's approval status, without changing anything.</p>
+            <p lang="ar">يعرض الشاشات والسطوع وإضاءة الكيبورد وحالة Stay Awake وحالة موافقة البرنامج المساعد، بدون أن يغيّر أي شيء.</p>
+          </div>
+        </details>
+        <details>
+          <summary><span lang="en">How do I uninstall Tapdeck?</span><span lang="ar">كيف أحذف Tapdeck؟</span><span class="pm" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p lang="en">Turn Stay Awake off first. Then remove the helper and quit Tapdeck:</p>
+            <p lang="ar">أطفئ Stay Awake أولاً. ثم احذف البرنامج المساعد وأغلق Tapdeck:</p>
+            <div class="code"><code>/Applications/Tapdeck.app/Contents/MacOS/Tapdeck --unregister-helper</code><button class="copy" type="button" data-copy><span class="idle-t"><span lang="en">Copy</span><span lang="ar">نسخ</span></span><span class="done-t"><span lang="en">Copied</span><span lang="ar">تم النسخ</span></span></button></div>
+            <div class="code"><code>pkill -x Tapdeck</code><button class="copy" type="button" data-copy><span class="idle-t"><span lang="en">Copy</span><span lang="ar">نسخ</span></span><span class="done-t"><span lang="en">Copied</span><span lang="ar">تم النسخ</span></span></button></div>
+            <p lang="en">Finally, move Tapdeck from Applications to the Trash.</p>
+            <p lang="ar">وأخيراً، انقل Tapdeck من Applications إلى سلة المهملات.</p>
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- Final -->
+  <section class="final">
+    <div class="wrap">
+      <div class="final-card rv">
+        <div>
+          <h2><span lang="en">Put your Mac on one tap</span><span lang="ar">اجعل ماكك على بُعد ضغطة</span></h2>
+          <p lang="en">Free, 532 KB, and private. New tools land as simple updates.</p>
+          <p lang="ar">مجاني، بحجم <bdi>532 KB</bdi>، ويحترم خصوصيتك. والأدوات الجديدة تصل بتحديث بسيط.</p>
+          <div class="cta">
+            <a class="btn btn-primary" href="https://github.com/Devehab/Tapdeck/releases/latest/download/Tapdeck.dmg">
+              <svg class="icon" aria-hidden="true"><use href="#i-download"/></svg>
+              <span lang="en">Download Tapdeck</span><span lang="ar">تحميل Tapdeck</span>
+            </a>
+            <a class="btn btn-ghost" href="#install"><span lang="en">Installation guide</span><span lang="ar">دليل التثبيت</span></a>
+          </div>
+        </div>
+        <svg class="final-logo" viewBox="0 0 32 32" aria-hidden="true"><use href="#i-logo"/></svg>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <a class="brand" href="#top"><svg viewBox="0 0 32 32" aria-hidden="true"><use href="#i-logo"/></svg>Tapdeck</a>
+    <div class="foot-facts">
+      <span lang="en">macOS 26 Tahoe or later</span><span lang="ar"><bdi>macOS 26 Tahoe</bdi> أو أحدث</span>
+      <span lang="en">Apple silicon &amp; Intel</span><span lang="ar">Apple silicon و Intel</span>
+      <span lang="en">No network access, no tracking</span><span lang="ar">بلا اتصال بالإنترنت، بلا تتبّع</span>
+    </div>
+    <span class="foot-links">
+      <a href="https://github.com/Devehab/Tapdeck"><span lang="en">Source on GitHub</span><span lang="ar">الكود على GitHub</span></a>
+      <a href="https://github.com/Devehab/Tapdeck/blob/main/LICENSE"><span lang="en">MIT License</span><span lang="ar">رخصة MIT</span></a>
+    </span>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var titles = { en: "Tapdeck", ar: "Tapdeck" };
+
+    // Language
+    function setLang(lang) {
+      root.lang = lang;
+      root.dir = lang === "ar" ? "rtl" : "ltr";
+      document.title = titles[lang];
+      try { localStorage.setItem("tapdeck-lang", lang); } catch (e) {}
+    }
+    document.querySelectorAll("[data-toggle-lang]").forEach(function (button) {
+      button.addEventListener("click", function () { setLang(root.lang === "ar" ? "en" : "ar"); });
+    });
+
+    // Header border once the page scrolls
+    var header = document.querySelector("[data-header]");
+    function onScroll() { header.classList.toggle("is-scrolled", window.scrollY > 8); }
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+
+    // Stay Awake: every demo shares one state, like the real toggle
+    var stayOn = true;
+    function renderStay() {
+      document.querySelectorAll("[data-stay-scope]").forEach(function (el) { el.classList.toggle("stay-on", stayOn); });
+      document.querySelectorAll("[data-stay-toggle]").forEach(function (b) { b.setAttribute("aria-pressed", String(stayOn)); });
+    }
+    document.querySelectorAll("[data-stay-toggle]").forEach(function (button) {
+      button.addEventListener("click", function () { stayOn = !stayOn; renderStay(); });
+    });
+
+    // Lights Out: like the real tool, ignore input briefly, then any input wakes the screen
+    var armedAt = 0;
+    document.querySelectorAll("[data-lights]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        button.closest("[data-dark-scope]").classList.add("is-dark");
+        armedAt = Date.now() + 900;
+      });
+    });
+    function wake() {
+      if (Date.now() < armedAt) return;
+      document.querySelectorAll("[data-dark-scope].is-dark").forEach(function (el) { el.classList.remove("is-dark"); });
+    }
+    ["pointermove", "pointerdown", "keydown", "wheel", "touchstart"].forEach(function (type) {
+      window.addEventListener(type, wake, { passive: true });
+    });
+
+    // The agent in the demo terminal keeps working, dark screen or not
+    var tests = document.querySelector("[data-tests]");
+    var spin = document.querySelector("[data-spin]");
+    var elapsed = document.querySelector("[data-elapsed]");
+    var count = 142, seconds = 14 * 60 + 8, frame = 0, frames = ["◐", "◓", "◑", "◒"];
+    if (!reduceMotion) {
+      setInterval(function () {
+        frame = (frame + 1) % frames.length;
+        spin.textContent = frames[frame];
+        count = count >= 310 ? 142 : count + 3;
+        seconds += 1;
+        tests.textContent = Math.min(count, 310);
+        elapsed.textContent = Math.floor(seconds / 60) + ":" + String(seconds % 60).padStart(2, "0");
+      }, 450);
+    }
+
+    // Install stepper
+    var steps = Array.prototype.slice.call(document.querySelectorAll("[data-stepper] .step"));
+    steps.forEach(function (step) {
+      step.querySelector(".step-head").addEventListener("click", function () {
+        steps.forEach(function (s) {
+          var active = s === step;
+          s.classList.toggle("is-active", active);
+          s.querySelector(".step-head").setAttribute("aria-expanded", String(active));
+        });
+      });
+    });
+
+    // Copy buttons
+    document.querySelectorAll("[data-copy]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        var code = button.parentElement.querySelector("code");
+        function selectText() {
+          var range = document.createRange();
+          range.selectNodeContents(code);
+          var selection = window.getSelection();
+          selection.removeAllRanges();
+          selection.addRange(range);
+        }
+        if (!navigator.clipboard) { selectText(); return; }
+        navigator.clipboard.writeText(code.textContent).then(function () {
+          button.classList.add("done");
+          setTimeout(function () { button.classList.remove("done"); }, 1600);
+        }).catch(selectText);
+      });
+    });
+  })();
+</script>
+</body>
+</html>

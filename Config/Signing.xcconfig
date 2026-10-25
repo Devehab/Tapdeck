@@ -1,0 +1,8 @@
+// Code signing for every target.
+// Your Apple Developer Team ID lives in Local.xcconfig, which git ignores:
+//   cp Config/Local.xcconfig.example Config/Local.xcconfig
+CODE_SIGN_STYLE = Manual
+CODE_SIGN_IDENTITY = Apple Development
+DEVELOPMENT_TEAM =
+
+#include? "Local.xcconfig"

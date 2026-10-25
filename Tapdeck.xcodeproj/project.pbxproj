@@ -1,0 +1,554 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		7A0000000000000000000050 /* TapdeckControls.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 7A0000000000000000000021 /* TapdeckControls.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		7A0000000000000000000053 /* TapdeckHelper in Embed Helper */ = {isa = PBXBuildFile; fileRef = 7A0000000000000000000022 /* TapdeckHelper */; };
+		7A0000000000000000000054 /* com.ibtkrgo.Tapdeck.Helper.plist in Embed LaunchDaemons */ = {isa = PBXBuildFile; fileRef = 7A0000000000000000000027 /* com.ibtkrgo.Tapdeck.Helper.plist */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		7A0000000000000000000051 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7A0000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7A0000000000000000000031;
+			remoteInfo = TapdeckControls;
+		};
+		7A0000000000000000000055 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7A0000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7A0000000000000000000032;
+			remoteInfo = TapdeckHelper;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		7A0000000000000000000043 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				7A0000000000000000000050 /* TapdeckControls.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7A0000000000000000000047 /* Embed Helper */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 6;
+			files = (
+				7A0000000000000000000053 /* TapdeckHelper in Embed Helper */,
+			);
+			name = "Embed Helper";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7A0000000000000000000048 /* Embed LaunchDaemons */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Contents/Library/LaunchDaemons;
+			dstSubfolderSpec = 1;
+			files = (
+				7A0000000000000000000054 /* com.ibtkrgo.Tapdeck.Helper.plist in Embed LaunchDaemons */,
+			);
+			name = "Embed LaunchDaemons";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		7A0000000000000000000020 /* Tapdeck.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tapdeck.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		7A0000000000000000000021 /* TapdeckControls.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TapdeckControls.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		7A0000000000000000000022 /* TapdeckHelper */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = TapdeckHelper; sourceTree = BUILT_PRODUCTS_DIR; };
+		7A0000000000000000000023 /* Tapdeck-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tapdeck-Info.plist"; sourceTree = "<group>"; };
+		7A0000000000000000000024 /* TapdeckControls-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "TapdeckControls-Info.plist"; sourceTree = "<group>"; };
+		7A0000000000000000000025 /* TapdeckControls.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TapdeckControls.entitlements; sourceTree = "<group>"; };
+		7A0000000000000000000027 /* com.ibtkrgo.Tapdeck.Helper.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = com.ibtkrgo.Tapdeck.Helper.plist; sourceTree = "<group>"; };
+		7A0000000000000000000028 /* Signing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Signing.xcconfig; sourceTree = "<group>"; };
+		7A0000000000000000000029 /* Local.xcconfig.example */ = {isa = PBXFileReference; lastKnownFileType = text; path = Local.xcconfig.example; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		7A0000000000000000000010 /* App */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = App;
+			sourceTree = "<group>";
+		};
+		7A0000000000000000000011 /* Shared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		7A0000000000000000000012 /* ControlsExtension */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = ControlsExtension;
+			sourceTree = "<group>";
+		};
+		7A0000000000000000000014 /* Helper */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Helper;
+			sourceTree = "<group>";
+		};
+		7A0000000000000000000015 /* HelperInterface */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = HelperInterface;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		7A0000000000000000000041 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7A0000000000000000000045 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7A0000000000000000000049 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		7A0000000000000000000002 = {
+			isa = PBXGroup;
+			children = (
+				7A0000000000000000000010 /* App */,
+				7A0000000000000000000011 /* Shared */,
+				7A0000000000000000000012 /* ControlsExtension */,
+				7A0000000000000000000014 /* Helper */,
+				7A0000000000000000000015 /* HelperInterface */,
+				7A0000000000000000000013 /* Config */,
+				7A0000000000000000000003 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		7A0000000000000000000003 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				7A0000000000000000000020 /* Tapdeck.app */,
+				7A0000000000000000000021 /* TapdeckControls.appex */,
+				7A0000000000000000000022 /* TapdeckHelper */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		7A0000000000000000000013 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				7A0000000000000000000023 /* Tapdeck-Info.plist */,
+				7A0000000000000000000024 /* TapdeckControls-Info.plist */,
+				7A0000000000000000000025 /* TapdeckControls.entitlements */,
+				7A0000000000000000000027 /* com.ibtkrgo.Tapdeck.Helper.plist */,
+				7A0000000000000000000028 /* Signing.xcconfig */,
+				7A0000000000000000000029 /* Local.xcconfig.example */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		7A0000000000000000000030 /* Tapdeck */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7A0000000000000000000061 /* Build configuration list for PBXNativeTarget "Tapdeck" */;
+			buildPhases = (
+				7A0000000000000000000040 /* Sources */,
+				7A0000000000000000000041 /* Frameworks */,
+				7A0000000000000000000042 /* Resources */,
+				7A0000000000000000000043 /* Embed Foundation Extensions */,
+				7A0000000000000000000047 /* Embed Helper */,
+				7A0000000000000000000048 /* Embed LaunchDaemons */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				7A0000000000000000000052 /* PBXTargetDependency */,
+				7A0000000000000000000056 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				7A0000000000000000000010 /* App */,
+				7A0000000000000000000011 /* Shared */,
+				7A0000000000000000000015 /* HelperInterface */,
+			);
+			name = Tapdeck;
+			packageProductDependencies = (
+			);
+			productName = Tapdeck;
+			productReference = 7A0000000000000000000020 /* Tapdeck.app */;
+			productType = "com.apple.product-type.application";
+		};
+		7A0000000000000000000031 /* TapdeckControls */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7A0000000000000000000062 /* Build configuration list for PBXNativeTarget "TapdeckControls" */;
+			buildPhases = (
+				7A0000000000000000000044 /* Sources */,
+				7A0000000000000000000045 /* Frameworks */,
+				7A0000000000000000000046 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				7A0000000000000000000012 /* ControlsExtension */,
+				7A0000000000000000000011 /* Shared */,
+			);
+			name = TapdeckControls;
+			packageProductDependencies = (
+			);
+			productName = TapdeckControls;
+			productReference = 7A0000000000000000000021 /* TapdeckControls.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		7A0000000000000000000032 /* TapdeckHelper */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7A0000000000000000000063 /* Build configuration list for PBXNativeTarget "TapdeckHelper" */;
+			buildPhases = (
+				7A000000000000000000004A /* Sources */,
+				7A0000000000000000000049 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				7A0000000000000000000014 /* Helper */,
+				7A0000000000000000000015 /* HelperInterface */,
+			);
+			name = TapdeckHelper;
+			packageProductDependencies = (
+			);
+			productName = TapdeckHelper;
+			productReference = 7A0000000000000000000022 /* TapdeckHelper */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		7A0000000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2710;
+				LastUpgradeCheck = 2710;
+				TargetAttributes = {
+					7A0000000000000000000030 = {
+						CreatedOnToolsVersion = 27.1;
+					};
+					7A0000000000000000000031 = {
+						CreatedOnToolsVersion = 27.1;
+					};
+					7A0000000000000000000032 = {
+						CreatedOnToolsVersion = 27.1;
+					};
+				};
+			};
+			buildConfigurationList = 7A0000000000000000000060 /* Build configuration list for PBXProject "Tapdeck" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 7A0000000000000000000002;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 7A0000000000000000000003 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				7A0000000000000000000030 /* Tapdeck */,
+				7A0000000000000000000031 /* TapdeckControls */,
+				7A0000000000000000000032 /* TapdeckHelper */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		7A0000000000000000000042 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7A0000000000000000000046 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		7A0000000000000000000040 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7A0000000000000000000044 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7A000000000000000000004A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		7A0000000000000000000052 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 7A0000000000000000000031 /* TapdeckControls */;
+			targetProxy = 7A0000000000000000000051 /* PBXContainerItemProxy */;
+		};
+		7A0000000000000000000056 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 7A0000000000000000000032 /* TapdeckHelper */;
+			targetProxy = 7A0000000000000000000055 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		7A0000000000000000000070 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7A0000000000000000000028 /* Signing.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		7A0000000000000000000071 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7A0000000000000000000028 /* Signing.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		7A0000000000000000000072 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Config/Tapdeck-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Tapdeck";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ibtkrgo.Tapdeck;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+			};
+			name = Debug;
+		};
+		7A0000000000000000000073 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Config/Tapdeck-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Tapdeck";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ibtkrgo.Tapdeck;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+			};
+			name = Release;
+		};
+		7A0000000000000000000074 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Config/TapdeckControls.entitlements;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Config/TapdeckControls-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Tapdeck";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ibtkrgo.Tapdeck.Controls;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+			};
+			name = Debug;
+		};
+		7A0000000000000000000075 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Config/TapdeckControls.entitlements;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Config/TapdeckControls-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Tapdeck";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ibtkrgo.Tapdeck.Controls;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+			};
+			name = Release;
+		};
+		7A0000000000000000000076 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CREATE_INFOPLIST_SECTION_IN_BINARY = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ibtkrgo.Tapdeck.Helper;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		7A0000000000000000000077 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CREATE_INFOPLIST_SECTION_IN_BINARY = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ibtkrgo.Tapdeck.Helper;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		7A0000000000000000000060 /* Build configuration list for PBXProject "Tapdeck" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7A0000000000000000000070 /* Debug */,
+				7A0000000000000000000071 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		7A0000000000000000000061 /* Build configuration list for PBXNativeTarget "Tapdeck" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7A0000000000000000000072 /* Debug */,
+				7A0000000000000000000073 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		7A0000000000000000000062 /* Build configuration list for PBXNativeTarget "TapdeckControls" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7A0000000000000000000074 /* Debug */,
+				7A0000000000000000000075 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		7A0000000000000000000063 /* Build configuration list for PBXNativeTarget "TapdeckHelper" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7A0000000000000000000076 /* Debug */,
+				7A0000000000000000000077 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 7A0000000000000000000001 /* Project object */;
+}

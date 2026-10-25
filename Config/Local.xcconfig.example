@@ -1,0 +1,4 @@
+// Copy to Local.xcconfig and put your own Team ID here (the 10-character
+// "OU" of your Apple Development certificate). Stay Awake's root helper only
+// accepts calls from an app signed by the same team, so ad-hoc signing won't do.
+DEVELOPMENT_TEAM = ABCDE12345
