@@ -1,0 +1,70 @@
+:root {
+  --bg: #F6F6F4;
+  --surface: #FFFFFF;
+  --ink: #141518;
+  --ink-2: #5A5E66;
+  --line: #E3E3DF;
+  --amber: #F2A31B;
+  --amber-ink: #1C1300;
+  --red: #DC3D43;
+  --off: #D3D3CE;
+  --code-bg: #15171A;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #111214; --surface: #1A1C20; --ink: #EFEFEC; --ink-2: #A3A7AE; --line: #2A2D32;
+    --off: #3A3E44; --red: #FF6369; --code-bg: #08090A;
+    color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  width: 320px; margin: 0; padding: 14px; background: var(--bg); color: var(--ink);
+  font: 13px/1.45 -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+}
+body.busy .tool { opacity: .6; pointer-events: none; }
+header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+header b { font-size: 15px; }
+.status { margin-left: auto; font-size: 11.5px; color: var(--ink-2); }
+.status.ok::before { content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 6px; border-radius: 50%; background: #34C759; vertical-align: 1px; }
+
+main { display: grid; gap: 8px; }
+.tool {
+  display: flex; align-items: center; gap: 11px; width: 100%; padding: 10px 12px; text-align: left;
+  border: 1px solid var(--line); border-radius: 14px; background: var(--surface); color: inherit; font: inherit; cursor: pointer;
+  transition: border-color .15s ease;
+}
+.tool:hover { border-color: var(--off); }
+.tool:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+.ico { width: 34px; height: 34px; flex: none; border-radius: 50%; display: grid; place-items: center; background: var(--off); color: var(--ink); transition: background-color .2s ease, color .2s ease; }
+.ico svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.text { display: grid; flex: 1; min-width: 0; }
+.text b { font-size: 13.5px; font-weight: 600; }
+.text small { color: var(--ink-2); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.on-icon, [aria-checked="true"] .off-icon { display: none; }
+[aria-checked="true"] .on-icon { display: block; }
+#mic[aria-checked="true"] .ico { background: var(--red); color: #fff; }
+#awake[aria-checked="true"] .ico { background: var(--amber); color: var(--amber-ink); }
+#lights .ico { background: #16181B; color: #fff; }
+
+.switch { position: relative; width: 34px; height: 20px; flex: none; border-radius: 10px; background: var(--off); transition: background-color .2s ease; }
+.switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0, 0, 0, .3); transition: transform .2s ease; }
+[aria-checked="true"] .switch::after { transform: translateX(14px); }
+#mic[aria-checked="true"] .switch { background: var(--red); }
+#awake[aria-checked="true"] .switch { background: var(--amber); }
+.go { flex: none; padding: 4px 9px; border-radius: 8px; background: var(--off); font-size: 12px; font-weight: 600; }
+
+.note { margin: 2px 2px 0; padding: 8px 10px; border-radius: 10px; background: color-mix(in srgb, var(--red) 12%, transparent); color: var(--ink); font-size: 12px; }
+.shortcut { margin: 4px 2px 0; color: var(--ink-2); font-size: 11.5px; }
+
+#setup { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+#setup p { margin: 0; color: var(--ink-2); }
+.cmd { display: flex; align-items: center; gap: 8px; padding: 8px 8px 8px 10px; border-radius: 10px; background: var(--code-bg); }
+.cmd code { flex: 1; min-width: 0; overflow-x: auto; white-space: nowrap; color: #E8E8E5; font: 11.5px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; }
+.cmd button { flex: none; padding: 4px 9px; border: 1px solid rgba(255, 255, 255, .18); border-radius: 7px; background: rgba(255, 255, 255, .08); color: #E8E8E5; font: inherit; font-size: 11.5px; cursor: pointer; }
+.small { font-size: 11.5px; }
+a { color: inherit; }

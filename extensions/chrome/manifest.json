@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "Tapdeck",
+  "version": "1.0",
+  "description": "See and switch Tapdeck's tools from Chrome: Mic Mute, Stay Awake and Lights Out.",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtM3721XUp36AuyEVL6dcgCHwfDVwFsKoPGv6jfp63w0rg9paqU/myw+WlD5xCLKilBBgqk3eJ/txW4n1fEzkuI17vSSsuuhUn4+oYnQw3D4vhM9rah2df0grMuwkcEeDUgR3GszWe2+j9GjAZMPszfuzAkNniml1MtPklJUU1+MHTSZWm/zhRxDdJP67tgaQes2kSTaj8CTq+AD5j0eNksE+lV2Aez/PApnMitoUw4Zz6h1XSIWJ1UE4Bi6KOOO1aGrmYslnIn1hIGjaA2e0R0hS8V9S2lMT/kcpuHZz1oNEoJ+qoIdwULJLNfLkBs68IzZAFWS5TTiGEZkBWp2jLwIDAQAB",
+  "permissions": ["nativeMessaging"],
+  "background": { "service_worker": "background.js", "type": "module" },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Tapdeck",
+    "default_icon": { "16": "icons/16.png", "32": "icons/32.png" }
+  },
+  "icons": { "16": "icons/16.png", "48": "icons/48.png", "128": "icons/128.png" },
+  "commands": {
+    "toggle-mic": {
+      "suggested_key": { "default": "Alt+Shift+M" },
+      "description": "Toggle Mic Mute"
+    }
+  }
+}

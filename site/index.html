@@ -721,8 +721,8 @@
             </a>
             <a class="btn btn-ghost" href="#install"><span lang="en">How to install</span><span lang="ar">طريقة التثبيت</span></a>
           </div>
-          <p class="meta" lang="en">Free · Version 1.1 · macOS 26 Tahoe or later · Apple silicon &amp; Intel</p>
-          <p class="meta" lang="ar">مجاني · الإصدار 1.1 · <bdi>macOS 26 Tahoe</bdi> أو أحدث · Apple silicon و Intel</p>
+          <p class="meta" lang="en">Free · Version 1.2 · macOS 26 Tahoe or later · Apple silicon &amp; Intel</p>
+          <p class="meta" lang="ar">مجاني · الإصدار 1.2 · <bdi>macOS 26 Tahoe</bdi> أو أحدث · Apple silicon و Intel</p>
         </div>
       </div>
 
@@ -1181,6 +1181,15 @@
             <p lang="en">Every microphone with a mute switch, which includes the Mac's built-in mic and most USB mics and audio interfaces. A few have no mute or volume control at all, such as an iPhone used through Continuity or a virtual mic from a recording app; if the one in use is like that, Tapdeck tells you. The mute lives in the microphone itself, so it holds even if Tapdeck quits. This lists every mic on your Mac and whether it can be muted:</p>
             <p lang="ar">كل ميكروفون فيه مفتاح كتم، ومنها ميكروفون الماك الداخلي وأغلب ميكروفونات USB وكروت الصوت. بعضها بلا أي تحكم بالكتم أو الصوت، مثل الآيفون عبر Continuity أو الميكروفونات الافتراضية من برامج التسجيل؛ وإذا كان الميكروفون المستخدم منها، يخبرك Tapdeck بذلك. الكتم محفوظ في الميكروفون نفسه، فيبقى حتى لو أُغلق Tapdeck. هذا الأمر يعرض كل الميكروفونات في جهازك وهل يمكن كتمها:</p>
             <div class="code"><code>/Applications/Tapdeck.app/Contents/MacOS/Tapdeck --status</code><button class="copy" type="button" data-copy><span class="idle-t"><span lang="en">Copy</span><span lang="ar">نسخ</span></span><span class="done-t"><span lang="en">Copied</span><span lang="ar">تم النسخ</span></span></button></div>
+          </div>
+        </details>
+        <details>
+          <summary><span lang="en">Can I control Tapdeck from Terminal or a browser extension?</span><span lang="ar">هل أستطيع التحكم بـ Tapdeck من Terminal أو من إضافة متصفح؟</span><span class="pm" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p lang="en">Yes, with no server running. Install the <span class="ui">tapdeck</span> command once, then read and switch every tool from Terminal, scripts, Raycast or an AI coding agent. Browser extensions connect through Chrome's native messaging, and a ready-made Chrome extension is on GitHub. The <a href="https://github.com/Devehab/Tapdeck/blob/main/docs/integrations.md">full guide</a> covers every command and the JSON format.</p>
+            <p lang="ar">نعم، ودون أي سيرفر. ثبّت أمر <span class="ui">tapdeck</span> مرة واحدة، ثم اقرأ حالة كل أداة وغيّرها من Terminal أو السكربتات أو Raycast أو وكيل برمجة ذكي. وإضافات المتصفح تتصل عبر native messaging في Chrome، وهناك إضافة Chrome جاهزة على GitHub. <a href="https://github.com/Devehab/Tapdeck/blob/main/docs/integrations.ar.md">الشرح الكامل</a> يغطي كل الأوامر وصيغة JSON.</p>
+            <div class="code"><code>/Applications/Tapdeck.app/Contents/MacOS/Tapdeck install-cli</code><button class="copy" type="button" data-copy><span class="idle-t"><span lang="en">Copy</span><span lang="ar">نسخ</span></span><span class="done-t"><span lang="en">Copied</span><span lang="ar">تم النسخ</span></span></button></div>
+            <div class="code"><code>tapdeck status --json</code><button class="copy" type="button" data-copy><span class="idle-t"><span lang="en">Copy</span><span lang="ar">نسخ</span></span><span class="done-t"><span lang="en">Copied</span><span lang="ar">تم النسخ</span></span></button></div>
           </div>
         </details>
         <details>

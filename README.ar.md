@@ -61,8 +61,24 @@ pmset -g stats
 تم اختباره بتسجيل حقيقي: أثناء الكتم استقبل التطبيق المسجِّل أصفاراً تامة، ولم يتوقف تسجيله ولم يظهر له أي خطأ.
 
 ### Spotlight واختصارات الكيبورد
-- اضغط ⌘ Space واكتب **Lights Out** أو **Toggle Stay Awake** أو **Toggle Mic Mute**. يعملان مباشرة بعد التثبيت (معرّفان في `App/AppShortcuts.swift`).
+- اضغط ⌘ Space واكتب **Lights Out** أو **Toggle Stay Awake** أو **Toggle Mic Mute**. تعمل مباشرة بعد التثبيت (معرّفة في `App/AppShortcuts.swift`).
 - لاختصار كيبورد: تطبيق Shortcuts ← اختصار جديد ← ابحث عن Tapdeck وأضف الإجراء ← تفاصيل الاختصار (ⓘ) ← **Add Keyboard Shortcut**.
+
+## Terminal وإضافات المتصفح
+
+كل أداة يمكن قراءتها والتحكم بها من خارج Control Center أيضاً، دون أي سيرفر:
+
+```bash
+/Applications/Tapdeck.app/Contents/MacOS/Tapdeck install-cli   # مرة واحدة: يضيف أمر tapdeck إلى ~/.local/bin
+tapdeck status --json
+tapdeck mic toggle
+tapdeck awake on
+tapdeck lights out
+```
+
+إضافات المتصفح تصل إلى Tapdeck عبر native messaging في Chrome: شغّل `tapdeck chrome install`، ثم حمّل الإضافة الجاهزة ([نزّل ملف zip](https://github.com/Devehab/Tapdeck/releases/latest/download/tapdeck-chrome-extension.zip)، أو استخدم [`extensions/chrome`](extensions/chrome)). نافذتها تعرض الأدوات الثلاث، والاختصار Alt+Shift+M يبدّل كتم الميكروفون.
+
+الشرح الكامل، بكل الأوامر وصيغة JSON وطريقة صنع إضافتك الخاصة وحل المشاكل، موجود في [docs/integrations.ar.md](docs/integrations.ar.md).
 
 ## التطوير والتثبيت على جهازك
 

@@ -59,6 +59,22 @@ Spotlight: press ⌘ Space and type **Lights Out**, **Toggle Stay Awake** or **T
 
 Requires macOS 26 Tahoe or later. Universal (Apple silicon and Intel).
 
+## Terminal and browser extensions
+
+Every tool can also be read and switched from outside Control Center, with no server running:
+
+```bash
+/Applications/Tapdeck.app/Contents/MacOS/Tapdeck install-cli   # once: adds `tapdeck` to ~/.local/bin
+tapdeck status --json
+tapdeck mic toggle
+tapdeck awake on
+tapdeck lights out
+```
+
+Browser extensions reach Tapdeck through Chrome's native messaging: run `tapdeck chrome install`, then load the sample extension ([download the zip](https://github.com/Devehab/Tapdeck/releases/latest/download/tapdeck-chrome-extension.zip), or use [`extensions/chrome`](extensions/chrome)). Its popup shows all three tools, and Alt+Shift+M toggles the mic.
+
+The full guide, with every command, the JSON format, building your own extension and troubleshooting, is in [docs/integrations.md](docs/integrations.md).
+
 ## Build from source
 
 Requires Xcode 26 or later and an Apple Development certificate. Put your Team ID in a local config file (git ignores it):
@@ -72,7 +88,7 @@ cp Config/Local.xcconfig.example Config/Local.xcconfig   # then edit DEVELOPMENT
 |---|---|
 | `scripts/build.sh` | Builds `Tapdeck.app` (Release, universal) with a fresh build number |
 | `scripts/install.sh` | Builds, installs to `/Applications` and registers the controls |
-| `scripts/make-dmg.sh` | Builds `dist/Tapdeck-<version>.dmg` and `dist/Tapdeck.dmg` for a release |
+| `scripts/make-dmg.sh` | Builds `dist/Tapdeck-<version>.dmg`, `dist/Tapdeck.dmg` and `dist/tapdeck-chrome-extension.zip` for a release |
 | `scripts/make-icon.swift` | Draws the app icon and the website icons |
 
 Every build gets a new build number because WidgetKit caches each extension's list of controls by build number. `install.sh` also stops the old extension process so Control Center redraws with the new code.
@@ -81,7 +97,7 @@ Every build gets a new build number because WidgetKit caches each extension's li
 
 ```bash
 ./scripts/make-dmg.sh
-gh release create v1.0 dist/Tapdeck.dmg --title "Tapdeck 1.0"
+gh release create v1.2 dist/Tapdeck.dmg dist/tapdeck-chrome-extension.zip --title "Tapdeck 1.2"
 ```
 
 The website's download buttons point to `releases/latest/download/Tapdeck.dmg`, so they always serve the newest release.

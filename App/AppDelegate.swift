@@ -10,18 +10,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var terminationSignal: DispatchSourceSignal?
 
     static func main() {
-        if CommandLine.arguments.contains("--status") {
-            StatusReport.print()
-            return
-        }
-        if CommandLine.arguments.contains("--unregister-helper") {
-            do {
-                try PrivilegedHelper.shared.unregister()
-                print("Root helper unregistered.")
-            } catch {
-                print("Couldn't unregister the root helper: \(error.localizedDescription)")
-            }
-            return
+        // `tapdeck …` in Terminal, or a browser extension talking to Tapdeck.
+        if let exitCode = CommandLineInterface.run(Array(CommandLine.arguments.dropFirst())) {
+            exit(exitCode)
         }
         let app = NSApplication.shared
         let delegate = AppDelegate()
