@@ -69,6 +69,21 @@ pkill -x Tapdeck; pkill -x TapdeckControls
 
 Then drag the new Tapdeck into Applications, choose **Replace**, and open it. Your settings and Control Center buttons stay as they are.
 
+If a new tool doesn't show up in Edit Controls afterwards, or a button looks old, macOS is still using an older copy of Tapdeck it remembers (in Downloads, the Trash or an old disk image). This makes it forget every copy outside Applications and reload the buttons:
+
+```bash
+LSR=/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister
+pkill -x Tapdeck; pkill -x TapdeckControls
+"$LSR" -dump | grep -E "^path: +/.*/Tapdeck\.app( |$)" | sed -E 's/^path: +//; s/ \(0x[0-9a-f]+\)$//' | sort -u | grep -v "^/Applications/Tapdeck.app$" | while read -r old; do echo "Forgetting old copy: $old"; "$LSR" -u "$old"; done
+"$LSR" -f /Applications/Tapdeck.app
+pluginkit -a /Applications/Tapdeck.app/Contents/PlugIns/TapdeckControls.appex
+killall chronod
+open /Applications/Tapdeck.app
+echo "Tapdeck version: $(defaults read /Applications/Tapdeck.app/Contents/Info.plist CFBundleShortVersionString)"
+```
+
+The last line should show the version you installed. If it shows an older one, the new Tapdeck never reached Applications: download it again and drag it in.
+
 ## Terminal and browser extensions
 
 Every tool can also be read and switched from outside Control Center, with no server running:

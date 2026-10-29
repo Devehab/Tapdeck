@@ -532,6 +532,9 @@
   .code { display: flex; align-items: center; gap: 12px; min-width: 0; padding: 8px 8px 8px 16px; border-radius: 12px; background: var(--code-bg); color: var(--code-ink); direction: ltr; text-align: left; }
   .code code { flex: 1; min-width: 0; overflow-x: auto; white-space: nowrap; font: 400 13.5px/1.8 var(--mono); scrollbar-width: thin; }
   .code code::before { content: "$ "; color: #7C828B; }
+  .code.multi { align-items: flex-start; padding-block: 12px; }
+  .code.multi code { white-space: pre; line-height: 1.75; }
+  .code.multi code::before { content: none; }
   .copy { flex: none; height: 30px; padding-inline: 11px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, .14); background: rgba(255, 255, 255, .06); color: #E8E8E5; font-size: 12.5px; font-weight: 600; }
   .copy:hover { background: rgba(255, 255, 255, .12); }
   .copy .done-t, .copy.done .idle-t { display: none; }
@@ -1172,10 +1175,20 @@
           </div>
         </details>
         <details>
-          <summary><span lang="en">A control looks out of date after an update</span><span lang="ar">زر يظهر بشكل قديم بعد التحديث</span><span class="pm" aria-hidden="true"></span></summary>
+          <summary><span lang="en">After an update, a new tool is missing or a control looks old</span><span lang="ar">بعد التحديث، أداة جديدة لا تظهر أو زر يظهر بشكل قديم</span><span class="pm" aria-hidden="true"></span></summary>
           <div class="answer">
-            <p lang="en">Open Tapdeck once from Applications; it refreshes all of its controls when it starts. If one still looks old, remove it in Edit Controls and drag it in again.</p>
-            <p lang="ar">افتح Tapdeck مرة من Applications، فهو يحدّث كل أزراره عند تشغيله. وإذا بقي زر بشكل قديم، احذفه من Edit Controls واسحبه من جديد.</p>
+            <p lang="en">macOS can keep using an older copy of Tapdeck it still remembers, for example one left in Downloads, the Trash or an old disk image. Paste this into Terminal: it quits Tapdeck, makes macOS forget every copy outside Applications, and reloads the Control Center buttons.</p>
+            <p lang="ar">قد يبقى macOS يستخدم نسخة أقدم من Tapdeck ما زال يتذكرها، مثلاً نسخة في Downloads أو سلة المهملات أو ملف DMG قديم. الصق هذا في Terminal: يغلق Tapdeck، ويجعل macOS ينسى كل النسخ خارج Applications، ويعيد تحميل أزرار Control Center.</p>
+            <div class="code multi"><code>LSR=/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister
+pkill -x Tapdeck; pkill -x TapdeckControls
+"$LSR" -dump | grep -E "^path: +/.*/Tapdeck\.app( |$)" | sed -E 's/^path: +//; s/ \(0x[0-9a-f]+\)$//' | sort -u | grep -v "^/Applications/Tapdeck.app$" | while read -r old; do echo "Forgetting old copy: $old"; "$LSR" -u "$old"; done
+"$LSR" -f /Applications/Tapdeck.app
+pluginkit -a /Applications/Tapdeck.app/Contents/PlugIns/TapdeckControls.appex
+killall chronod
+open /Applications/Tapdeck.app
+echo "Tapdeck version: $(defaults read /Applications/Tapdeck.app/Contents/Info.plist CFBundleShortVersionString)"</code><button class="copy" type="button" data-copy><span class="idle-t"><span lang="en">Copy</span><span lang="ar">نسخ</span></span><span class="done-t"><span lang="en">Copied</span><span lang="ar">تم النسخ</span></span></button></div>
+            <p lang="en">The last line should show the version you installed. If it shows an older one, the new Tapdeck never reached Applications: download it again and drag it in. Then close Control Center and open Edit Controls › Tapdeck; the new tool is there.</p>
+            <p lang="ar">يجب أن يعرض السطر الأخير رقم النسخة التي ثبّتها. إذا ظهر رقم أقدم، فالنسخة الجديدة لم تصل إلى Applications: نزّلها من جديد واسحبها إليه. ثم أغلق Control Center وافتح Edit Controls › Tapdeck، وستجد الأداة الجديدة هناك.</p>
           </div>
         </details>
         <details>

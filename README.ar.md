@@ -74,6 +74,21 @@ pkill -x Tapdeck; pkill -x TapdeckControls
 
 ثم اسحب Tapdeck الجديد إلى Applications، واختر **Replace**، وافتحه. إعداداتك وأزرار Control Center تبقى كما هي.
 
+إذا لم تظهر أداة جديدة في Edit Controls بعد ذلك، أو ظهر زر بشكل قديم، فـ macOS ما زال يستخدم نسخة أقدم من Tapdeck يتذكرها (في Downloads أو سلة المهملات أو ملف DMG قديم). هذا يجعله ينسى كل النسخ خارج Applications ويعيد تحميل الأزرار:
+
+```bash
+LSR=/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister
+pkill -x Tapdeck; pkill -x TapdeckControls
+"$LSR" -dump | grep -E "^path: +/.*/Tapdeck\.app( |$)" | sed -E 's/^path: +//; s/ \(0x[0-9a-f]+\)$//' | sort -u | grep -v "^/Applications/Tapdeck.app$" | while read -r old; do echo "Forgetting old copy: $old"; "$LSR" -u "$old"; done
+"$LSR" -f /Applications/Tapdeck.app
+pluginkit -a /Applications/Tapdeck.app/Contents/PlugIns/TapdeckControls.appex
+killall chronod
+open /Applications/Tapdeck.app
+echo "Tapdeck version: $(defaults read /Applications/Tapdeck.app/Contents/Info.plist CFBundleShortVersionString)"
+```
+
+يجب أن يعرض السطر الأخير رقم النسخة التي ثبّتها. إذا ظهر رقم أقدم، فالنسخة الجديدة لم تصل إلى Applications: نزّلها من جديد واسحبها إليه.
+
 ## Terminal وإضافات المتصفح
 
 كل أداة يمكن قراءتها والتحكم بها من خارج Control Center أيضاً، دون أي سيرفر:
