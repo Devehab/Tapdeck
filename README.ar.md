@@ -64,6 +64,16 @@ pmset -g stats
 - اضغط ⌘ Space واكتب **Lights Out** أو **Toggle Stay Awake** أو **Toggle Mic Mute**. تعمل مباشرة بعد التثبيت (معرّفة في `App/AppShortcuts.swift`).
 - لاختصار كيبورد: تطبيق Shortcuts ← اختصار جديد ← ابحث عن Tapdeck وأضف الإجراء ← تفاصيل الاختصار (ⓘ) ← **Add Keyboard Shortcut**.
 
+### التحديث إلى نسخة جديدة
+
+يبقى Tapdeck شغّالاً في الخلفية، لذلك إذا استبدلته مباشرة يقول Finder إن “Tapdeck” قيد الاستخدام (in use). أغلقه أولاً:
+
+```bash
+pkill -x Tapdeck; pkill -x TapdeckControls
+```
+
+ثم اسحب Tapdeck الجديد إلى Applications، واختر **Replace**، وافتحه. إعداداتك وأزرار Control Center تبقى كما هي.
+
 ## Terminal وإضافات المتصفح
 
 كل أداة يمكن قراءتها والتحكم بها من خارج Control Center أيضاً، دون أي سيرفر:

@@ -1155,6 +1155,16 @@
           </div>
         </details>
         <details>
+          <summary><span lang="en">When I update, macOS says the item “Tapdeck” is in use</span><span lang="ar">عند التحديث يقول macOS إن Tapdeck قيد الاستخدام (in use)</span><span class="pm" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p lang="en">Tapdeck keeps running in the background, so Finder can't replace it. Quit it first with this command:</p>
+            <p lang="ar">يبقى Tapdeck شغّالاً في الخلفية، لذلك لا يستطيع Finder استبداله. أغلقه أولاً بهذا الأمر:</p>
+            <div class="code"><code>pkill -x Tapdeck; pkill -x TapdeckControls</code><button class="copy" type="button" data-copy><span class="idle-t"><span lang="en">Copy</span><span lang="ar">نسخ</span></span><span class="done-t"><span lang="en">Copied</span><span lang="ar">تم النسخ</span></span></button></div>
+            <p lang="en">Then drag the new Tapdeck into Applications, choose <span class="ui">Replace</span>, and open it. Your settings and Control Center buttons stay as they are.</p>
+            <p lang="ar">ثم اسحب Tapdeck الجديد إلى Applications، واختر <span class="ui">Replace</span>، وافتحه. إعداداتك وأزرار Control Center تبقى كما هي.</p>
+          </div>
+        </details>
+        <details>
           <summary><span lang="en">Tapdeck isn't listed in Edit Controls</span><span lang="ar">Tapdeck لا يظهر في Edit Controls</span><span class="pm" aria-hidden="true"></span></summary>
           <div class="answer">
             <p lang="en">Make sure Tapdeck is in your Applications folder, not running from the disk image, and open it once. Then close Control Center and open Edit Controls again.</p>

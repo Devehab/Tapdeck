@@ -59,6 +59,16 @@ Spotlight: press ⌘ Space and type **Lights Out**, **Toggle Stay Awake** or **T
 
 Requires macOS 26 Tahoe or later. Universal (Apple silicon and Intel).
 
+### Updating
+
+Tapdeck keeps running in the background, so Finder says the item “Tapdeck” is in use if you replace it directly. Quit it first:
+
+```bash
+pkill -x Tapdeck; pkill -x TapdeckControls
+```
+
+Then drag the new Tapdeck into Applications, choose **Replace**, and open it. Your settings and Control Center buttons stay as they are.
+
 ## Terminal and browser extensions
 
 Every tool can also be read and switched from outside Control Center, with no server running:
