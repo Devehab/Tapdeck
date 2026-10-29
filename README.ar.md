@@ -48,8 +48,20 @@ pmset -g stats
 ```
 سجّل قيمة `Sleep Count`، سكّر الغطاء دقيقة أو اثنتين ثم افتحه، وشغّل الأمر مرة ثانية. إذا لم يزد الرقم، فالجهاز لم ينم.
 
+### Mic Mute
+زر تبديل يكتم كل الميكروفونات مرة واحدة، مثل زر الكتم في الميكروفون الخارجي:
+
+- يقلب مفتاح الكتم الخاص بكل ميكروفون على مستوى الجهاز. التطبيقات تبقى متصلة وتحتفظ بصلاحيتها، وتستقبل صمتاً رقمياً تاماً؛ لا شيء يُسحب أو يتوقف أو يحتاج إعادة تشغيل.
+- ضغطة ثانية ويرجع الصوت فوراً. ميكروفون أحمر مشطوب = **Muted**، ميكروفون عادي = **On**.
+- أي ميكروفون يتصل أثناء الكتم يُكتم أيضاً، والكتم يبقى حتى لو أُغلق Tapdeck.
+- إذا أعاد تطبيق آخر تشغيل الميكروفون، يتبعه الزر ويعرض الحالة الحقيقية.
+- لا يحتاج أي صلاحيات، ولا يستمع للميكروفون أبداً.
+- بعض المداخل ليس فيها أي تحكم بالكتم أو الصوت، مثل الآيفون عبر Continuity أو الميكروفونات الافتراضية من برامج التسجيل. إذا كان المدخل المستخدم منها، يخبرك Tapdeck بدل أن يُظهر كتماً غير حقيقي. الأمر `Tapdeck --status` يعرض كل المداخل وهل يمكن كتمها.
+
+تم اختباره بتسجيل حقيقي: أثناء الكتم استقبل التطبيق المسجِّل أصفاراً تامة، ولم يتوقف تسجيله ولم يظهر له أي خطأ.
+
 ### Spotlight واختصارات الكيبورد
-- اضغط ⌘ Space واكتب **Lights Out** أو **Toggle Stay Awake**. يعملان مباشرة بعد التثبيت (معرّفان في `App/AppShortcuts.swift`).
+- اضغط ⌘ Space واكتب **Lights Out** أو **Toggle Stay Awake** أو **Toggle Mic Mute**. يعملان مباشرة بعد التثبيت (معرّفان في `App/AppShortcuts.swift`).
 - لاختصار كيبورد: تطبيق Shortcuts ← اختصار جديد ← ابحث عن Tapdeck وأضف الإجراء ← تفاصيل الاختصار (ⓘ) ← **Add Keyboard Shortcut**.
 
 ## التطوير والتثبيت على جهازك
@@ -66,7 +78,7 @@ cp Config/Local.xcconfig.example Config/Local.xcconfig
 ./scripts/install.sh
 ```
 
-يبني التطبيق، يثبّته في `/Applications/Tapdeck.app`، ويسجّل الأزرار. بعدها: Control Center ← **Edit Controls** ← **Tapdeck** ← اسحب **Lights Out** و **Stay Awake**.
+يبني التطبيق، يثبّته في `/Applications/Tapdeck.app`، ويسجّل الأزرار. بعدها: Control Center ← **Edit Controls** ← **Tapdeck** ← اسحب **Lights Out** و **Stay Awake** و **Mic Mute**.
 
 أعد تشغيل نفس السكربت بعد أي تعديل على الكود. كل build يأخذ رقماً جديداً تلقائياً، لأن النظام يحفظ قائمة الأزرار حسب رقم البناء؛ والسكربت يوقف نسخة الأزرار القديمة حتى يُرسم الجديد.
 
@@ -145,7 +157,7 @@ Tapdeck/
 ```bash
 /Applications/Tapdeck.app/Contents/MacOS/Tapdeck --status
 ```
-يعرض ما يراه التطبيق (الشاشات، السطوع، الكيبورد، الوقت منذ آخر إدخال، حالة Stay Awake، وحالة الـ helper) بدون أن يغيّر شيئاً.
+يعرض ما يراه التطبيق (الشاشات، السطوع، الكيبورد، الوقت منذ آخر إدخال، حالة Stay Awake، حالة الـ helper، وكل الميكروفونات وهل يمكن كتمها) بدون أن يغيّر شيئاً.
 
 ```bash
 /usr/bin/log show --last 10m --style compact --predicate 'subsystem == "com.ibtkrgo.Tapdeck"'
@@ -159,7 +171,7 @@ Tapdeck/
 - سطوع الشاشة وإضاءة الكيبورد يتم التحكم بهما عبر واجهات خاصة من Apple (`DisplayServices` و `CoreBrightness`). هذا لا يمر في App Store، وقد يتغيّر مع تحديثات macOS. أمر `--status` يكشف ذلك بسرعة.
 - الشاشات الخارجية التي لا تدعم التحكم بالسطوع تصبح سوداء فقط، وإضاءتها الخلفية تبقى شغّالة.
 - مدة التجاهل بعد الضغط (1.2 ثانية) ومنع السكون موجودة في أعلى `LightsOutController.swift`.
-- إزالة التطبيق: أطفئ Stay Awake أولاً، ثم شغّل `/Applications/Tapdeck.app/Contents/MacOS/Tapdeck --unregister-helper`، ثم أغلق التطبيق (`pkill -x Tapdeck`) واحذف `/Applications/Tapdeck.app`.
+- إزالة التطبيق: أطفئ Stay Awake و Mic Mute أولاً، ثم شغّل `/Applications/Tapdeck.app/Contents/MacOS/Tapdeck --unregister-helper`، ثم أغلق التطبيق (`pkill -x Tapdeck`) واحذف `/Applications/Tapdeck.app`.
 
 ## الرخصة
 

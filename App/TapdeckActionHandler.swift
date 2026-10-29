@@ -9,6 +9,10 @@ enum TapdeckActionHandler {
             await StayAwakeController.shared.set(true)
         case .stayAwakeOff:
             await StayAwakeController.shared.set(false)
+        case .micMuteOn:
+            MicMuteController.shared.set(muted: true)
+        case .micMuteOff:
+            MicMuteController.shared.set(muted: false)
         }
     }
 }

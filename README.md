@@ -38,14 +38,24 @@ pmset -g | grep SleepDisabled   # 1 = on, 0 = off
 pmset -g stats                  # Sleep Count stays the same if the Mac never slept
 ```
 
+### Mic Mute
+A toggle that mutes every microphone at once, the way the mute button on an external mic does.
+
+- Flips each microphone's own hardware mute switch. Apps keep their audio stream and their permission and receive exact digital silence; nothing is revoked, paused or restarted.
+- Tap again and sound flows immediately. Red struck-through mic = **Muted**, plain mic = **On**.
+- Microphones that connect while muted are muted too, and the mute holds even if Tapdeck quits.
+- If another app turns the mic back on, the toggle follows.
+- Needs no permissions. It never listens to the microphone.
+- Some inputs, such as an iPhone used through Continuity or a virtual mic from a recording app, have no mute or volume control. If the input in use is one of them, Tapdeck says so instead of showing a mute that isn't real. `Tapdeck --status` lists every input and whether it can be muted.
+
 ## Install
 
 1. Download [Tapdeck.dmg](https://github.com/Devehab/Tapdeck/releases/latest/download/Tapdeck.dmg) and drag Tapdeck into Applications.
 2. Open it. This build isn't notarized yet, so the first time macOS says it can't verify Tapdeck: click **Done**, then **System Settings › Privacy & Security › Open Anyway**.
-3. Open **Control Center › Edit Controls › Tapdeck** and drag **Lights Out** and **Stay Awake** into Control Center, or up into the menu bar.
+3. Open **Control Center › Edit Controls › Tapdeck** and drag **Lights Out**, **Stay Awake** and **Mic Mute** into Control Center, or up into the menu bar.
 4. The first time you tap Stay Awake, click **Open System Settings** and turn on Tapdeck under **General › Login Items & Extensions › Allow in the Background**.
 
-Spotlight: press ⌘ Space and type **Lights Out** or **Toggle Stay Awake**. For a keyboard shortcut, add either action to a shortcut in the Shortcuts app and choose **Add Keyboard Shortcut**.
+Spotlight: press ⌘ Space and type **Lights Out**, **Toggle Stay Awake** or **Toggle Mic Mute**. For a keyboard shortcut (a mute key, say), add the action to a shortcut in the Shortcuts app and choose **Add Keyboard Shortcut**.
 
 Requires macOS 26 Tahoe or later. Universal (Apple silicon and Intel).
 
@@ -88,11 +98,11 @@ python3 -m http.server 8765 --directory site
 
 ```
 App/                 The app (not sandboxed). Does the real work.
-  Features/          One folder per tool: LightsOut, StayAwake
+  Features/          One folder per tool: LightsOut, StayAwake, MicMute
   Hardware/          Display brightness, keyboard light, input activity, root helper client
   AppShortcuts.swift Spotlight and Shortcuts actions
 ControlsExtension/   WidgetKit extension with the Control Center controls
-Shared/              Code in both the app and the extension: TapdeckAction, ControlKind, App Intents
+Shared/              Code in both the app and the extension: TapdeckAction, ControlKind, App Intents, AudioInputs
 Helper/              TapdeckHelper, the root launchd daemon (SMAppService)
 HelperInterface/     XPC protocol shared by the app and the helper
 Config/              Info.plists, entitlements, the helper's launchd plist, Signing.xcconfig
@@ -117,7 +127,7 @@ Anything that needs root becomes a new, narrowly scoped method on `TapdeckHelper
 /Applications/Tapdeck.app/Contents/MacOS/Tapdeck --status
 ```
 
-Prints what Tapdeck can see and control (displays, brightness, keyboard light, Stay Awake, helper approval) without changing anything.
+Prints what Tapdeck can see and control (displays, brightness, keyboard light, Stay Awake, helper approval, every microphone and whether it can be muted) without changing anything.
 
 ```bash
 /usr/bin/log show --last 10m --style compact --predicate 'subsystem == "com.ibtkrgo.Tapdeck"'
@@ -125,7 +135,7 @@ Prints what Tapdeck can see and control (displays, brightness, keyboard light, S
 
 Logs from the app, the extension and the helper. In zsh, `log` is a shell builtin, so use the full path.
 
-To uninstall: turn Stay Awake off, run `Tapdeck --unregister-helper` (same path as above), quit with `pkill -x Tapdeck`, and move the app to the Trash.
+To uninstall: turn Stay Awake and Mic Mute off, run `Tapdeck --unregister-helper` (same path as above), quit with `pkill -x Tapdeck`, and move the app to the Trash.
 
 ## Notes
 

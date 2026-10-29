@@ -46,6 +46,7 @@
     --amber-ink: #1C1300;
     --amber-text: #8F5408;
     --amber-soft: #FCEFD6;
+    --red: #DC3D43;
     --graphite: #16181B;
     --note-bg: #FFF7E8;
     --note-line: #EED3A1;
@@ -68,7 +69,7 @@
     :root:not([data-theme="light"]) {
       --paper: #0E0F11; --surface: #15171A; --surface-2: #1C1F23; --ink: #EFEFEC; --ink-2: #B3B6BC; --ink-3: #878B93;
       --line: #24272C; --line-strong: #33373D; --amber-text: #F5B54B; --amber-soft: rgba(242, 163, 27, .12);
-      --note-bg: rgba(242, 163, 27, .07); --note-line: rgba(242, 163, 27, .28); --code-bg: #08090A;
+      --note-bg: rgba(242, 163, 27, .07); --note-line: rgba(242, 163, 27, .28); --code-bg: #08090A; --red: #FF6369;
       --shadow-lg: 0 50px 100px -40px rgba(0, 0, 0, .8), 0 20px 40px -24px rgba(0, 0, 0, .6);
       --shadow-sm: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 30px -18px rgba(0, 0, 0, .7);
       color-scheme: dark;
@@ -77,7 +78,7 @@
   :root[data-theme="dark"] {
     --paper: #0E0F11; --surface: #15171A; --surface-2: #1C1F23; --ink: #EFEFEC; --ink-2: #B3B6BC; --ink-3: #878B93;
     --line: #24272C; --line-strong: #33373D; --amber-text: #F5B54B; --amber-soft: rgba(242, 163, 27, .12);
-    --note-bg: rgba(242, 163, 27, .07); --note-line: rgba(242, 163, 27, .28); --code-bg: #08090A;
+    --note-bg: rgba(242, 163, 27, .07); --note-line: rgba(242, 163, 27, .28); --code-bg: #08090A; --red: #FF6369;
     --shadow-lg: 0 50px 100px -40px rgba(0, 0, 0, .8), 0 20px 40px -24px rgba(0, 0, 0, .6);
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 30px -18px rgba(0, 0, 0, .7);
     color-scheme: dark;
@@ -235,6 +236,9 @@
   .stay .bub { background: rgba(255, 255, 255, .22); color: #fff; }
   .stay-on .stay .bub { background: var(--amber); color: var(--amber-ink); }
   [data-stay-scope]:not(.stay-on) .when-on, [data-stay-scope].stay-on .when-off { display: none !important; }
+  [data-mic-scope]:not(.mic-muted) .when-muted, [data-mic-scope].mic-muted .when-live { display: none !important; }
+  .mic-muted .mic-t { background: #E5484D; }
+  .mic-muted .mb-mic { color: #FF6369; background: rgba(255, 255, 255, .14); }
   .tag {
     position: absolute; z-index: 2; display: inline-flex; align-items: center; gap: 8px; padding: 7px 12px 7px 10px; border-radius: 999px;
     background: rgba(10, 13, 15, .62); border: 1px solid rgba(242, 163, 27, .55); font: 500 12.5px/1.2 var(--body); color: #F4F4F2;
@@ -275,7 +279,7 @@
   h3 { font: 650 1.3rem/1.25 var(--display); letter-spacing: -.02em; }
 
   /* Tools */
-  .tools { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+  .tools { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
   .tool { display: flex; flex-direction: column; border-radius: 24px; background: var(--surface); border: 1px solid var(--line); overflow: hidden; transition: transform .3s var(--ease), box-shadow .3s var(--ease); }
   .band .tool { background: var(--paper); }
   .tool:hover { transform: translateY(-3px); box-shadow: var(--shadow-sm); }
@@ -295,6 +299,7 @@
   .dot.sun { background: var(--amber); color: var(--amber-ink); }
   .dot.moon { background: var(--line-strong); color: var(--ink); }
   .dot.bulb { background: var(--graphite); color: #fff; }
+  .dot.mic { background: var(--red); color: #fff; }
   .note { display: flex; gap: 10px; padding: 12px 14px; border-radius: 14px; background: var(--note-bg); border: 1px solid var(--note-line); color: var(--ink-2); font-size: 14px; margin-top: auto; }
   .note .icon { width: 18px; height: 18px; margin-top: 2px; color: var(--amber-text); }
   .more { margin-top: 24px; display: flex; align-items: center; gap: 22px; padding: 22px 28px; border-radius: 20px; border: 1px dashed var(--line-strong); color: var(--ink-2); }
@@ -321,6 +326,16 @@
   .laptop .glow span { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: var(--amber); color: var(--amber-ink); }
   .laptop .glow .icon { width: 14px; height: 14px; stroke-width: 2.4; }
   .tool:hover .laptop .lid { transform: rotate(0deg); }
+  .micviz { display: flex; align-items: center; gap: 22px; }
+  .micviz .mic { width: 84px; height: 84px; border-radius: 50%; display: grid; place-items: center; background: var(--graphite); color: #fff; transition: background-color .4s ease; }
+  .micviz .mic .icon { width: 36px; height: 36px; }
+  .micviz .mic .off, .tool:hover .micviz .mic .on { display: none; }
+  .tool:hover .micviz .mic .off { display: block; }
+  .tool:hover .micviz .mic { background: var(--red); }
+  .micviz .level { display: flex; align-items: center; gap: 5px; height: 64px; }
+  .micviz .level i { width: 6px; height: var(--h); border-radius: 3px; background: var(--amber); transition: height .4s var(--ease), background-color .4s ease; animation: level 1.1s ease-in-out var(--d) infinite alternate; }
+  @keyframes level { from { transform: scaleY(.5); } to { transform: scaleY(1); } }
+  .tool:hover .micviz .level i { height: 4px; background: var(--line-strong); animation: none; }
 
   /* Menu bar section */
   .split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 72px; align-items: center; }
@@ -573,6 +588,7 @@
     .hero-top { grid-template-columns: 1fr; }
     .split, .help, .perm { grid-template-columns: minmax(0, 1fr); gap: 48px; }
     .help .head { position: static; }
+    .tools { grid-template-columns: minmax(0, 1fr); }
     .stepper { grid-template-columns: minmax(0, 1fr); }
     .step { display: block; }
     .step-head { width: 100%; cursor: default; color: var(--ink-2); }
@@ -642,6 +658,8 @@
     <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 3.8L2.8 19.5h18.4L12 3.8z"/><path d="M12 9.5v4.5M12 17h.01"/></symbol>
     <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7.5 3v5.5c0 4.6-3.1 8.3-7.5 9.5-4.4-1.2-7.5-4.9-7.5-9.5V6L12 3z"/><path d="M9 12l2.2 2.2L15.5 10"/></symbol>
     <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></symbol>
+    <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/></symbol>
+    <symbol id="i-mic-off" viewBox="0 0 24 24"><path d="M15 9.5V6a3 3 0 0 0-5.7-1.3M9 9v2a3 3 0 0 0 4.7 2.5M5.5 11a6.5 6.5 0 0 0 10.6 5M18.4 12.6c.1-.5.1-1 .1-1.6M12 17.5V21M8.5 21h7"/><path d="M3.5 3.5l17 17"/></symbol>
     <symbol id="i-keyboard" viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="2.5"/><path d="M6.5 10h.01M10 10h.01M14 10h.01M17.5 10h.01M8 14h8"/></symbol>
     <symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
     <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
@@ -694,8 +712,8 @@
           </h1>
         </div>
         <div class="hero-side">
-          <p class="lead" lang="en">Tapdeck puts small, focused tools in Control Center and the menu bar. Turn the screen off while your agent keeps working, keep the Mac running with the lid closed, and get back to building.</p>
-          <p class="lead" lang="ar">يضع Tapdeck أدوات صغيرة ومركّزة في Control Center وشريط القوائم. أطفئ الشاشة ووكيلك البرمجي يكمل عمله، وأبقِ الماك شغّالاً والغطاء مغلق، ثم ارجع لما تبنيه.</p>
+          <p class="lead" lang="en">Tapdeck puts small, focused tools in Control Center and the menu bar. Turn the screen off while your agent keeps working, keep the Mac running with the lid closed, mute every microphone in one tap, and get back to building.</p>
+          <p class="lead" lang="ar">يضع Tapdeck أدوات صغيرة ومركّزة في Control Center وشريط القوائم. أطفئ الشاشة ووكيلك البرمجي يكمل عمله، وأبقِ الماك شغّالاً والغطاء مغلق، واكتم كل الميكروفونات بضغطة، ثم ارجع لما تبنيه.</p>
           <div class="cta">
             <a class="btn btn-primary" href="https://github.com/Devehab/Tapdeck/releases/latest/download/Tapdeck.dmg">
               <svg class="icon" aria-hidden="true"><use href="#i-download"/></svg>
@@ -703,16 +721,19 @@
             </a>
             <a class="btn btn-ghost" href="#install"><span lang="en">How to install</span><span lang="ar">طريقة التثبيت</span></a>
           </div>
-          <p class="meta" lang="en">Free · Version 1.0 · macOS 26 Tahoe or later · Apple silicon &amp; Intel</p>
-          <p class="meta" lang="ar">مجاني · الإصدار 1.0 · <bdi>macOS 26 Tahoe</bdi> أو أحدث · Apple silicon و Intel</p>
+          <p class="meta" lang="en">Free · Version 1.1 · macOS 26 Tahoe or later · Apple silicon &amp; Intel</p>
+          <p class="meta" lang="ar">مجاني · الإصدار 1.1 · <bdi>macOS 26 Tahoe</bdi> أو أحدث · Apple silicon و Intel</p>
         </div>
       </div>
 
       <div class="stage-wrap">
-        <div class="stage stay-on" dir="ltr" data-stay-scope data-dark-scope>
+        <div class="stage stay-on" dir="ltr" data-stay-scope data-mic-scope data-dark-scope>
           <div class="mb">
             <div class="mb-left" aria-hidden="true"><b>Terminal</b><span>Shell</span><span>Edit</span><span>View</span><span>Window</span><span>Help</span></div>
             <div class="mb-right">
+              <button class="mb-item mb-mic" type="button" data-mic-toggle aria-pressed="false" aria-label="Mic Mute">
+                <svg class="icon when-live" aria-hidden="true"><use href="#i-mic"/></svg><svg class="icon when-muted" aria-hidden="true"><use href="#i-mic-off"/></svg>
+              </button>
               <button class="mb-item mb-stay" type="button" data-stay-toggle aria-pressed="true" aria-label="Stay Awake">
                 <svg class="icon when-on" aria-hidden="true"><use href="#i-sun"/></svg><svg class="icon when-off" aria-hidden="true"><use href="#i-moon"/></svg>
               </button>
@@ -750,7 +771,9 @@
             <button class="t round ours" type="button" data-lights aria-label="Lights Out">
               <svg class="icon" aria-hidden="true"><use href="#i-bulb-off"/></svg>
             </button>
-            <div class="t round muted" aria-hidden="true"><svg class="icon"><use href="#i-screen"/></svg></div>
+            <button class="t round ours mic-t" type="button" data-mic-toggle aria-pressed="false" aria-label="Mic Mute">
+              <svg class="icon when-live" aria-hidden="true"><use href="#i-mic"/></svg><svg class="icon when-muted" aria-hidden="true"><use href="#i-mic-off"/></svg>
+            </button>
             <div class="t full" aria-hidden="true"><div class="bar-row">Display</div><div class="bar" style="--v: 42%"></div></div>
             <div class="t full" aria-hidden="true"><div class="bar-row">Sound</div><div class="bar" style="--v: 28%"></div></div>
           </div>
@@ -764,8 +787,8 @@
         </div>
         <p class="stage-hint">
           <svg class="icon" aria-hidden="true"><use href="#i-pointer"/></svg>
-          <span lang="en">This is a live demo. Tap Stay Awake or Lights Out.</span>
-          <span lang="ar">هذا عرض تفاعلي. اضغط Stay Awake أو Lights Out.</span>
+          <span lang="en">This is a live demo. Tap Stay Awake, Lights Out or the microphone.</span>
+          <span lang="ar">هذا عرض تفاعلي. اضغط Stay Awake أو Lights Out أو الميكروفون.</span>
         </p>
       </div>
 
@@ -782,7 +805,7 @@
     <div class="wrap">
       <div class="head rv">
         <span class="kicker"><span lang="en">Tools</span><span lang="ar">الأدوات</span></span>
-        <h2><span lang="en">Two tools today. A deck that keeps growing.</span><span lang="ar">أداتان اليوم، ومجموعة تكبر باستمرار.</span></h2>
+        <h2><span lang="en">Three tools today. A deck that keeps growing.</span><span lang="ar">ثلاث أدوات اليوم، ومجموعة تكبر باستمرار.</span></h2>
         <p lang="en">Each tool is a native control. Put it in Control Center, pin it to the menu bar, or run it from Spotlight.</p>
         <p lang="ar">كل أداة زر أصلي في macOS. ضعه في Control Center، أو ثبّته في شريط القوائم، أو شغّله من Spotlight.</p>
       </div>
@@ -828,6 +851,34 @@
             </div>
           </div>
         </article>
+
+        <article class="tool rv">
+          <div class="viz" aria-hidden="true">
+            <div class="micviz">
+              <span class="mic"><svg class="icon on"><use href="#i-mic"/></svg><svg class="icon off"><use href="#i-mic-off"/></svg></span>
+              <span class="level"><i style="--h: 22px; --d: 0s"></i><i style="--h: 44px; --d: .2s"></i><i style="--h: 60px; --d: .4s"></i><i style="--h: 36px; --d: .1s"></i><i style="--h: 52px; --d: .3s"></i><i style="--h: 26px; --d: .5s"></i><i style="--h: 40px; --d: .15s"></i></span>
+            </div>
+          </div>
+          <div class="tool-body">
+            <div class="tool-title"><h3>Mic Mute</h3><span class="chip"><span lang="en">Toggle</span><span lang="ar">زر تبديل</span></span></div>
+            <p class="tool-lead" lang="en">Mutes every microphone at the hardware level. Apps keep running and hear silence.</p>
+            <p class="tool-lead" lang="ar">يكتم كل الميكروفونات على مستوى الجهاز. تبقى التطبيقات شغّالة وتسمع صمتاً.</p>
+            <div class="states">
+              <div class="state"><span class="dot mic"><svg class="icon" aria-hidden="true"><use href="#i-mic-off"/></svg></span><span><b>Muted</b> · <span lang="en">apps receive pure silence</span><span lang="ar">التطبيقات تستقبل صمتاً تاماً</span></span></div>
+              <div class="state"><span class="dot moon"><svg class="icon" aria-hidden="true"><use href="#i-mic"/></svg></span><span><b>On</b> · <span lang="en">sound flows normally</span><span lang="ar">الصوت يمر بشكل طبيعي</span></span></div>
+            </div>
+            <ul class="checks">
+              <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span lang="en">Flips each mic's own mute switch, like the button on a USB mic.</span><span lang="ar">يستخدم مفتاح الكتم الخاص بكل ميكروفون، مثل زر الكتم في الميكروفون الخارجي.</span></li>
+              <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span lang="en">Apps keep their stream and their permission. Nothing to restart.</span><span lang="ar">تحتفظ التطبيقات باتصالها وصلاحيتها، ولا شيء يحتاج إعادة تشغيل.</span></li>
+              <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span lang="en">Mics plugged in while muted are muted too.</span><span lang="ar">أي ميكروفون توصله أثناء الكتم يُكتم أيضاً.</span></li>
+            </ul>
+            <div class="note">
+              <svg class="icon" aria-hidden="true"><use href="#i-warn"/></svg>
+              <span lang="en">A few mics, like an iPhone used through Continuity, have no mute switch. If the one in use is like that, Tapdeck tells you.</span>
+              <span lang="ar">بعض الميكروفونات، مثل الآيفون عبر Continuity، ليس فيها مفتاح كتم. إذا كان الميكروفون المستخدم منها، يخبرك Tapdeck بذلك.</span>
+            </div>
+          </div>
+        </article>
       </div>
 
       <div class="more rv">
@@ -850,6 +901,7 @@
           <div class="state"><span class="dot sun"><svg class="icon" aria-hidden="true"><use href="#i-sun"/></svg></span><span><b>Won't Sleep</b> · <span lang="en">the Mac stays on, lid open or closed</span><span lang="ar">الماك يبقى شغّالاً، والغطاء مفتوح أو مغلق</span></span></div>
           <div class="state"><span class="dot moon"><svg class="icon" aria-hidden="true"><use href="#i-moon"/></svg></span><span><b>Sleeps Normally</b> · <span lang="en">regular macOS sleep</span><span lang="ar">ينام كالعادة</span></span></div>
           <div class="state"><span class="dot bulb"><svg class="icon" aria-hidden="true"><use href="#i-bulb-off"/></svg></span><span><b>Lights Out</b> · <span lang="en">one click turns the screen and keyboard light off</span><span lang="ar">ضغطة واحدة تطفئ الشاشة وإضاءة الكيبورد</span></span></div>
+          <div class="state"><span class="dot mic"><svg class="icon" aria-hidden="true"><use href="#i-mic-off"/></svg></span><span><b>Mic Muted</b> · <span lang="en">every microphone sends silence</span><span lang="ar">كل الميكروفونات ترسل صمتاً</span></span></div>
         </div>
         <div class="how">
           <span lang="en">To add one, open:</span><span lang="ar">لإضافة زر، افتح:</span>
@@ -859,8 +911,9 @@
         </div>
       </div>
 
-      <div class="menubar-demo rv stay-on" dir="ltr" data-stay-scope data-dark-scope>
+      <div class="menubar-demo rv stay-on" dir="ltr" data-stay-scope data-mic-scope data-dark-scope>
         <div class="mbz">
+          <button class="mb-item mb-mic ours" type="button" data-mic-toggle aria-pressed="false" aria-label="Mic Mute"><svg class="icon when-live" aria-hidden="true"><use href="#i-mic"/></svg><svg class="icon when-muted" aria-hidden="true"><use href="#i-mic-off"/></svg></button>
           <button class="mb-item ours" type="button" data-lights aria-label="Lights Out"><svg class="icon" aria-hidden="true"><use href="#i-bulb-off"/></svg></button>
           <button class="mb-item mb-stay ours" type="button" data-stay-toggle aria-pressed="true" aria-label="Stay Awake">
             <svg class="icon when-on" aria-hidden="true"><use href="#i-sun"/></svg><svg class="icon when-off" aria-hidden="true"><use href="#i-moon"/></svg>
@@ -876,8 +929,8 @@
         </div>
         <p class="caption">
           <svg class="icon" aria-hidden="true"><use href="#i-pointer"/></svg>
-          <span lang="en">Click the sun to switch Stay Awake, or the bulb for Lights Out.</span>
-          <span lang="ar">اضغط على الشمس لتبديل Stay Awake، أو على المصباح لـ Lights Out.</span>
+          <span lang="en">Click the sun for Stay Awake, the bulb for Lights Out, or the mic to mute.</span>
+          <span lang="ar">اضغط الشمس لـ Stay Awake، أو المصباح لـ Lights Out، أو الميكروفون للكتم.</span>
         </p>
         <div class="blackout" aria-live="polite">
           <p><span lang="en">Lights out. Move the pointer or press a key to wake.</span><span lang="ar">الإضاءة مطفأة. حرّك المؤشر أو اضغط أي زر لإعادتها.</span></p>
@@ -898,11 +951,12 @@
       <div class="pair">
         <div class="panel rv">
           <div class="panel-title"><span class="tile-ico"><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg></span><h3>Spotlight</h3></div>
-          <p lang="en">Press <span class="ui">⌘ Space</span> and type <span class="ui">Lights Out</span> or <span class="ui">Toggle Stay Awake</span>. Both work right after install.</p>
-          <p lang="ar">اضغط <span class="ui">⌘ Space</span> واكتب <span class="ui">Lights Out</span> أو <span class="ui">Toggle Stay Awake</span>. الاثنان يعملان مباشرة بعد التثبيت.</p>
+          <p lang="en">Press <span class="ui">⌘ Space</span> and type <span class="ui">Lights Out</span>, <span class="ui">Toggle Stay Awake</span> or <span class="ui">Toggle Mic Mute</span>. They work right after install.</p>
+          <p lang="ar">اضغط <span class="ui">⌘ Space</span> واكتب <span class="ui">Lights Out</span> أو <span class="ui">Toggle Stay Awake</span> أو <span class="ui">Toggle Mic Mute</span>. تعمل مباشرة بعد التثبيت.</p>
           <div class="spot" aria-hidden="true">
             <div class="field"><svg class="icon"><use href="#i-search"/></svg>Toggle Stay Awake<span class="caret"></span></div>
             <div class="res on"><svg viewBox="0 0 32 32"><use href="#i-logo"/></svg>Toggle Stay Awake<small>Tapdeck</small></div>
+            <div class="res"><svg viewBox="0 0 32 32"><use href="#i-logo"/></svg>Toggle Mic Mute<small>Tapdeck</small></div>
             <div class="res"><svg viewBox="0 0 32 32"><use href="#i-logo"/></svg>Lights Out<small>Tapdeck</small></div>
           </div>
         </div>
@@ -912,7 +966,7 @@
           <p lang="ar">خصّص لأي أداة مجموعة أزرار خاصة بها من تطبيق Shortcuts.</p>
           <ol class="numbered">
             <li><div lang="en">Open the <span class="ui">Shortcuts</span> app and create a new shortcut.</div><div lang="ar">افتح تطبيق <span class="ui">Shortcuts</span> وأنشئ اختصاراً جديداً.</div></li>
-            <li><div lang="en">Search for <span class="ui">Tapdeck</span> in the actions list and add <span class="ui">Lights Out</span> or <span class="ui">Toggle Stay Awake</span>.</div><div lang="ar">ابحث عن <span class="ui">Tapdeck</span> في قائمة الإجراءات وأضف <span class="ui">Lights Out</span> أو <span class="ui">Toggle Stay Awake</span>.</div></li>
+            <li><div lang="en">Search for <span class="ui">Tapdeck</span> in the actions list and add a Tapdeck action, such as <span class="ui">Toggle Mic Mute</span>.</div><div lang="ar">ابحث عن <span class="ui">Tapdeck</span> في قائمة الإجراءات وأضف أحد إجراءات Tapdeck، مثل <span class="ui">Toggle Mic Mute</span>.</div></li>
             <li><div lang="en">Open the shortcut's details (ⓘ), choose <span class="ui">Add Keyboard Shortcut</span> and press your keys.</div><div lang="ar">افتح تفاصيل الاختصار (ⓘ)، واختر <span class="ui">Add Keyboard Shortcut</span> ثم اضغط الأزرار التي تريدها.</div></li>
           </ol>
         </div>
@@ -994,8 +1048,8 @@
             <span class="step-num">4</span>
             <span class="step-copy">
               <b><span lang="en">Add it to Control Center or the menu bar</span><span lang="ar">أضفه إلى Control Center أو شريط القوائم</span></b>
-              <span lang="en">Open Control Center › Edit Controls › Tapdeck. Drag Lights Out and Stay Awake into Control Center, or up into the menu bar.</span>
-              <span lang="ar">افتح Control Center › Edit Controls › Tapdeck. اسحب Lights Out و Stay Awake إلى Control Center، أو إلى شريط القوائم في الأعلى.</span>
+              <span lang="en">Open Control Center › Edit Controls › Tapdeck. Drag Lights Out, Stay Awake and Mic Mute into Control Center, or up into the menu bar.</span>
+              <span lang="ar">افتح Control Center › Edit Controls › Tapdeck. اسحب Lights Out و Stay Awake و Mic Mute إلى Control Center، أو إلى شريط القوائم في الأعلى.</span>
             </span>
           </button>
           <div class="step-visual" aria-hidden="true">
@@ -1010,6 +1064,7 @@
                   <b>Tapdeck</b>
                   <div class="edit-ctrls">
                     <figure><span class="mini-round"><svg class="icon"><use href="#i-bulb-off"/></svg></span>Lights Out</figure>
+                    <figure><span class="mini-round"><svg class="icon"><use href="#i-mic-off"/></svg></span>Mic Mute</figure>
                     <figure><span class="mini-wide"><span class="b"><svg class="icon"><use href="#i-sun"/></svg></span>Stay Awake</span>Stay Awake</figure>
                   </div>
                   <div class="drops"><span><svg class="icon"><use href="#i-arrow-up"/></svg>Menu Bar</span><span><svg class="icon"><use href="#i-arrow-right"/></svg>Control Center</span></div>
@@ -1054,11 +1109,12 @@
         <div class="ptable rv">
           <div class="prow"><span>Lights Out</span><span class="badge none"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span lang="en">Nothing</span><span lang="ar">لا شيء</span></span></div>
           <div class="prow"><span><span lang="en">Spotlight &amp; Shortcuts</span><span lang="ar">Spotlight و Shortcuts</span></span><span class="badge none"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span lang="en">Nothing</span><span lang="ar">لا شيء</span></span></div>
+          <div class="prow"><span>Mic Mute</span><span class="badge none"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span lang="en">Nothing</span><span lang="ar">لا شيء</span></span></div>
           <div class="prow"><span>Stay Awake</span><span class="badge needs"><svg class="icon" aria-hidden="true"><use href="#i-lock"/></svg><span lang="en">Allow in the Background, once</span><span lang="ar">Allow in the Background، مرة واحدة</span></span></div>
         </div>
         <div class="why rv">
           <p><svg class="icon" aria-hidden="true"><use href="#i-shield"/></svg><span lang="en">Changing sleep settings needs administrator rights. Tapdeck uses a tiny helper that can do exactly one thing: switch <code>disablesleep</code> on or off. It only answers requests from Tapdeck itself.</span><span lang="ar">تغيير إعدادات النوم يحتاج صلاحيات مدير. لذلك يستخدم Tapdeck برنامجاً مساعداً صغيراً لا يستطيع إلا شيئاً واحداً: تشغيل <code>disablesleep</code> أو إيقافه، ولا يقبل الطلبات إلا من Tapdeck نفسه.</span></p>
-          <p><svg class="icon" aria-hidden="true"><use href="#i-lock"/></svg><span lang="en">No Accessibility, Input Monitoring or Screen Recording access. Lights Out notices your touch without reading any keys.</span><span lang="ar">لا يحتاج Accessibility ولا Input Monitoring ولا Screen Recording. يلاحظ Lights Out لمستك دون أن يقرأ أي زر تضغطه.</span></p>
+          <p><svg class="icon" aria-hidden="true"><use href="#i-lock"/></svg><span lang="en">No Accessibility, Input Monitoring or Screen Recording access. Lights Out notices your touch without reading any keys, and Mic Mute never listens to the microphone: it only flips its mute switch.</span><span lang="ar">لا يحتاج Accessibility ولا Input Monitoring ولا Screen Recording. يلاحظ Lights Out لمستك دون أن يقرأ أي زر تضغطه، و Mic Mute لا يستمع للميكروفون أبداً، بل يقلب مفتاح الكتم فقط.</span></p>
         </div>
       </div>
     </div>
@@ -1120,6 +1176,14 @@
           </div>
         </details>
         <details>
+          <summary><span lang="en">Which microphones can Mic Mute silence?</span><span lang="ar">ما الميكروفونات التي يستطيع Mic Mute كتمها؟</span><span class="pm" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p lang="en">Every microphone with a mute switch, which includes the Mac's built-in mic and most USB mics and audio interfaces. A few have no mute or volume control at all, such as an iPhone used through Continuity or a virtual mic from a recording app; if the one in use is like that, Tapdeck tells you. The mute lives in the microphone itself, so it holds even if Tapdeck quits. This lists every mic on your Mac and whether it can be muted:</p>
+            <p lang="ar">كل ميكروفون فيه مفتاح كتم، ومنها ميكروفون الماك الداخلي وأغلب ميكروفونات USB وكروت الصوت. بعضها بلا أي تحكم بالكتم أو الصوت، مثل الآيفون عبر Continuity أو الميكروفونات الافتراضية من برامج التسجيل؛ وإذا كان الميكروفون المستخدم منها، يخبرك Tapdeck بذلك. الكتم محفوظ في الميكروفون نفسه، فيبقى حتى لو أُغلق Tapdeck. هذا الأمر يعرض كل الميكروفونات في جهازك وهل يمكن كتمها:</p>
+            <div class="code"><code>/Applications/Tapdeck.app/Contents/MacOS/Tapdeck --status</code><button class="copy" type="button" data-copy><span class="idle-t"><span lang="en">Copy</span><span lang="ar">نسخ</span></span><span class="done-t"><span lang="en">Copied</span><span lang="ar">تم النسخ</span></span></button></div>
+          </div>
+        </details>
+        <details>
           <summary><span lang="en">How do I check Stay Awake from Terminal?</span><span lang="ar">كيف أتأكد من Stay Awake من Terminal؟</span><span class="pm" aria-hidden="true"></span></summary>
           <div class="answer">
             <div class="code"><code>pmset -g | grep SleepDisabled</code><button class="copy" type="button" data-copy><span class="idle-t"><span lang="en">Copy</span><span lang="ar">نسخ</span></span><span class="done-t"><span lang="en">Copied</span><span lang="ar">تم النسخ</span></span></button></div>
@@ -1141,8 +1205,8 @@
         <details>
           <summary><span lang="en">How do I uninstall Tapdeck?</span><span lang="ar">كيف أحذف Tapdeck؟</span><span class="pm" aria-hidden="true"></span></summary>
           <div class="answer">
-            <p lang="en">Turn Stay Awake off first. Then remove the helper and quit Tapdeck:</p>
-            <p lang="ar">أطفئ Stay Awake أولاً. ثم احذف البرنامج المساعد وأغلق Tapdeck:</p>
+            <p lang="en">Turn Stay Awake and Mic Mute off first. Then remove the helper and quit Tapdeck:</p>
+            <p lang="ar">أطفئ Stay Awake و Mic Mute أولاً. ثم احذف البرنامج المساعد وأغلق Tapdeck:</p>
             <div class="code"><code>/Applications/Tapdeck.app/Contents/MacOS/Tapdeck --unregister-helper</code><button class="copy" type="button" data-copy><span class="idle-t"><span lang="en">Copy</span><span lang="ar">نسخ</span></span><span class="done-t"><span lang="en">Copied</span><span lang="ar">تم النسخ</span></span></button></div>
             <div class="code"><code>pkill -x Tapdeck</code><button class="copy" type="button" data-copy><span class="idle-t"><span lang="en">Copy</span><span lang="ar">نسخ</span></span><span class="done-t"><span lang="en">Copied</span><span lang="ar">تم النسخ</span></span></button></div>
             <p lang="en">Finally, move Tapdeck from Applications to the Trash.</p>
@@ -1221,6 +1285,16 @@
     }
     document.querySelectorAll("[data-stay-toggle]").forEach(function (button) {
       button.addEventListener("click", function () { stayOn = !stayOn; renderStay(); });
+    });
+
+    // Mic Mute: the hero desktop and the menu bar demo share one state
+    var micMuted = false;
+    document.querySelectorAll("[data-mic-toggle]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        micMuted = !micMuted;
+        document.querySelectorAll("[data-mic-scope]").forEach(function (el) { el.classList.toggle("mic-muted", micMuted); });
+        document.querySelectorAll("[data-mic-toggle]").forEach(function (b) { b.setAttribute("aria-pressed", String(micMuted)); });
+      });
     });
 
     // Lights Out: like the real tool, ignore input briefly, then any input wakes the screen

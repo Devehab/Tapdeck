@@ -7,5 +7,6 @@ struct TapdeckBundle: WidgetBundle {
     var body: some Widget {
         LightsOutControl()
         StayAwakeControl()
+        MicMuteControl()
     }
 }

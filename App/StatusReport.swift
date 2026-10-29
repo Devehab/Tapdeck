@@ -32,6 +32,19 @@ enum StatusReport {
 
         Swift.print("Stay Awake (SleepDisabled): \(SystemSleep.isDisabled ? "on" : "off")")
         Swift.print("Root helper: \(describe(PrivilegedHelper.shared.status))")
+
+        let defaultInput = AudioInputs.defaultDevice
+        Swift.print("Mic Mute: \(AudioInputs.isDefaultInputMuted ? "muted" : "on") (default input: \(defaultInput?.name ?? "none"))")
+        for device in AudioInputs.all {
+            let marker = device == defaultInput ? "*" : " "
+            if AudioInputs.canMute(device.id) {
+                Swift.print(" \(marker) \(device.name): hardware mute, \(AudioInputs.isMuted(device.id) == true ? "muted" : "on")")
+            } else if AudioInputs.canSetVolume(device.id) {
+                Swift.print(" \(marker) \(device.name): volume only (\(String(format: "%.2f", AudioInputs.volume(device.id) ?? 0)))")
+            } else {
+                Swift.print(" \(marker) \(device.name): no mute or volume control, can't be muted")
+            }
+        }
     }
 
     private static func describe(_ status: SMAppService.Status) -> String {

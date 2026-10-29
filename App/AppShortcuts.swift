@@ -22,5 +22,14 @@ struct TapdeckShortcuts: AppShortcutsProvider {
             shortTitle: "Toggle Stay Awake",
             systemImageName: "sun.max"
         )
+        AppShortcut(
+            intent: ToggleMicMuteIntent(),
+            phrases: [
+                "Toggle Mic Mute with \(.applicationName)",
+                "Mute my microphone with \(.applicationName)",
+            ],
+            shortTitle: "Toggle Mic Mute",
+            systemImageName: "mic.slash"
+        )
     }
 }

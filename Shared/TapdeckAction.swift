@@ -15,6 +15,8 @@ enum TapdeckAction: String, CaseIterable, Sendable {
     case lightsOut = "lights-out"
     case stayAwakeOn = "stay-awake-on"
     case stayAwakeOff = "stay-awake-off"
+    case micMuteOn = "mic-mute-on"
+    case micMuteOff = "mic-mute-off"
 
     static let urlScheme = "tapdeck"
 
