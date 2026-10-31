@@ -30,6 +30,12 @@ enum StatusReport {
         Swift.print(String(format: "Seconds since last input: %.1f", InputActivity.secondsSinceLastInput))
         Swift.print("Lights Out pending restore: \(LightsOutSnapshot.loadPersisted() != nil ? "yes" : "no")")
 
+        let touchID = TouchID.unavailableReason.map { "not ready. \(TouchID.advice(for: $0))" } ?? "ready"
+        Swift.print("Camera Lock: \(CameraLockState.isLocked ? "locked (Device Access Allowed is off)" : "off")")
+        Swift.print("Touch ID: \(touchID)")
+        let cameras = Cameras.names
+        Swift.print("Cameras apps can see: \(cameras.isEmpty ? "none" : cameras.joined(separator: ", "))")
+
         Swift.print("Stay Awake (SleepDisabled): \(SystemSleep.isDisabled ? "on" : "off")")
         Swift.print("Root helper: \(describe(PrivilegedHelper.shared.status))")
 
@@ -52,7 +58,7 @@ enum StatusReport {
         case .enabled: "enabled"
         case .requiresApproval: "waiting for approval in System Settings"
         // A daemon reports notFound until its first registration.
-        case .notRegistered, .notFound: "not registered yet (the first Stay Awake tap registers it)"
+        case .notRegistered, .notFound: "not registered yet (the first Stay Awake or Camera Lock tap registers it)"
         @unknown default: "unknown (\(status.rawValue))"
         }
     }

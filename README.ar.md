@@ -32,7 +32,7 @@ sudo pmset -a disablesleep 0   # إيقاف
   - في شريط القوائم تظهر الأيقونة وحدها، والشمس والقمر يكفيان لمعرفة الحالة.
 - ضغطة واحدة تبدّل الحالة.
 - لأن الأمر يحتاج root، ينفّذه helper صغير يعمل كـ root. التطبيق يسجّله، ويحتاج **موافقتك مرة واحدة فقط**: عند أول ضغطة تظهر رسالة، اضغط **Open System Settings**، ثم فعّل **Tapdeck** تحت **Allow in the Background** في General ← Login Items & Extensions. بعدها يطبّق التطبيق الحالة التي طلبتها تلقائياً.
-- الـ helper لا يقدر ينفّذ إلا `pmset -a disablesleep 0/1`، ولا يقبل الطلبات إلا من هذا التطبيق الموقّع بنفس الفريق.
+- الـ helper لا يقدر إلا أن ينفّذ `pmset -a disablesleep 0/1` ويشغّل قفل الكاميرا أو يوقفه، ولا يقبل الطلبات إلا من هذا التطبيق الموقّع بنفس الفريق.
 
 ⚠️ لا تضع اللابتوب مغلقاً في حقيبة وهذه الخاصية مفعّلة: يبقى شغّالاً، فيسخن ويستهلك البطارية.
 
@@ -60,8 +60,20 @@ pmset -g stats
 
 تم اختباره بتسجيل حقيقي: أثناء الكتم استقبل التطبيق المسجِّل أصفاراً تامة، ولم يتوقف تسجيله ولم يظهر له أي خطأ.
 
+### Camera Lock
+زر تبديل يوقف كل الكاميرات عن كل التطبيقات، حتى الكاميرا المفتوحة الآن، ولا يعيدها إلا Touch ID:
+
+- اضغط للقفل: خلال ثانية تقريباً تفقد كل التطبيقات الكاميرا، حتى في منتصف اجتماع. وأي تطبيق يطلب كاميرا لا يجد أي كاميرا، ولا حتى صورة سوداء.
+- اضغط مرة ثانية والمس حساس البصمة لفك القفل. لا يوجد خيار **Use Password**، فمعرفة كلمة السر لا تكفي.
+- لا يعمل القفل إلا إذا كان Touch ID جاهزاً (بصمة واحدة على الأقل، والغطاء مفتوح أو Magic Keyboard with Touch ID موصول)، فلا يمكن أن تقفل كاميرا لا تستطيع فتحها.
+- **بعد فك القفل، أغلق كلياً أي تطبيق كان يستخدم الكاميرا وافتحه من جديد** (⌘Q، وليس إغلاق النافذة فقط؛ وفي المتصفح أغلق المتصفح كله). هذه التطبيقات فقدت الكاميرا لحظة القفل ولا تبحث عنها من جديد بنفسها. أما التطبيقات التي تُفتح بعد فك القفل فتراها مباشرة، ويذكّرك Tapdeck بذلك عند كل فك قفل حتى توقف التذكير.
+- يشمل كل كاميرا يعرضها macOS على التطبيقات: المدمجة و USB والآيفون عبر Continuity Camera (ومعها Desk View).
+- يحتاج نفس موافقة **Allow in the Background** التي يحتاجها Stay Awake مرة واحدة، ولا يحتاج إذن الكاميرا: Tapdeck لا يفتح أي كاميرا.
+
+كيف يعمل: يضع الـ helper الإعداد المُدار `Device Access Allowed = false` في `com.apple.coremediaio.support`، وهو نفس الإعداد الذي يكتبه بروفايل قيد الكاميرا من Apple، ثم يخبر العمليات الشغّالة أن تتجاهل نسختها المخزّنة، ويعيد تشغيل خدمات الكاميرا (`registerassistantservice` و `cameracaptured` وخدمات الكاميرا المدمجة و USB و DriverKit و Continuity) فينقطع أي بث مفتوح. وطالما الكاميرا مقفلة، يبقى الـ helper شغّالاً ويعيد الإعداد إذا أزاله أي شيء.
+
 ### Spotlight واختصارات الكيبورد
-- اضغط ⌘ Space واكتب **Lights Out** أو **Toggle Stay Awake** أو **Toggle Mic Mute**. تعمل مباشرة بعد التثبيت (معرّفة في `App/AppShortcuts.swift`).
+- اضغط ⌘ Space واكتب **Lights Out** أو **Toggle Stay Awake** أو **Toggle Mic Mute** أو **Toggle Camera Lock**. تعمل مباشرة بعد التثبيت (معرّفة في `App/AppShortcuts.swift`).
 - لاختصار كيبورد: تطبيق Shortcuts ← اختصار جديد ← ابحث عن Tapdeck وأضف الإجراء ← تفاصيل الاختصار (ⓘ) ← **Add Keyboard Shortcut**.
 
 ### التحديث إلى نسخة جديدة
@@ -101,7 +113,7 @@ tapdeck awake on
 tapdeck lights out
 ```
 
-إضافات المتصفح تصل إلى Tapdeck عبر native messaging في Chrome: شغّل `tapdeck chrome install`، ثم حمّل الإضافة الجاهزة ([نزّل ملف zip](https://github.com/Devehab/Tapdeck/releases/latest/download/tapdeck-chrome-extension.zip)، أو استخدم [`extensions/chrome`](extensions/chrome)). نافذتها تعرض الأدوات الثلاث، والاختصار Alt+Shift+M يبدّل كتم الميكروفون.
+إضافات المتصفح تصل إلى Tapdeck عبر native messaging في Chrome: شغّل `tapdeck chrome install`، ثم حمّل الإضافة الجاهزة ([نزّل ملف zip](https://github.com/Devehab/Tapdeck/releases/latest/download/tapdeck-chrome-extension.zip)، أو استخدم [`extensions/chrome`](extensions/chrome)). نافذتها تعرض كل الأدوات، والاختصار Alt+Shift+M يبدّل كتم الميكروفون.
 
 الشرح الكامل، بكل الأوامر وصيغة JSON وطريقة صنع إضافتك الخاصة وحل المشاكل، موجود في [docs/integrations.ar.md](docs/integrations.ar.md).
 
@@ -119,7 +131,7 @@ cp Config/Local.xcconfig.example Config/Local.xcconfig
 ./scripts/install.sh
 ```
 
-يبني التطبيق، يثبّته في `/Applications/Tapdeck.app`، ويسجّل الأزرار. بعدها: Control Center ← **Edit Controls** ← **Tapdeck** ← اسحب **Lights Out** و **Stay Awake** و **Mic Mute**.
+يبني التطبيق، يثبّته في `/Applications/Tapdeck.app`، ويسجّل الأزرار. بعدها: Control Center ← **Edit Controls** ← **Tapdeck** ← اسحب **Lights Out** و **Stay Awake** و **Mic Mute** و **Camera Lock**.
 
 أعد تشغيل نفس السكربت بعد أي تعديل على الكود. كل build يأخذ رقماً جديداً تلقائياً، لأن النظام يحفظ قائمة الأزرار حسب رقم البناء؛ والسكربت يوقف نسخة الأزرار القديمة حتى يُرسم الجديد.
 
@@ -164,6 +176,8 @@ Tapdeck/
 │   ├── TapdeckActionHandler.swift   ← يوجّه كل TapdeckAction إلى الميزة الخاصة بها
 │   ├── Features/LightsOut/   ← منطق Lights Out
 │   ├── Features/StayAwake/   ← منطق Stay Awake وطلب الموافقة على الـ helper
+│   ├── Features/MicMute/     ← منطق Mic Mute
+│   ├── Features/CameraLock/  ← منطق قفل الكاميرا وطلب Touch ID
 │   └── Hardware/             ← سطوع الشاشة، إضاءة الكيبورد، آخر إدخال، الاتصال بالـ helper
 ├── ControlsExtension/        ← WidgetKit extension: أزرار Control Center
 │   ├── TapdeckBundle.swift  ← قائمة كل الأزرار
@@ -198,7 +212,7 @@ Tapdeck/
 ```bash
 /Applications/Tapdeck.app/Contents/MacOS/Tapdeck --status
 ```
-يعرض ما يراه التطبيق (الشاشات، السطوع، الكيبورد، الوقت منذ آخر إدخال، حالة Stay Awake، حالة الـ helper، وكل الميكروفونات وهل يمكن كتمها) بدون أن يغيّر شيئاً.
+يعرض ما يراه التطبيق (الشاشات، السطوع، الكيبورد، الوقت منذ آخر إدخال، حالة Stay Awake، حالة قفل الكاميرا والكاميرات التي تراها التطبيقات، Touch ID، حالة الـ helper، وكل الميكروفونات وهل يمكن كتمها) بدون أن يغيّر شيئاً.
 
 ```bash
 /usr/bin/log show --last 10m --style compact --predicate 'subsystem == "com.ibtkrgo.Tapdeck"'
@@ -210,9 +224,10 @@ Tapdeck/
 ## ملاحظات
 
 - سطوع الشاشة وإضاءة الكيبورد يتم التحكم بهما عبر واجهات خاصة من Apple (`DisplayServices` و `CoreBrightness`). هذا لا يمر في App Store، وقد يتغيّر مع تحديثات macOS. أمر `--status` يكشف ذلك بسرعة.
+- قفل الكاميرا يعتمد على طريقة تطبيق macOS لقيد الكاميرا وعلى الدالة الخاصة `_CFPreferencesManagementStatusChangedForDomains`، وكلاهما غير موثّق للتطبيقات الخارجية. قد يغيّر تحديث macOS أحدهما؛ وأمر `--status` يكشف هل ما زالت التطبيقات ترى الكاميرات.
 - الشاشات الخارجية التي لا تدعم التحكم بالسطوع تصبح سوداء فقط، وإضاءتها الخلفية تبقى شغّالة.
 - مدة التجاهل بعد الضغط (1.2 ثانية) ومنع السكون موجودة في أعلى `LightsOutController.swift`.
-- إزالة التطبيق: أطفئ Stay Awake و Mic Mute أولاً، ثم شغّل `/Applications/Tapdeck.app/Contents/MacOS/Tapdeck --unregister-helper`، ثم أغلق التطبيق (`pkill -x Tapdeck`) واحذف `/Applications/Tapdeck.app`.
+- إزالة التطبيق: أطفئ Stay Awake و Mic Mute و Camera Lock أولاً، ثم شغّل `/Applications/Tapdeck.app/Contents/MacOS/Tapdeck --unregister-helper`، ثم أغلق التطبيق (`pkill -x Tapdeck`) واحذف `/Applications/Tapdeck.app`.
 
 ## الرخصة
 

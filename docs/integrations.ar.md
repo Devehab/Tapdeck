@@ -17,6 +17,7 @@
  إضافة Chrome (عبر native messaging) ──────────┘        │
                                                        ├─ يقرأ الحالة مباشرة من macOS
                                                        │    مفتاح كتم الميكروفون (CoreAudio)
+                                                       │    وصول التطبيقات للكاميرا (CoreMediaIO)
                                                        │    SleepDisabled (إعدادات الطاقة)
                                                        │    حالة Lights Out
                                                        │
@@ -27,7 +28,7 @@
 
 - **القراءة** فورية ودائماً صحيحة، لأنها من النظام مباشرة. تبقى صحيحة حتى لو كان Tapdeck مغلقاً أو غيّر برنامج آخر الإعداد.
 - **التغيير** يمر عبر تطبيق Tapdeck تماماً كأنك ضغطت زر Control Center. لذلك تتحدّث الأزرار، ويُكتم أي ميكروفون جديد يتصل، ويرجع Lights Out عند أول لمسة. إذا كان Tapdeck مغلقاً يُفتح في الخلفية دون أن يأخذ التركيز.
-- **الأمان لا يتغيّر.** كتم الميكروفون لا يحتاج أي صلاحية. Stay Awake ما زال يمر عبر البرنامج المساعد الذي لا يقبل إلا من Tapdeck نفسه. والمتصفح لا يصل إلى Tapdeck إلا من الإضافات التي سمحت لها.
+- **الأمان لا يتغيّر.** كتم الميكروفون لا يحتاج أي صلاحية. Stay Awake وقفل الكاميرا ما زالا يمرّان عبر البرنامج المساعد الذي لا يقبل إلا من Tapdeck نفسه، وفك قفل الكاميرا ما زال يطلب Touch ID. والمتصفح لا يصل إلى Tapdeck إلا من الإضافات التي سمحت لها.
 
 ---
 
@@ -48,6 +49,8 @@
 | `tapdeck status` | حالة كل الأدوات |
 | `tapdeck mic` | حالة Mic Mute |
 | `tapdeck mic mute` / `unmute` / `toggle` | كتم كل الميكروفونات على مستوى الجهاز أو إلغاء الكتم |
+| `tapdeck camera` | حالة قفل الكاميرا |
+| `tapdeck camera lock` / `unlock` / `toggle` | إيقاف كل الكاميرات عن كل التطبيقات، أو إعادتها بعد Touch ID |
 | `tapdeck awake` | حالة Stay Awake |
 | `tapdeck awake on` / `off` / `toggle` | إبقاء الماك شغّالاً والغطاء مغلق، أو لا |
 | `tapdeck lights` | حالة Lights Out |
@@ -64,6 +67,7 @@
 ```
 $ tapdeck mic mute
 Microphone   Muted  (MacBook Pro Microphone)
+Camera       On
 Stay Awake   Won't Sleep
 Lights Out   Off
 ```
@@ -73,6 +77,7 @@ $ tapdeck status --json
 {
   "ok" : true,
   "state" : {
+    "cameraLock" : { "locked" : false, "touchID" : true },
     "lightsOut" : { "out" : false },
     "micMute" : { "canMute" : true, "input" : "MacBook Pro Microphone", "muted" : true },
     "stayAwake" : { "helper" : "enabled", "on" : true }
@@ -87,6 +92,8 @@ $ tapdeck status --json
 | `state.micMute.muted` | الميكروفون الذي تستخدمه التطبيقات افتراضياً مكتوم |
 | `state.micMute.input` | اسم هذا الميكروفون |
 | `state.micMute.canMute` | `false` للميكروفونات التي لا يعطيها macOS أي تحكم بالكتم أو الصوت (الآيفون عبر Continuity، وبعض الميكروفونات الافتراضية) |
+| `state.cameraLock.locked` | كل الكاميرات مخفية عن التطبيقات |
+| `state.cameraLock.touchID` | Touch ID جاهز. قفل الكاميرا لا يعمل إلا وهو جاهز، لأن Touch ID وحده يفك القفل |
 | `state.stayAwake.on` | `pmset -a disablesleep` مفعّل |
 | `state.stayAwake.helper` | `enabled` أو `needs-approval` أو `not-registered` (موافقة Stay Awake لمرة واحدة) |
 | `state.lightsOut.out` | Lights Out مفعّل الآن |
@@ -133,7 +140,7 @@ tapdeck awake on && tapdeck lights out
 
 **وكلاء البرمجة بالذكاء الاصطناعي** (Claude Code و Cursor وغيرها) يستطيعون تشغيل `tapdeck status --json` لمعرفة الحالة، و `tapdeck mic mute` و `tapdeck awake on` وغيرها لتغييرها، مثل أي أمر Terminal آخر.
 
-**تطبيق Shortcuts:** أضف إجراء *Run Shell Script* وفيه `~/.local/bin/tapdeck mic toggle`. إجراءات Tapdeck نفسها (*Toggle Mic Mute* و *Toggle Stay Awake* و *Lights Out*) موجودة هناك أيضاً دون أي سكربت.
+**تطبيق Shortcuts:** أضف إجراء *Run Shell Script* وفيه `~/.local/bin/tapdeck mic toggle`. إجراءات Tapdeck نفسها (*Toggle Mic Mute* و *Toggle Camera Lock* و *Toggle Stay Awake* و *Lights Out*) موجودة هناك أيضاً دون أي سكربت.
 
 ---
 
@@ -152,7 +159,7 @@ tapdeck awake on && tapdeck lights out
 
 ### بداية سريعة مع الإضافة الجاهزة
 
-في المستودع إضافة جاهزة في [`extensions/chrome`](../extensions/chrome). نافذتها تعرض الأدوات الثلاث بحالتها الحية. أيقونتها في شريط الأدوات تعرض شارة حمراء **MUTE** طالما الميكروفون مكتوم، والاختصار **Alt+Shift+M** يبدّل كتم الميكروفون طالما Chrome في المقدمة.
+في المستودع إضافة جاهزة في [`extensions/chrome`](../extensions/chrome). نافذتها تعرض كل الأدوات بحالتها الحية. أيقونتها في شريط الأدوات تعرض شارة حمراء **MUTE** طالما الميكروفون مكتوم، والاختصار **Alt+Shift+M** يبدّل كتم الميكروفون طالما Chrome في المقدمة.
 
 1. **ثبّت Tapdeck** في Applications وافتحه مرة واحدة.
 2. **اربط متصفحاتك:**
@@ -211,6 +218,7 @@ tapdeck chrome install abcdefghijklmnopabcdefghijklmnop
 |---|---|
 | `{"command": "status"}` | حالة كل شيء |
 | `{"command": "mic", "action": "mute" \| "unmute" \| "toggle" \| "status"}` | Mic Mute |
+| `{"command": "camera", "action": "lock" \| "unlock" \| "toggle" \| "status"}` | قفل الكاميرا. فك القفل يُظهر نافذة Touch ID وينتظرها حتى دقيقة |
 | `{"command": "awake", "action": "on" \| "off" \| "toggle" \| "status"}` | Stay Awake |
 | `{"command": "lights", "action": "out" \| "on" \| "status"}` | Lights Out |
 
@@ -235,6 +243,9 @@ tapdeck chrome install abcdefghijklmnopabcdefghijklmnop
 | الإضافة تقول **Tapdeck doesn't allow this extension yet** (*Access … is forbidden*) | معرّف إضافتك ليس في الملف | شغّل `tapdeck chrome install <معرّف إضافتك>` |
 | *Native host has exited* | الملف يشير إلى Tapdeck تم نقله أو حذفه | ضع Tapdeck في Applications وشغّل `tapdeck chrome install` من جديد |
 | `"ok": false` مع `awake on` و `"helper": "needs-approval"` | موافقة Stay Awake لمرة واحدة غير موجودة | فعّل Tapdeck في System Settings › General › Login Items & Extensions › Allow in the Background |
+| `"ok": false` مع `camera lock` و `"touchID": false` | قفل الكاميرا لا يعمل إلا و Touch ID جاهز | أضف بصمة من System Settings › Touch ID & Password، أو افتح غطاء الماك بوك، أو وصّل Magic Keyboard with Touch ID |
+| `"ok": false`: *The camera is still locked: Touch ID didn't confirm it* | نافذة Touch ID أُلغيت، أو البصمة لم تتطابق، أو لم تُلمس خلال دقيقة | شغّل `tapdeck camera unlock` من جديد والمس الحساس |
+| فككت القفل، لكن تطبيقاً ما زال لا يجد الكاميرا | هذا التطبيق كان يستخدم الكاميرا لحظة القفل ولا يبحث عنها من جديد بنفسه | أغلقه كلياً (⌘Q؛ وفي المتصفح أغلق المتصفح كله) وافتحه من جديد |
 | `"ok": false` مع `mic mute` و `"canMute": false` | الميكروفون المستخدم بلا تحكم بالكتم في macOS | اختر ميكروفوناً آخر من System Settings › Sound. كل الميكروفونات الأخرى كُتمت |
 | `"ok": false`: *Tapdeck didn't respond in time* | لم يستطع Tapdeck أن يعمل | افتح Tapdeck مرة من Applications ثم حاول من جديد |
 

@@ -17,6 +17,8 @@ enum TapdeckAction: String, CaseIterable, Sendable {
     case stayAwakeOff = "stay-awake-off"
     case micMuteOn = "mic-mute-on"
     case micMuteOff = "mic-mute-off"
+    case cameraLockOn = "camera-lock-on"
+    case cameraLockOff = "camera-lock-off"
 
     static let urlScheme = "tapdeck"
 

@@ -13,5 +13,7 @@ guard let clientRequirement = HelperInterface.requirement(forIdentifier: HelperI
 listener.setConnectionCodeSigningRequirement(clientRequirement)
 listener.delegate = listenerDelegate
 listener.resume()
+CameraLock.resume()
+UpdateWatch.start()
 IdleExit.arm()
 dispatchMain()

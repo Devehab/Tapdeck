@@ -11,6 +11,14 @@
 		<key>com.ibtkrgo.Tapdeck.Helper</key>
 		<true/>
 	</dict>
+	<key>KeepAlive</key>
+	<dict>
+		<key>PathState</key>
+		<dict>
+			<key>/Library/Application Support/com.ibtkrgo.Tapdeck/camera-locked</key>
+			<true/>
+		</dict>
+	</dict>
 	<key>AssociatedBundleIdentifiers</key>
 	<array>
 		<string>com.ibtkrgo.Tapdeck</string>

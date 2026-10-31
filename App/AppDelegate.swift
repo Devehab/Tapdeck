@@ -23,6 +23,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         LightsOutController.shared.recoverIfNeeded()
         MicMuteController.shared.resume()
+        CameraLockController.shared.resume()
         restoreLightsOnSIGTERM()
         // Controls already placed in Control Center keep their last rendering,
         // which may come from an older build.
@@ -71,7 +72,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let alert = NSAlert()
         alert.messageText = offerQuit ? "Tapdeck is running" : "Tapdeck is ready"
         alert.informativeText = """
-            Tapdeck lives in Control Center. Open Control Center, click Edit Controls, choose Tapdeck, and drag in Lights Out, Stay Awake or Mic Mute.
+            Tapdeck lives in Control Center. Open Control Center, click Edit Controls, choose Tapdeck, and drag in Lights Out, Stay Awake, Mic Mute or Camera Lock.
 
             You can also run them from Spotlight, or give them a keyboard shortcut in the Shortcuts app.
             """

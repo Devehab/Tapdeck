@@ -13,6 +13,12 @@ struct TapdeckState: Encodable {
         let canMute: Bool
     }
 
+    struct CameraLock: Encodable {
+        let locked: Bool
+        /// Camera Lock works only while Touch ID is ready, since only Touch ID unlocks it.
+        let touchID: Bool
+    }
+
     struct StayAwake: Encodable {
         let on: Bool
         /// "enabled", "needs-approval" or "not-registered".
@@ -24,6 +30,7 @@ struct TapdeckState: Encodable {
     }
 
     let micMute: MicMute
+    let cameraLock: CameraLock
     let stayAwake: StayAwake
     let lightsOut: LightsOut
 
@@ -39,6 +46,7 @@ struct TapdeckState: Encodable {
                 input: input?.name,
                 canMute: input.map { AudioInputs.canMute($0.id) || AudioInputs.canSetVolume($0.id) } ?? false
             ),
+            cameraLock: CameraLock(locked: CameraLockState.isLocked, touchID: TouchID.isReady),
             stayAwake: StayAwake(on: SystemSleep.isDisabled, helper: helperStatus),
             lightsOut: LightsOut(out: LightsOutSnapshot.loadPersisted() != nil)
         )

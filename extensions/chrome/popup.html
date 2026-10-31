@@ -10,6 +10,8 @@
     <defs>
       <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/></symbol>
       <symbol id="i-mic-off" viewBox="0 0 24 24"><path d="M15 9.5V6a3 3 0 0 0-5.7-1.3M9 9v2a3 3 0 0 0 4.7 2.5M5.5 11a6.5 6.5 0 0 0 10.6 5M18.4 12.6c.1-.5.1-1 .1-1.6M12 17.5V21M8.5 21h7"/><path d="M3.5 3.5l17 17"/></symbol>
+      <symbol id="i-cam" viewBox="0 0 24 24"><rect x="2.5" y="6.5" width="13" height="11" rx="2.5"/><path d="M15.5 10.5l6-3.5v10l-6-3.5"/></symbol>
+      <symbol id="i-cam-off" viewBox="0 0 24 24"><path d="M9.5 6.5H13a2.5 2.5 0 0 1 2.5 2.5v3.5M15.5 15.5A2.5 2.5 0 0 1 13 17.5H5A2.5 2.5 0 0 1 2.5 15V9A2.5 2.5 0 0 1 4.5 6.6M15.5 10.5l6-3.5v10l-3-1.75"/><path d="M3.5 3.5l17 17"/></symbol>
       <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4"/></symbol>
       <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20.5 14.2A8.5 8.5 0 1 1 9.8 3.5a6.8 6.8 0 0 0 10.7 10.7z"/></symbol>
       <symbol id="i-bulb-off" viewBox="0 0 24 24"><path d="M9.2 18.5h5.6M10.3 21.5h3.4"/><path d="M15.6 15.4c.4-.6.9-1 1.3-1.6A6 6 0 0 0 8 6.2M6.6 9.2A6 6 0 0 0 7.1 13.8c.5.6 1.1 1.1 1.5 1.7.3.5.4 1 .4 1.5h6"/><path d="M3.5 3.5l17 17"/></symbol>
@@ -26,6 +28,11 @@
     <button class="tool" id="mic" type="button" role="switch" aria-checked="false">
       <span class="ico"><svg class="on-icon"><use href="#i-mic-off"/></svg><svg class="off-icon"><use href="#i-mic"/></svg></span>
       <span class="text"><b>Microphone</b><small id="mic-state">–</small></span>
+      <span class="switch" aria-hidden="true"></span>
+    </button>
+    <button class="tool" id="camera" type="button" role="switch" aria-checked="false">
+      <span class="ico"><svg class="on-icon"><use href="#i-cam-off"/></svg><svg class="off-icon"><use href="#i-cam"/></svg></span>
+      <span class="text"><b>Camera Lock</b><small id="camera-state">–</small></span>
       <span class="switch" aria-hidden="true"></span>
     </button>
     <button class="tool" id="awake" type="button" role="switch" aria-checked="false">

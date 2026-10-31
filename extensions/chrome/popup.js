@@ -4,7 +4,7 @@ const $ = (id) => document.getElementById(id);
 const SAMPLE_EXTENSION_ID = "jcpfohebbppapakgjnigbikckpfjinci";
 
 function render(response) {
-  const { micMute, stayAwake, lightsOut } = response.state;
+  const { micMute, cameraLock, stayAwake, lightsOut } = response.state;
   $("setup").hidden = true;
   $("tools").hidden = false;
   $("connection").textContent = "Connected";
@@ -12,6 +12,11 @@ function render(response) {
 
   $("mic").setAttribute("aria-checked", String(micMute.muted));
   $("mic-state").textContent = (micMute.muted ? "Muted" : "On") + (micMute.input ? ` · ${micMute.input}` : "");
+
+  $("camera").setAttribute("aria-checked", String(cameraLock.locked));
+  $("camera-state").textContent = cameraLock.locked
+    ? "Locked. Touch ID turns it back on."
+    : cameraLock.touchID ? "On" : "On · needs Touch ID to lock";
 
   $("awake").setAttribute("aria-checked", String(stayAwake.on));
   $("awake-state").textContent = stayAwake.on ? "Won't Sleep" : "Sleeps Normally";
@@ -54,6 +59,9 @@ async function run(command, action) {
 }
 
 $("mic").addEventListener("click", () => run("mic", "toggle"));
+// Locking finishes in System Settings and unlocking asks for Touch ID; both
+// take focus away, which closes this popup. Tapdeck carries on regardless.
+$("camera").addEventListener("click", () => run("camera", "toggle"));
 $("awake").addEventListener("click", () => run("awake", "toggle"));
 $("lights").addEventListener("click", async () => {
   await run("lights", "out");

@@ -4,12 +4,13 @@
 //
 // Every reply looks like:
 //   { ok: true, state: { micMute: { muted, input, canMute },
+//                        cameraLock: { locked, touchID },
 //                        stayAwake: { on, helper }, lightsOut: { out } },
 //     error: "only when ok is false" }
 
 export const HOST = "com.ibtkrgo.tapdeck";
 
-/** tapdeck("status"), tapdeck("mic", "toggle"), tapdeck("awake", "on"), tapdeck("lights", "out") */
+/** tapdeck("status"), tapdeck("mic", "toggle"), tapdeck("camera", "lock"), tapdeck("awake", "on"), tapdeck("lights", "out") */
 export function tapdeck(command, action) {
   const message = action ? { command, action } : { command };
   return chrome.runtime.sendNativeMessage(HOST, message);

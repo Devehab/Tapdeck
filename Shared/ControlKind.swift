@@ -4,4 +4,5 @@ enum ControlKind {
     static let lightsOut = "com.ibtkrgo.Tapdeck.LightsOut"
     static let stayAwake = "com.ibtkrgo.Tapdeck.StayAwake"
     static let micMute = "com.ibtkrgo.Tapdeck.MicMute"
+    static let cameraLock = "com.ibtkrgo.Tapdeck.CameraLock"
 }

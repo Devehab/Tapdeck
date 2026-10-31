@@ -67,11 +67,16 @@ enum CommandLineInterface {
         if let input = state.micMute.input {
             mic += "  (\(input)\(state.micMute.canMute ? "" : ", can't be muted"))"
         }
+        var camera = state.cameraLock.locked ? "Locked" : "On"
+        if !state.cameraLock.touchID {
+            camera += "  (Camera Lock needs Touch ID)"
+        }
         var awake = state.stayAwake.on ? "Won't Sleep" : "Sleeps Normally"
         if state.stayAwake.helper != "enabled" {
             awake += "  (needs one-time approval)"
         }
         print("Microphone   \(mic)")
+        print("Camera       \(camera)")
         print("Stay Awake   \(awake)")
         print("Lights Out   \(state.lightsOut.out ? "Out" : "Off")")
     }
@@ -79,16 +84,17 @@ enum CommandLineInterface {
     private static let usage = """
         Usage: tapdeck <command> [--json]
 
-          status                    Show every tool's state (--verbose for diagnostics)
-          mic [mute|unmute|toggle]  Mic Mute: mute every microphone at the hardware level
-          awake [on|off|toggle]     Stay Awake: keep the Mac running, even with the lid closed
-          lights [out|on]           Lights Out: screen and keyboard light off; any touch restores
+          status                       Show every tool's state (--verbose for diagnostics)
+          mic [mute|unmute|toggle]     Mic Mute: mute every microphone at the hardware level
+          camera [lock|unlock|toggle]  Camera Lock: turn every camera off; only Touch ID unlocks
+          awake [on|off|toggle]        Stay Awake: keep the Mac running, even with the lid closed
+          lights [out|on]              Lights Out: screen and keyboard light off; any touch restores
 
-          chrome install [ID…]      Let browser extensions talk to Tapdeck (the sample
-                                    extension is always allowed; add your own IDs)
-          chrome status             Show which browsers and extensions are allowed
-          chrome uninstall          Remove the browser connection
-          install-cli [folder]      Put the `tapdeck` command on your PATH (~/.local/bin by default)
+          chrome install [ID…]         Let browser extensions talk to Tapdeck (the sample
+                                       extension is always allowed; add your own IDs)
+          chrome status                Show which browsers and extensions are allowed
+          chrome uninstall             Remove the browser connection
+          install-cli [folder]         Put the `tapdeck` command on your PATH (~/.local/bin by default)
 
         A tool without an action prints its state. --json prints {"ok", "state", "error"}.
         Exit codes: 0 done, 1 the change didn't happen (see the message), 2 usage error.

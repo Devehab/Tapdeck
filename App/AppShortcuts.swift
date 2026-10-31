@@ -31,5 +31,14 @@ struct TapdeckShortcuts: AppShortcutsProvider {
             shortTitle: "Toggle Mic Mute",
             systemImageName: "mic.slash"
         )
+        AppShortcut(
+            intent: ToggleCameraLockIntent(),
+            phrases: [
+                "Toggle Camera Lock with \(.applicationName)",
+                "Lock my camera with \(.applicationName)",
+            ],
+            shortTitle: "Toggle Camera Lock",
+            systemImageName: "video.slash"
+        )
     }
 }

@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Tapdeck</title>
-<meta name="description" content="Tapdeck puts small, focused tools in the macOS Control Center and menu bar: turn the screen off while your agent keeps working, and keep your Mac awake with the lid closed.">
+<meta name="description" content="Tapdeck puts small, focused tools in the macOS Control Center and menu bar: turn the screen off while your agent keeps working, keep your Mac awake with the lid closed, mute every mic, and lock every camera behind Touch ID.">
 <meta name="theme-color" content="#F3F3F1" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0E0F11" media="(prefers-color-scheme: dark)">
 <meta property="og:title" content="Tapdeck">
-<meta property="og:description" content="One-tap Mac tools for people who vibe code. Lights Out and Stay Awake, in Control Center and the menu bar.">
+<meta property="og:description" content="One-tap Mac tools for people who vibe code. Lights Out, Stay Awake, Mic Mute and Camera Lock, in Control Center and the menu bar.">
 <meta property="og:image" content="https://devehab.github.io/Tapdeck/assets/icon-512.png">
 <meta property="og:url" content="https://devehab.github.io/Tapdeck/">
 <link rel="canonical" href="https://devehab.github.io/Tapdeck/">
@@ -100,6 +100,8 @@
   }
   html[lang="ar"] body { line-height: 1.85; }
   html[lang="ar"] * { letter-spacing: 0 !important; }
+  /* Arabic notes inside the left-to-right macOS mocks still read right to left. */
+  [dir="ltr"] [lang="ar"] { direction: rtl; unicode-bidi: isolate; }
   img, svg { display: block; max-width: 100%; }
   a { color: inherit; }
   h1, h2, h3, h4, p, figure { margin: 0; }
@@ -279,7 +281,7 @@
   h3 { font: 650 1.3rem/1.25 var(--display); letter-spacing: -.02em; }
 
   /* Tools */
-  .tools { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+  .tools { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
   .tool { display: flex; flex-direction: column; border-radius: 24px; background: var(--surface); border: 1px solid var(--line); overflow: hidden; transition: transform .3s var(--ease), box-shadow .3s var(--ease); }
   .band .tool { background: var(--paper); }
   .tool:hover { transform: translateY(-3px); box-shadow: var(--shadow-sm); }
@@ -336,6 +338,79 @@
   .micviz .level i { width: 6px; height: var(--h); border-radius: 3px; background: var(--amber); transition: height .4s var(--ease), background-color .4s ease; animation: level 1.1s ease-in-out var(--d) infinite alternate; }
   @keyframes level { from { transform: scaleY(.5); } to { transform: scaleY(1); } }
   .tool:hover .micviz .level i { height: 4px; background: var(--line-strong); animation: none; }
+  .camviz { position: relative; }
+  .camviz .feed { position: relative; width: 210px; height: 132px; border-radius: 12px; border: 4px solid #2B2E33; overflow: hidden; display: grid; place-items: end center; background: linear-gradient(165deg, #5B8A93, #22383F 70%); transition: background .5s ease; }
+  .camviz .person { width: 84px; height: 96px; }
+  .camviz .person::before { width: 40px; height: 40px; margin-left: -20px; }
+  .camviz .person::after { height: 48px; border-radius: 40px 40px 0 0; }
+  .camviz .live { top: 6px; right: 6px; padding: 2px 6px; font-size: 9px; }
+  .camviz .slash { position: absolute; left: 50%; top: 50%; width: 34px; height: 34px; margin: -17px 0 0 -17px; color: #FF6369; opacity: 0; transition: opacity .4s ease; }
+  .camviz .finger { position: absolute; right: -20px; bottom: -16px; width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; background: var(--surface); color: #FF375F; box-shadow: var(--shadow-sm), 0 0 0 1px var(--line); }
+  .camviz .finger .icon { width: 28px; height: 28px; stroke-width: 1.6; }
+  .tool:hover .camviz .feed { background: #000; }
+  .tool:hover .camviz .person, .tool:hover .camviz .live { opacity: 0; }
+  .tool:hover .camviz .slash { opacity: 1; }
+
+  /* Camera Lock: one shared state across every demo (see the script) */
+  [data-cam-scope]:not(.cam-locked) .when-cam-locked, [data-cam-scope].cam-locked .when-cam-on { display: none !important; }
+  [data-cam-scope]:not(.cam-stale) .when-cam-stale, [data-cam-scope].cam-locked .when-cam-live, [data-cam-scope].cam-stale .when-cam-live { display: none !important; }
+  .cam .bub { background: rgba(255, 255, 255, .22); color: #fff; }
+  .cam-locked .cam .bub { background: #E5484D; color: #fff; }
+  .cam-locked .mb-cam { color: #FF6369; background: rgba(255, 255, 255, .14); }
+  .person { position: relative; display: block; transition: opacity .3s ease; }
+  .person::before { content: ""; position: absolute; left: 50%; top: 0; border-radius: 50%; background: #E3D3C4; }
+  .person::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; background: #2C4047; }
+  .live { position: absolute; border-radius: 6px; background: rgba(0, 0, 0, .5); color: #7BD389; font-weight: 700; letter-spacing: .04em; transition: opacity .3s ease; }
+  .cam-steps { margin-top: 32px; }
+  .cam-steps b { color: var(--ink); }
+  .cam-demo {
+    position: relative; border-radius: 22px; padding: 22px; overflow: hidden;
+    background: linear-gradient(170deg, #22333A, #10181B); box-shadow: var(--shadow-lg); font-family: var(--mac); color: #fff; user-select: none; -webkit-user-select: none;
+  }
+  .call { border-radius: 14px; overflow: hidden; background: rgba(13, 15, 17, .9); border: 1px solid rgba(255, 255, 255, .09); box-shadow: 0 30px 60px -20px rgba(0, 0, 0, .6); }
+  .call .win-bar span { flex: 1; text-align: center; margin-inline-end: 52px; }
+  .call-grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); grid-template-rows: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 10px; height: 290px; }
+  .vid { position: relative; overflow: hidden; display: grid; place-items: center; border-radius: 10px; background: #252C31; }
+  .vid.me { grid-row: span 2; place-items: end center; background: linear-gradient(165deg, #5B8A93, #22383F 70%); transition: background .3s ease; }
+  .vid.me .person { width: 150px; height: 176px; }
+  .vid.me .person::before { width: 76px; height: 76px; margin-left: -38px; }
+  .vid.me .person::after { height: 88px; border-radius: 70px 70px 0 0; }
+  .vid.me .live { top: 10px; right: 10px; padding: 3px 8px; font-size: 10.5px; }
+  .cam-locked .vid.me, .cam-stale .vid.me { background: #000; }
+  .cam-locked .vid.me .person, .cam-stale .vid.me .person { opacity: 0; }
+  .who { position: absolute; left: 8px; bottom: 8px; padding: 2px 8px; border-radius: 6px; background: rgba(0, 0, 0, .5); font-size: 11.5px; font-weight: 600; }
+  .initials { width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; background: #3B474E; color: #DDE3E6; font-size: 16px; font-weight: 600; }
+  .vid-msg { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 10px; padding: 18px; text-align: center; color: #C9CDD2; }
+  .vid-msg .icon { width: 30px; height: 30px; color: #FF6369; }
+  .vid-msg b { max-width: 20em; font-size: 13px; font-weight: 600; line-height: 1.45; }
+  .reopen { margin-top: 2px; padding: 7px 12px; border-radius: 8px; background: #0A84FF; color: #fff; font-size: 12.5px; font-weight: 600; box-shadow: 0 0 0 3px rgba(242, 163, 27, .6); }
+  .reopen:hover { background: #2490FF; }
+  .cam-bar { margin-top: 18px; display: flex; align-items: center; gap: 18px; }
+  .cam-bar .t { flex: none; width: 190px; height: 62px; }
+  .cam-demo .caption { display: flex; align-items: center; gap: 8px; color: rgba(255, 255, 255, .6); font: 400 13.5px/1.4 var(--body); }
+  .cam-demo .caption .icon { width: 16px; height: 16px; }
+  html[lang="ar"] .cam-demo .caption, html[lang="ar"] .vid-msg b, html[lang="ar"] .reopen { font-family: "IBM Plex Sans Arabic", system-ui, sans-serif; }
+  .cam-faq { margin-top: 96px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px 56px; align-items: start; }
+  .faq-group h3 { margin-bottom: 18px; }
+
+  /* Touch ID prompt, shown when a demo unlocks the camera */
+  .tid { position: absolute; inset: 0; z-index: 4; display: grid; place-items: center; padding: 16px; background: rgba(5, 8, 10, .5); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+  .tid[hidden] { display: none; }
+  .tid-box {
+    width: min(100%, 268px); display: grid; justify-items: center; gap: 6px; padding: 22px 18px 16px; border-radius: 20px; text-align: center;
+    background: rgba(246, 246, 246, .97); color: #1D1D1F; font-family: var(--mac); box-shadow: 0 30px 60px -20px rgba(0, 0, 0, .7), 0 0 0 1px rgba(0, 0, 0, .2);
+    animation: tid-in .3s var(--ease) both;
+  }
+  .tid-finger { width: 62px; height: 62px; margin-bottom: 6px; border-radius: 50%; display: grid; place-items: center; background: #fff; color: #FF375F; animation: tid-ring 1.6s ease-out infinite; }
+  .tid-finger .icon { width: 40px; height: 40px; stroke-width: 1.5; }
+  .tid-box b { font-size: 14px; }
+  .tid-box p { font-size: 12.5px; line-height: 1.4; color: #3A3A3C; }
+  .tid-box small { font: 400 11.5px/1.4 var(--body); color: #8E8E93; }
+  html[lang="ar"] .tid-box small { font-family: "IBM Plex Sans Arabic", system-ui, sans-serif; }
+  .tid-cancel { margin-top: 8px; width: 100%; padding: 6px; border-radius: 9px; background: #E3E3E5; color: #1D1D1F; font-size: 13px; font-weight: 500; }
+  .tid-cancel:hover { background: #D8D8DB; }
+  @keyframes tid-in { from { opacity: 0; transform: scale(.94); } to { opacity: 1; transform: none; } }
+  @keyframes tid-ring { from { box-shadow: 0 0 0 1px #E5E5EA, 0 0 0 0 rgba(255, 55, 95, .45); } to { box-shadow: 0 0 0 1px #E5E5EA, 0 0 0 14px rgba(255, 55, 95, 0); } }
 
   /* Menu bar section */
   .split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 72px; align-items: center; }
@@ -612,6 +687,7 @@
     .tools, .pair { grid-template-columns: minmax(0, 1fr); }
     .facts { grid-template-columns: minmax(0, 1fr); }
     .fact + .fact { border-inline-start: 0; border-top: 1px solid var(--line); }
+    .cam-faq { grid-template-columns: minmax(0, 1fr); margin-top: 72px; }
     .final-card { grid-template-columns: minmax(0, 1fr); padding: 40px 28px; }
     .final-logo { width: 112px; height: 112px; order: -1; }
     .pop { margin-inline-end: 120px; }
@@ -639,6 +715,14 @@
     .edit-side { display: none; }
     .final { padding-bottom: 80px; }
     .fact { padding: 20px 4px; }
+    .cam-demo { padding: 14px; }
+    .call-grid { height: 230px; }
+    .vid.me .person { width: 116px; height: 136px; }
+    .vid.me .person::before { width: 58px; height: 58px; margin-left: -29px; }
+    .vid.me .person::after { height: 68px; }
+    .initials { width: 40px; height: 40px; margin-bottom: 18px; font-size: 14px; }
+    .cam-bar { flex-direction: column; align-items: stretch; gap: 14px; }
+    .cam-bar .t { width: 100%; }
   }
 </style>
 </head>
@@ -663,6 +747,9 @@
     <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></symbol>
     <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/></symbol>
     <symbol id="i-mic-off" viewBox="0 0 24 24"><path d="M15 9.5V6a3 3 0 0 0-5.7-1.3M9 9v2a3 3 0 0 0 4.7 2.5M5.5 11a6.5 6.5 0 0 0 10.6 5M18.4 12.6c.1-.5.1-1 .1-1.6M12 17.5V21M8.5 21h7"/><path d="M3.5 3.5l17 17"/></symbol>
+    <symbol id="i-cam" viewBox="0 0 24 24"><rect x="2.5" y="6.5" width="13" height="11" rx="2.5"/><path d="M15.5 10.5l6-3.5v10l-6-3.5"/></symbol>
+    <symbol id="i-cam-off" viewBox="0 0 24 24"><path d="M9.5 6.5H13a2.5 2.5 0 0 1 2.5 2.5v3.5M15.5 15.5A2.5 2.5 0 0 1 13 17.5H5A2.5 2.5 0 0 1 2.5 15V9A2.5 2.5 0 0 1 4.5 6.6M15.5 10.5l6-3.5v10l-3-1.75"/><path d="M3.5 3.5l17 17"/></symbol>
+    <symbol id="i-finger" viewBox="0 0 24 24"><path d="M6.2 5.4A8.5 8.5 0 0 1 20.5 11.5v1.2M3.5 9.6a8.6 8.6 0 0 0-.2 2.9M17.2 19.4c.4-1.6.6-3.3.6-5v-2.9a5.8 5.8 0 0 0-10.3-3.6M6.2 12v2.4a14 14 0 0 1-1.3 5.8M14.6 21.2a20.5 20.5 0 0 0 .5-6.6v-3.1a3.1 3.1 0 0 0-6.2 0v2.9a17.3 17.3 0 0 1-2 8M12 11.5v3a23 23 0 0 1-1.6 8.4"/></symbol>
     <symbol id="i-keyboard" viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="2.5"/><path d="M6.5 10h.01M10 10h.01M14 10h.01M17.5 10h.01M8 14h8"/></symbol>
     <symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
     <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
@@ -679,6 +766,7 @@
     </a>
     <nav class="nav" aria-label="Main">
       <a href="#tools"><span lang="en">Tools</span><span lang="ar">الأدوات</span></a>
+      <a href="#camera"><span lang="en">Camera Lock</span><span lang="ar">قفل الكاميرا</span></a>
       <a href="#menu-bar"><span lang="en">Menu bar</span><span lang="ar">شريط القوائم</span></a>
       <a href="#shortcuts"><span lang="en">Shortcuts</span><span lang="ar">الاختصارات</span></a>
       <a href="#install"><span lang="en">Install</span><span lang="ar">التثبيت</span></a>
@@ -715,8 +803,8 @@
           </h1>
         </div>
         <div class="hero-side">
-          <p class="lead" lang="en">Tapdeck puts small, focused tools in Control Center and the menu bar. Turn the screen off while your agent keeps working, keep the Mac running with the lid closed, mute every microphone in one tap, and get back to building.</p>
-          <p class="lead" lang="ar">يضع Tapdeck أدوات صغيرة ومركّزة في Control Center وشريط القوائم. أطفئ الشاشة ووكيلك البرمجي يكمل عمله، وأبقِ الماك شغّالاً والغطاء مغلق، واكتم كل الميكروفونات بضغطة، ثم ارجع لما تبنيه.</p>
+          <p class="lead" lang="en">Tapdeck puts small, focused tools in Control Center and the menu bar. Turn the screen off while your agent keeps working, keep the Mac running with the lid closed, mute every microphone in one tap, lock every camera behind your fingerprint, and get back to building.</p>
+          <p class="lead" lang="ar">يضع Tapdeck أدوات صغيرة ومركّزة في Control Center وشريط القوائم. أطفئ الشاشة ووكيلك البرمجي يكمل عمله، وأبقِ الماك شغّالاً والغطاء مغلق، واكتم كل الميكروفونات بضغطة، واقفل كل الكاميرات ببصمة إصبعك، ثم ارجع لما تبنيه.</p>
           <div class="cta">
             <a class="btn btn-primary" href="https://github.com/Devehab/Tapdeck/releases/latest/download/Tapdeck.dmg">
               <svg class="icon" aria-hidden="true"><use href="#i-download"/></svg>
@@ -724,16 +812,19 @@
             </a>
             <a class="btn btn-ghost" href="#install"><span lang="en">How to install</span><span lang="ar">طريقة التثبيت</span></a>
           </div>
-          <p class="meta" lang="en">Free · Version 1.2 · macOS 26 Tahoe or later · Apple silicon &amp; Intel</p>
-          <p class="meta" lang="ar">مجاني · الإصدار 1.2 · <bdi>macOS 26 Tahoe</bdi> أو أحدث · Apple silicon و Intel</p>
+          <p class="meta" lang="en">Free · Version 1.3 · macOS 26 Tahoe or later · Apple silicon &amp; Intel</p>
+          <p class="meta" lang="ar">مجاني · الإصدار 1.3 · <bdi>macOS 26 Tahoe</bdi> أو أحدث · Apple silicon و Intel</p>
         </div>
       </div>
 
       <div class="stage-wrap">
-        <div class="stage stay-on" dir="ltr" data-stay-scope data-mic-scope data-dark-scope>
+        <div class="stage stay-on" dir="ltr" data-stay-scope data-mic-scope data-cam-scope data-dark-scope>
           <div class="mb">
             <div class="mb-left" aria-hidden="true"><b>Terminal</b><span>Shell</span><span>Edit</span><span>View</span><span>Window</span><span>Help</span></div>
             <div class="mb-right">
+              <button class="mb-item mb-cam" type="button" data-cam-toggle aria-pressed="false" aria-label="Camera Lock">
+                <svg class="icon when-cam-on" aria-hidden="true"><use href="#i-cam"/></svg><svg class="icon when-cam-locked" aria-hidden="true"><use href="#i-cam-off"/></svg>
+              </button>
               <button class="mb-item mb-mic" type="button" data-mic-toggle aria-pressed="false" aria-label="Mic Mute">
                 <svg class="icon when-live" aria-hidden="true"><use href="#i-mic"/></svg><svg class="icon when-muted" aria-hidden="true"><use href="#i-mic-off"/></svg>
               </button>
@@ -767,10 +858,10 @@
               <span class="bub"><svg class="icon when-on" aria-hidden="true"><use href="#i-sun"/></svg><svg class="icon when-off" aria-hidden="true"><use href="#i-moon"/></svg></span>
               <span class="lbl"><b>Stay Awake</b><small class="when-on">Won't Sleep</small><small class="when-off">Sleeps Normally</small></span>
             </button>
-            <div class="t wide muted" aria-hidden="true">
-              <span class="bub"><svg class="icon"><use href="#i-bt"/></svg></span>
-              <span class="lbl"><b>Bluetooth</b><small>On</small></span>
-            </div>
+            <button class="t wide ours cam" type="button" data-cam-toggle aria-pressed="false" aria-label="Camera Lock">
+              <span class="bub"><svg class="icon when-cam-on" aria-hidden="true"><use href="#i-cam"/></svg><svg class="icon when-cam-locked" aria-hidden="true"><use href="#i-cam-off"/></svg></span>
+              <span class="lbl"><b>Camera</b><small class="when-cam-on">On</small><small class="when-cam-locked">Locked</small></span>
+            </button>
             <button class="t round ours" type="button" data-lights aria-label="Lights Out">
               <svg class="icon" aria-hidden="true"><use href="#i-bulb-off"/></svg>
             </button>
@@ -784,21 +875,31 @@
           <span class="tag tag-mb"><span lang="en">Stay Awake, pinned to the menu bar</span><span lang="ar">Stay Awake مثبّت في شريط القوائم</span><svg class="icon" aria-hidden="true"><use href="#i-arrow-ne"/></svg></span>
           <span class="tag tag-cc"><span lang="en">Tapdeck controls in Control Center</span><span lang="ar">أزرار Tapdeck داخل Control Center</span><svg class="icon" aria-hidden="true"><use href="#i-arrow-right"/></svg></span>
 
+          <div class="tid" data-tid hidden>
+            <div class="tid-box" role="dialog" aria-label="Touch ID">
+              <button class="tid-finger" type="button" data-tid-ok aria-label="Touch ID"><svg class="icon" aria-hidden="true"><use href="#i-finger"/></svg></button>
+              <b>Tapdeck</b>
+              <p>Tapdeck is trying to turn the camera back on.</p>
+              <small><span lang="en">Click the fingerprint to touch the sensor</span><span lang="ar">اضغط البصمة كأنك تلمس الحساس</span></small>
+              <button class="tid-cancel" type="button" data-tid-cancel>Cancel</button>
+            </div>
+          </div>
+
           <div class="blackout" aria-live="polite">
             <p><span lang="en">Screen and keyboard light are off, and the agent is still running. Move the pointer or press a key to wake.</span><span lang="ar">الشاشة وإضاءة الكيبورد مطفأة، والوكيل ما زال يعمل. حرّك المؤشر أو اضغط أي زر لإعادتها.</span></p>
           </div>
         </div>
         <p class="stage-hint">
           <svg class="icon" aria-hidden="true"><use href="#i-pointer"/></svg>
-          <span lang="en">This is a live demo. Tap Stay Awake, Lights Out or the microphone.</span>
-          <span lang="ar">هذا عرض تفاعلي. اضغط Stay Awake أو Lights Out أو الميكروفون.</span>
+          <span lang="en">This is a live demo. Tap Stay Awake, Lights Out, the microphone or the camera.</span>
+          <span lang="ar">هذا عرض تفاعلي. اضغط Stay Awake أو Lights Out أو الميكروفون أو الكاميرا.</span>
         </p>
       </div>
 
       <div class="facts">
-        <div class="fact"><b>532 KB</b><span lang="en">One universal download for Apple silicon and Intel</span><span lang="ar">تحميل واحد يعمل على Apple silicon و Intel</span></div>
+        <div class="fact"><b>811 KB</b><span lang="en">One universal download for Apple silicon and Intel</span><span lang="ar">تحميل واحد يعمل على Apple silicon و Intel</span></div>
         <div class="fact"><b>0</b><span lang="en">Network requests. No account, no tracking</span><span lang="ar">طلبات إنترنت. بلا حساب وبلا تتبّع</span></div>
-        <div class="fact"><b>1</b><span lang="en">Approval to give, and only for Stay Awake</span><span lang="ar">موافقة واحدة فقط، ولـ Stay Awake وحده</span></div>
+        <div class="fact"><b>1</b><span lang="en">Approval to give, only for Stay Awake and Camera Lock</span><span lang="ar">موافقة واحدة فقط، لـ Stay Awake و Camera Lock</span></div>
       </div>
     </div>
   </div>
@@ -808,7 +909,7 @@
     <div class="wrap">
       <div class="head rv">
         <span class="kicker"><span lang="en">Tools</span><span lang="ar">الأدوات</span></span>
-        <h2><span lang="en">Three tools today. A deck that keeps growing.</span><span lang="ar">ثلاث أدوات اليوم، ومجموعة تكبر باستمرار.</span></h2>
+        <h2><span lang="en">Four tools today. A deck that keeps growing.</span><span lang="ar">أربع أدوات اليوم، ومجموعة تكبر باستمرار.</span></h2>
         <p lang="en">Each tool is a native control. Put it in Control Center, pin it to the menu bar, or run it from Spotlight.</p>
         <p lang="ar">كل أداة زر أصلي في macOS. ضعه في Control Center، أو ثبّته في شريط القوائم، أو شغّله من Spotlight.</p>
       </div>
@@ -882,6 +983,34 @@
             </div>
           </div>
         </article>
+
+        <article class="tool rv">
+          <div class="viz" aria-hidden="true">
+            <div class="camviz">
+              <div class="feed"><span class="person"></span><span class="live">LIVE</span><svg class="icon slash"><use href="#i-cam-off"/></svg></div>
+              <span class="finger"><svg class="icon"><use href="#i-finger"/></svg></span>
+            </div>
+          </div>
+          <div class="tool-body">
+            <div class="tool-title"><h3>Camera Lock</h3><span class="chip"><span lang="en">Toggle</span><span lang="ar">زر تبديل</span></span></div>
+            <p class="tool-lead" lang="en">Turns off every camera for every app in one tap. Only your fingerprint turns it back on.</p>
+            <p class="tool-lead" lang="ar">يوقف كل الكاميرات عن كل التطبيقات بضغطة واحدة، ولا يعيدها إلا بصمة إصبعك.</p>
+            <div class="states">
+              <div class="state"><span class="dot mic"><svg class="icon" aria-hidden="true"><use href="#i-cam-off"/></svg></span><span><b>Locked</b> · <span lang="en">apps see no camera at all</span><span lang="ar">التطبيقات لا ترى أي كاميرا</span></span></div>
+              <div class="state"><span class="dot moon"><svg class="icon" aria-hidden="true"><use href="#i-cam"/></svg></span><span><b>On</b> · <span lang="en">cameras work normally</span><span lang="ar">الكاميرات تعمل بشكل طبيعي</span></span></div>
+            </div>
+            <ul class="checks">
+              <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span lang="en">Cuts a camera that's already in use, in the middle of a call.</span><span lang="ar">يقطع الكاميرا حتى لو كانت مفتوحة، في منتصف اجتماع.</span></li>
+              <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span lang="en">Turning it back on takes Touch ID, with no password option.</span><span lang="ar">إعادة تشغيلها تحتاج Touch ID، بلا خيار كلمة سر.</span></li>
+              <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span lang="en">Covers the built-in camera, USB cameras and iPhone Continuity Camera.</span><span lang="ar">يشمل الكاميرا المدمجة وكاميرات USB وكاميرا الآيفون عبر Continuity.</span></li>
+            </ul>
+            <div class="note">
+              <svg class="icon" aria-hidden="true"><use href="#i-warn"/></svg>
+              <span lang="en">After you turn the camera back on, quit and reopen any app that was using it. <a href="#camera">How Camera Lock works</a></span>
+              <span lang="ar">بعد إعادة تشغيل الكاميرا، أغلق أي تطبيق كان يستخدمها كلياً ثم افتحه من جديد. <a href="#camera">كيف يعمل قفل الكاميرا</a></span>
+            </div>
+          </div>
+        </article>
       </div>
 
       <div class="more rv">
@@ -892,8 +1021,166 @@
     </div>
   </section>
 
+  <!-- Camera Lock -->
+  <section id="camera" class="band">
+    <div class="wrap">
+      <div class="split">
+        <div class="head rv">
+          <span class="kicker"><span lang="en">Camera Lock</span><span lang="ar">قفل الكاميرا</span></span>
+          <h2><span lang="en">Cut every camera mid-call. Only your fingerprint brings it back.</span><span lang="ar">اقطع كل الكاميرات في منتصف الاجتماع، ولا يعيدها إلا بصمتك.</span></h2>
+          <p lang="en">Camera Lock is for the moments you want to be sure nothing is watching: one tap, and no app on your Mac can see any camera.</p>
+          <p lang="ar">قفل الكاميرا للحظات التي تريد فيها أن تتأكد أن لا شيء يراك: ضغطة واحدة، ولا يرى أي تطبيق على ماكك أي كاميرا.</p>
+          <ol class="numbered cam-steps">
+            <li><div lang="en"><b>Tap to lock.</b> Within about a second every app loses the camera, even one that's in a meeting right now. Apps that ask for a camera find none.</div><div lang="ar"><b>اضغط للقفل.</b> خلال ثانية تقريباً تفقد كل التطبيقات الكاميرا، حتى التطبيق الذي في اجتماع الآن. وأي تطبيق يطلب كاميرا لا يجد أي كاميرا.</div></li>
+            <li><div lang="en"><b>Tap again and touch the sensor.</b> Only Touch ID turns the camera back on. There's no “Use Password” option, so knowing your password isn't enough.</div><div lang="ar"><b>اضغط مرة أخرى والمس الحساس.</b> وحده Touch ID يعيد تشغيل الكاميرا. لا يوجد خيار <span class="ui">Use Password</span>، فمعرفة كلمة السر لا تكفي.</div></li>
+            <li><div lang="en"><b>Reopen the app.</b> An app that was using the camera when you locked it needs a fresh start: quit it completely with <span class="ui">⌘Q</span> and open it again. Other apps see the camera right away.</div><div lang="ar"><b>أعد فتح التطبيق.</b> التطبيق الذي كان يستخدم الكاميرا لحظة القفل يحتاج تشغيلاً جديداً: أغلقه كلياً بـ <span class="ui">⌘Q</span> ثم افتحه من جديد. أما باقي التطبيقات فترى الكاميرا مباشرة.</div></li>
+          </ol>
+        </div>
+
+        <div class="cam-demo rv" dir="ltr" data-cam-scope>
+          <div class="call">
+            <div class="win-bar"><i></i><i></i><i></i><span>Team sync · 3 people</span></div>
+            <div class="call-grid">
+              <div class="vid me">
+                <span class="person" aria-hidden="true"></span>
+                <span class="live when-cam-live">● LIVE</span>
+                <div class="vid-msg when-cam-locked"><svg class="icon" aria-hidden="true"><use href="#i-cam-off"/></svg><b>No camera found</b></div>
+                <div class="vid-msg when-cam-stale">
+                  <svg class="icon" aria-hidden="true"><use href="#i-cam-off"/></svg>
+                  <b><span lang="en">Camera is back on, but this app hasn't noticed yet</span><span lang="ar">الكاميرا رجعت، لكن هذا التطبيق لم ينتبه بعد</span></b>
+                  <button class="reopen" type="button" data-cam-reopen><span lang="en">Quit and reopen the app</span><span lang="ar">أغلق التطبيق وافتحه</span></button>
+                </div>
+                <span class="who">You</span>
+              </div>
+              <div class="vid"><span class="initials" aria-hidden="true">MK</span><span class="who">Maya</span></div>
+              <div class="vid"><span class="initials" aria-hidden="true">SA</span><span class="who">Sami</span></div>
+            </div>
+          </div>
+          <div class="cam-bar">
+            <button class="t wide ours cam" type="button" data-cam-toggle aria-pressed="false" aria-label="Camera Lock">
+              <span class="bub"><svg class="icon when-cam-on" aria-hidden="true"><use href="#i-cam"/></svg><svg class="icon when-cam-locked" aria-hidden="true"><use href="#i-cam-off"/></svg></span>
+              <span class="lbl"><b>Camera</b><small class="when-cam-on">On</small><small class="when-cam-locked">Locked</small></span>
+            </button>
+            <p class="caption">
+              <svg class="icon" aria-hidden="true"><use href="#i-pointer"/></svg>
+              <span lang="en">Tap Camera to lock it, then tap again to unlock with Touch ID.</span>
+              <span lang="ar">اضغط Camera للقفل، ثم اضغط مرة أخرى لفتحه بـ Touch ID.</span>
+            </p>
+          </div>
+
+          <div class="tid" data-tid hidden>
+            <div class="tid-box" role="dialog" aria-label="Touch ID">
+              <button class="tid-finger" type="button" data-tid-ok aria-label="Touch ID"><svg class="icon" aria-hidden="true"><use href="#i-finger"/></svg></button>
+              <b>Tapdeck</b>
+              <p>Tapdeck is trying to turn the camera back on.</p>
+              <small><span lang="en">Click the fingerprint to touch the sensor</span><span lang="ar">اضغط البصمة كأنك تلمس الحساس</span></small>
+              <button class="tid-cancel" type="button" data-tid-cancel>Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cam-faq">
+        <div class="faq-group">
+          <h3><span lang="en">How it works</span><span lang="ar">كيف يعمل</span></h3>
+          <div class="faq">
+            <details>
+              <summary><span lang="en">What does Camera Lock actually do?</span><span lang="ar">ماذا يفعل قفل الكاميرا بالضبط؟</span><span class="pm" aria-hidden="true"></span></summary>
+              <div class="answer">
+                <p lang="en">It turns on the same system setting Apple's own camera restriction uses, the one schools and companies switch on for the Macs they manage. While it's on, macOS offers apps no camera at all: there's nothing to open, not even a black picture. Tapdeck then restarts macOS's camera services, so an app that's using the camera right now loses it too.</p>
+                <p lang="ar">يفعّل نفس إعداد النظام الذي يستخدمه قيد الكاميرا الرسمي من Apple، وهو الإعداد الذي تفعّله المدارس والشركات على أجهزة الماك التي تديرها. وطالما هو مفعّل، لا يعرض macOS أي كاميرا على التطبيقات: لا يوجد شيء لتفتحه، ولا حتى صورة سوداء. ثم يعيد Tapdeck تشغيل خدمات الكاميرا في macOS، فيفقدها أيضاً أي تطبيق يستخدمها في تلك اللحظة.</p>
+              </div>
+            </details>
+            <details>
+              <summary><span lang="en">Which apps and cameras does it cover?</span><span lang="ar">ما التطبيقات والكاميرات التي يشملها؟</span><span class="pm" aria-hidden="true"></span></summary>
+              <div class="answer">
+                <p lang="en">Every app, because macOS itself stops offering cameras: FaceTime, Zoom, Teams, Slack, Google Meet in any browser, Photo Booth and the rest. It covers the built-in camera, USB webcams and an iPhone used as a Continuity Camera, Desk View included.</p>
+                <p lang="ar">كل التطبيقات، لأن macOS نفسه يتوقف عن عرض الكاميرات: FaceTime و Zoom و Teams و Slack و Google Meet في أي متصفح و Photo Booth وغيرها. ويشمل الكاميرا المدمجة وكاميرات USB والآيفون المستخدم ككاميرا عبر Continuity، ومعها Desk View.</p>
+              </div>
+            </details>
+            <details>
+              <summary><span lang="en">Why only Touch ID, and not my password?</span><span lang="ar">لماذا Touch ID فقط، وليس كلمة السر؟</span><span class="pm" aria-hidden="true"></span></summary>
+              <div class="answer">
+                <p lang="en">A password can be watched, guessed or shared. A fingerprint can't, so turning the camera back on asks for Touch ID and offers no password instead. For the same reason, Camera Lock turns on only while Touch ID is set up: you can never lock a camera you can't unlock.</p>
+                <p lang="ar">كلمة السر يمكن أن تُرى أو تُخمَّن أو تُشارَك، أما البصمة فلا. لذلك تطلب إعادة تشغيل الكاميرا Touch ID ولا تقبل كلمة السر بديلاً. وللسبب نفسه لا يعمل قفل الكاميرا إلا إذا كان Touch ID مُعدّاً، فلا يمكن أن تقفل كاميرا لا تستطيع فتحها.</p>
+              </div>
+            </details>
+            <details>
+              <summary><span lang="en">Why do I have to reopen an app after unlocking?</span><span lang="ar">لماذا يجب أن أعيد فتح التطبيق بعد فك القفل؟</span><span class="pm" aria-hidden="true"></span></summary>
+              <div class="answer">
+                <p lang="en">When the camera is locked, apps that were using it lose their connection to it, and most of them don't look for a camera again by themselves. A fresh start makes them look. Quit the app completely with <span class="ui">⌘Q</span>, or right-click its Dock icon and choose <span class="ui">Quit</span>; closing its window isn't enough. In a browser, quit the whole browser, not just the tab. Apps you open after unlocking see the camera right away.</p>
+                <p lang="ar">عندما تُقفل الكاميرا، تفقد التطبيقات التي كانت تستخدمها اتصالها بها، وأغلبها لا يبحث عن الكاميرا من جديد من تلقاء نفسه. التشغيل من جديد يجعله يبحث. أغلق التطبيق كلياً بـ <span class="ui">⌘Q</span>، أو اضغط على أيقونته في الـ Dock بالزر الأيمن واختر <span class="ui">Quit</span>؛ إغلاق النافذة وحده لا يكفي. وفي المتصفح أغلق المتصفح كله، وليس التبويب فقط. أما التطبيقات التي تفتحها بعد فك القفل فترى الكاميرا مباشرة.</p>
+              </div>
+            </details>
+            <details>
+              <summary><span lang="en">Can an app turn the camera back on by itself?</span><span lang="ar">هل يستطيع تطبيق أن يعيد تشغيل الكاميرا بنفسه؟</span><span class="pm" aria-hidden="true"></span></summary>
+              <div class="answer">
+                <p lang="en">No. Apps can't change this setting, and while the camera is locked Tapdeck checks every second that it's still in place and puts it back if anything removes it. Like every system setting, it can be changed by someone with your Mac's administrator password, so keep that password to yourself.</p>
+                <p lang="ar">لا. التطبيقات لا تستطيع تغيير هذا الإعداد، وطالما الكاميرا مقفلة يتأكد Tapdeck كل ثانية أن الإعداد ما زال في مكانه، ويعيده إذا أزاله أي شيء. ومثل أي إعداد في النظام، يستطيع تغييره من يملك كلمة سر المدير في ماكك، فاحتفظ بها لنفسك.</p>
+              </div>
+            </details>
+            <details>
+              <summary><span lang="en">What does it need from me?</span><span lang="ar">ماذا يحتاج مني؟</span><span class="pm" aria-hidden="true"></span></summary>
+              <div class="answer">
+                <p lang="en">Touch ID with at least one fingerprint, and the same one-time <span class="ui">Allow in the Background</span> approval as Stay Awake, because changing a system setting needs administrator rights. It needs no camera permission: Tapdeck never opens a camera or looks through one.</p>
+                <p lang="ar">Touch ID مع بصمة واحدة على الأقل، ونفس موافقة <span class="ui">Allow in the Background</span> التي يحتاجها Stay Awake مرة واحدة، لأن تغيير إعداد في النظام يحتاج صلاحيات مدير. ولا يحتاج إذن الكاميرا: Tapdeck لا يفتح أي كاميرا ولا ينظر من خلالها.</p>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <div class="faq-group">
+          <h3><span lang="en">Troubleshooting</span><span lang="ar">حل المشاكل</span></h3>
+          <div class="faq">
+            <details>
+              <summary><span lang="en">I unlocked the camera, but an app still can't see it</span><span lang="ar">فككت القفل، لكن تطبيقاً ما زال لا يرى الكاميرا</span><span class="pm" aria-hidden="true"></span></summary>
+              <div class="answer">
+                <p lang="en">Quit that app completely with <span class="ui">⌘Q</span> and open it again; for a browser, quit the whole browser. If it still finds no camera, check that the lock is really off:</p>
+                <p lang="ar">أغلق هذا التطبيق كلياً بـ <span class="ui">⌘Q</span> ثم افتحه من جديد؛ وإذا كان متصفحاً فأغلق المتصفح كله. وإذا بقي لا يجد الكاميرا، تأكد أن القفل مفتوح فعلاً:</p>
+                <div class="code"><code>/Applications/Tapdeck.app/Contents/MacOS/Tapdeck --status</code><button class="copy" type="button" data-copy><span class="idle-t"><span lang="en">Copy</span><span lang="ar">نسخ</span></span><span class="done-t"><span lang="en">Copied</span><span lang="ar">تم النسخ</span></span></button></div>
+                <p lang="en"><span class="ui">Camera Lock: off</span> and your cameras listed after <span class="ui">Cameras apps can see</span> mean macOS offers them again. If it still says locked, tap Camera Lock and touch the sensor.</p>
+                <p lang="ar">إذا ظهر <span class="ui">Camera Lock: off</span> وظهرت كاميراتك بعد <span class="ui">Cameras apps can see</span>، فـ macOS يعرضها من جديد. وإذا بقي مقفلاً، اضغط Camera Lock والمس الحساس.</p>
+              </div>
+            </details>
+            <details>
+              <summary><span lang="en">An app still shows my picture after I locked the camera</span><span lang="ar">تطبيق ما زال يعرض صورتي بعد قفل الكاميرا</span><span class="pm" aria-hidden="true"></span></summary>
+              <div class="answer">
+                <p lang="en">Give it a second or two. If the picture keeps moving, run the status command above. <span class="ui">Cameras apps can see: none</span> means the lock is on, so quit and reopen that app and it will find no camera. If Camera Lock shows off, it's probably waiting for its one-time approval: turn Tapdeck on under <span class="ui">Allow in the Background</span> and tap Camera Lock again.</p>
+                <p lang="ar">انتظر ثانية أو اثنتين. وإذا بقيت الصورة تتحرك، شغّل أمر الحالة في الأعلى. <span class="ui">Cameras apps can see: none</span> تعني أن القفل مفعّل، فأغلق التطبيق وافتحه من جديد ولن يجد أي كاميرا. وإذا ظهر أن Camera Lock غير مفعّل، فهو غالباً ينتظر موافقته الأولى: فعّل Tapdeck تحت <span class="ui">Allow in the Background</span> واضغط Camera Lock من جديد.</p>
+                <span class="crumbs"><b>System Settings</b><i></i><b>General</b><i></i><b>Login Items &amp; Extensions</b></span>
+              </div>
+            </details>
+            <details>
+              <summary><span lang="en">Camera Lock says it needs Touch ID</span><span lang="ar">قفل الكاميرا يقول إنه يحتاج Touch ID</span><span class="pm" aria-hidden="true"></span></summary>
+              <div class="answer">
+                <p lang="en">Camera Lock works only while Touch ID can be used. Add a fingerprint in Touch ID &amp; Password. On a MacBook, open the lid; on a desktop Mac, connect your Magic Keyboard with Touch ID. A Mac with no Touch ID at all can't use Camera Lock.</p>
+                <p lang="ar">قفل الكاميرا يعمل فقط عندما يكون Touch ID قابلاً للاستخدام. أضف بصمة من Touch ID &amp; Password. وفي الماك بوك افتح الغطاء، وفي الماك المكتبي وصّل Magic Keyboard with Touch ID. أما الماك الذي ليس فيه Touch ID أصلاً فلا يستطيع استخدام قفل الكاميرا.</p>
+                <span class="crumbs"><b>System Settings</b><i></i><b>Touch ID &amp; Password</b></span>
+              </div>
+            </details>
+            <details>
+              <summary><span lang="en">Touch ID stopped accepting my finger</span><span lang="ar">Touch ID توقف عن قبول بصمتي</span><span class="pm" aria-hidden="true"></span></summary>
+              <div class="answer">
+                <p lang="en">After too many tries macOS pauses Touch ID. Lock the screen with <span class="ui">⌃⌘Q</span> and sign in with your password once; Touch ID works again, and the next tap on Camera Lock unlocks the camera. Clicking <span class="ui">Cancel</span> on the Touch ID prompt simply leaves the camera locked.</p>
+                <p lang="ar">بعد محاولات كثيرة يوقف macOS الـ Touch ID مؤقتاً. اقفل الشاشة بـ <span class="ui">⌃⌘Q</span> وادخل بكلمة السر مرة واحدة؛ فيعود Touch ID للعمل، وأول ضغطة بعدها على Camera Lock تفتح الكاميرا. أما الضغط على <span class="ui">Cancel</span> في نافذة Touch ID فيترك الكاميرا مقفلة فقط.</p>
+              </div>
+            </details>
+            <details>
+              <summary><span lang="en">The camera is locked and Touch ID is gone</span><span lang="ar">الكاميرا مقفلة و Touch ID لم يعد متاحاً</span><span class="pm" aria-hidden="true"></span></summary>
+              <div class="answer">
+                <p lang="en">Reconnect the Magic Keyboard with Touch ID, or open the MacBook lid. If the fingerprints were removed, add one again in Touch ID &amp; Password (macOS asks for your password first). Any fingerprint saved on this Mac unlocks Camera Lock.</p>
+                <p lang="ar">أعد توصيل Magic Keyboard with Touch ID، أو افتح غطاء الماك بوك. وإذا حُذفت البصمات، أضف بصمة من جديد في Touch ID &amp; Password (يطلب macOS كلمة السر أولاً). أي بصمة محفوظة في هذا الماك تفتح قفل الكاميرا.</p>
+                <span class="crumbs"><b>System Settings</b><i></i><b>Touch ID &amp; Password</b></span>
+              </div>
+            </details>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Menu bar -->
-  <section id="menu-bar" class="band">
+  <section id="menu-bar">
     <div class="wrap split">
       <div class="head rv">
         <span class="kicker"><span lang="en">Menu bar</span><span lang="ar">شريط القوائم</span></span>
@@ -905,6 +1192,7 @@
           <div class="state"><span class="dot moon"><svg class="icon" aria-hidden="true"><use href="#i-moon"/></svg></span><span><b>Sleeps Normally</b> · <span lang="en">regular macOS sleep</span><span lang="ar">ينام كالعادة</span></span></div>
           <div class="state"><span class="dot bulb"><svg class="icon" aria-hidden="true"><use href="#i-bulb-off"/></svg></span><span><b>Lights Out</b> · <span lang="en">one click turns the screen and keyboard light off</span><span lang="ar">ضغطة واحدة تطفئ الشاشة وإضاءة الكيبورد</span></span></div>
           <div class="state"><span class="dot mic"><svg class="icon" aria-hidden="true"><use href="#i-mic-off"/></svg></span><span><b>Mic Muted</b> · <span lang="en">every microphone sends silence</span><span lang="ar">كل الميكروفونات ترسل صمتاً</span></span></div>
+          <div class="state"><span class="dot mic"><svg class="icon" aria-hidden="true"><use href="#i-cam-off"/></svg></span><span><b>Camera Locked</b> · <span lang="en">no app can see any camera</span><span lang="ar">لا يرى أي تطبيق أي كاميرا</span></span></div>
         </div>
         <div class="how">
           <span lang="en">To add one, open:</span><span lang="ar">لإضافة زر، افتح:</span>
@@ -914,8 +1202,9 @@
         </div>
       </div>
 
-      <div class="menubar-demo rv stay-on" dir="ltr" data-stay-scope data-mic-scope data-dark-scope>
+      <div class="menubar-demo rv stay-on" dir="ltr" data-stay-scope data-mic-scope data-cam-scope data-dark-scope>
         <div class="mbz">
+          <button class="mb-item mb-cam ours" type="button" data-cam-toggle aria-pressed="false" aria-label="Camera Lock"><svg class="icon when-cam-on" aria-hidden="true"><use href="#i-cam"/></svg><svg class="icon when-cam-locked" aria-hidden="true"><use href="#i-cam-off"/></svg></button>
           <button class="mb-item mb-mic ours" type="button" data-mic-toggle aria-pressed="false" aria-label="Mic Mute"><svg class="icon when-live" aria-hidden="true"><use href="#i-mic"/></svg><svg class="icon when-muted" aria-hidden="true"><use href="#i-mic-off"/></svg></button>
           <button class="mb-item ours" type="button" data-lights aria-label="Lights Out"><svg class="icon" aria-hidden="true"><use href="#i-bulb-off"/></svg></button>
           <button class="mb-item mb-stay ours" type="button" data-stay-toggle aria-pressed="true" aria-label="Stay Awake">
@@ -932,9 +1221,18 @@
         </div>
         <p class="caption">
           <svg class="icon" aria-hidden="true"><use href="#i-pointer"/></svg>
-          <span lang="en">Click the sun for Stay Awake, the bulb for Lights Out, or the mic to mute.</span>
-          <span lang="ar">اضغط الشمس لـ Stay Awake، أو المصباح لـ Lights Out، أو الميكروفون للكتم.</span>
+          <span lang="en">Click the sun for Stay Awake, the bulb for Lights Out, the mic to mute, or the camera to lock it.</span>
+          <span lang="ar">اضغط الشمس لـ Stay Awake، أو المصباح لـ Lights Out، أو الميكروفون للكتم، أو الكاميرا لقفلها.</span>
         </p>
+        <div class="tid" data-tid hidden>
+          <div class="tid-box" role="dialog" aria-label="Touch ID">
+            <button class="tid-finger" type="button" data-tid-ok aria-label="Touch ID"><svg class="icon" aria-hidden="true"><use href="#i-finger"/></svg></button>
+            <b>Tapdeck</b>
+            <p>Tapdeck is trying to turn the camera back on.</p>
+            <small><span lang="en">Click the fingerprint to touch the sensor</span><span lang="ar">اضغط البصمة كأنك تلمس الحساس</span></small>
+            <button class="tid-cancel" type="button" data-tid-cancel>Cancel</button>
+          </div>
+        </div>
         <div class="blackout" aria-live="polite">
           <p><span lang="en">Lights out. Move the pointer or press a key to wake.</span><span lang="ar">الإضاءة مطفأة. حرّك المؤشر أو اضغط أي زر لإعادتها.</span></p>
         </div>
@@ -943,7 +1241,7 @@
   </section>
 
   <!-- Shortcuts -->
-  <section id="shortcuts">
+  <section id="shortcuts" class="band">
     <div class="wrap">
       <div class="head rv">
         <span class="kicker"><span lang="en">Shortcuts</span><span lang="ar">الاختصارات</span></span>
@@ -954,13 +1252,13 @@
       <div class="pair">
         <div class="panel rv">
           <div class="panel-title"><span class="tile-ico"><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg></span><h3>Spotlight</h3></div>
-          <p lang="en">Press <span class="ui">⌘ Space</span> and type <span class="ui">Lights Out</span>, <span class="ui">Toggle Stay Awake</span> or <span class="ui">Toggle Mic Mute</span>. They work right after install.</p>
-          <p lang="ar">اضغط <span class="ui">⌘ Space</span> واكتب <span class="ui">Lights Out</span> أو <span class="ui">Toggle Stay Awake</span> أو <span class="ui">Toggle Mic Mute</span>. تعمل مباشرة بعد التثبيت.</p>
+          <p lang="en">Press <span class="ui">⌘ Space</span> and type <span class="ui">Lights Out</span>, <span class="ui">Toggle Stay Awake</span>, <span class="ui">Toggle Mic Mute</span> or <span class="ui">Toggle Camera Lock</span>. They work right after install.</p>
+          <p lang="ar">اضغط <span class="ui">⌘ Space</span> واكتب <span class="ui">Lights Out</span> أو <span class="ui">Toggle Stay Awake</span> أو <span class="ui">Toggle Mic Mute</span> أو <span class="ui">Toggle Camera Lock</span>. تعمل مباشرة بعد التثبيت.</p>
           <div class="spot" aria-hidden="true">
             <div class="field"><svg class="icon"><use href="#i-search"/></svg>Toggle Stay Awake<span class="caret"></span></div>
             <div class="res on"><svg viewBox="0 0 32 32"><use href="#i-logo"/></svg>Toggle Stay Awake<small>Tapdeck</small></div>
             <div class="res"><svg viewBox="0 0 32 32"><use href="#i-logo"/></svg>Toggle Mic Mute<small>Tapdeck</small></div>
-            <div class="res"><svg viewBox="0 0 32 32"><use href="#i-logo"/></svg>Lights Out<small>Tapdeck</small></div>
+            <div class="res"><svg viewBox="0 0 32 32"><use href="#i-logo"/></svg>Toggle Camera Lock<small>Tapdeck</small></div>
           </div>
         </div>
         <div class="panel rv">
@@ -978,7 +1276,7 @@
   </section>
 
   <!-- Install -->
-  <section id="install" class="band">
+  <section id="install">
     <div class="wrap">
       <div class="head rv">
         <span class="kicker"><span lang="en">Install</span><span lang="ar">التثبيت</span></span>
@@ -993,14 +1291,14 @@
             <span class="step-num">1</span>
             <span class="step-copy">
               <b><span lang="en">Download</span><span lang="ar">التحميل</span></b>
-              <span lang="en">Download <span class="ui">Tapdeck.dmg</span> (532 KB) and open it from your Downloads.</span>
-              <span lang="ar">حمّل <span class="ui">Tapdeck.dmg</span> (<bdi>532 KB</bdi>) وافتحه من مجلد التنزيلات.</span>
+              <span lang="en">Download <span class="ui">Tapdeck.dmg</span> (811 KB) and open it from your Downloads.</span>
+              <span lang="ar">حمّل <span class="ui">Tapdeck.dmg</span> (<bdi>811 KB</bdi>) وافتحه من مجلد التنزيلات.</span>
             </span>
           </button>
           <div class="step-visual" aria-hidden="true">
             <div class="mwin">
               <div class="win-bar"><i></i><i></i><i></i><span>Downloads</span></div>
-              <div class="dl"><span class="disk"><i></i></span><div><b>Tapdeck.dmg</b><small>532 KB · Done</small></div><span class="open">Open</span></div>
+              <div class="dl"><span class="disk"><i></i></span><div><b>Tapdeck.dmg</b><small>811 KB · Done</small></div><span class="open">Open</span></div>
             </div>
           </div>
         </li>
@@ -1051,8 +1349,8 @@
             <span class="step-num">4</span>
             <span class="step-copy">
               <b><span lang="en">Add it to Control Center or the menu bar</span><span lang="ar">أضفه إلى Control Center أو شريط القوائم</span></b>
-              <span lang="en">Open Control Center › Edit Controls › Tapdeck. Drag Lights Out, Stay Awake and Mic Mute into Control Center, or up into the menu bar.</span>
-              <span lang="ar">افتح Control Center › Edit Controls › Tapdeck. اسحب Lights Out و Stay Awake و Mic Mute إلى Control Center، أو إلى شريط القوائم في الأعلى.</span>
+              <span lang="en">Open Control Center › Edit Controls › Tapdeck. Drag Lights Out, Stay Awake, Mic Mute and Camera Lock into Control Center, or up into the menu bar.</span>
+              <span lang="ar">افتح Control Center › Edit Controls › Tapdeck. اسحب Lights Out و Stay Awake و Mic Mute و Camera Lock إلى Control Center، أو إلى شريط القوائم في الأعلى.</span>
             </span>
           </button>
           <div class="step-visual" aria-hidden="true">
@@ -1068,6 +1366,7 @@
                   <div class="edit-ctrls">
                     <figure><span class="mini-round"><svg class="icon"><use href="#i-bulb-off"/></svg></span>Lights Out</figure>
                     <figure><span class="mini-round"><svg class="icon"><use href="#i-mic-off"/></svg></span>Mic Mute</figure>
+                    <figure><span class="mini-round"><svg class="icon"><use href="#i-cam"/></svg></span>Camera Lock</figure>
                     <figure><span class="mini-wide"><span class="b"><svg class="icon"><use href="#i-sun"/></svg></span>Stay Awake</span>Stay Awake</figure>
                   </div>
                   <div class="drops"><span><svg class="icon"><use href="#i-arrow-up"/></svg>Menu Bar</span><span><svg class="icon"><use href="#i-arrow-right"/></svg>Control Center</span></div>
@@ -1081,9 +1380,9 @@
           <button class="step-head" type="button" aria-expanded="false">
             <span class="step-num">5</span>
             <span class="step-copy">
-              <b><span lang="en">Approve Stay Awake</span><span lang="ar">وافق على Stay Awake</span><span class="once"><span lang="en">once</span><span lang="ar">مرة واحدة</span></span></b>
-              <span lang="en">The first time you tap Stay Awake, click <span class="ui">Open System Settings</span> and turn on Tapdeck under <span class="ui">Allow in the Background</span>. Lights Out needs no approval.</span>
-              <span lang="ar">أول مرة تضغط Stay Awake، اضغط <span class="ui">Open System Settings</span> وفعّل Tapdeck تحت <span class="ui">Allow in the Background</span>. أما Lights Out فلا يحتاج أي موافقة.</span>
+              <b><span lang="en">Approve Stay Awake and Camera Lock</span><span lang="ar">وافق على Stay Awake و Camera Lock</span><span class="once"><span lang="en">once</span><span lang="ar">مرة واحدة</span></span></b>
+              <span lang="en">The first time you tap Stay Awake or Camera Lock, click <span class="ui">Open System Settings</span> and turn on Tapdeck under <span class="ui">Allow in the Background</span>. One approval covers both. Lights Out and Mic Mute need none.</span>
+              <span lang="ar">أول مرة تضغط Stay Awake أو Camera Lock، اضغط <span class="ui">Open System Settings</span> وفعّل Tapdeck تحت <span class="ui">Allow in the Background</span>. موافقة واحدة تكفي للاثنين. أما Lights Out و Mic Mute فلا يحتاجان أي موافقة.</span>
             </span>
           </button>
           <div class="step-visual" aria-hidden="true">
@@ -1102,7 +1401,7 @@
   </section>
 
   <!-- Permissions -->
-  <section id="permissions">
+  <section id="permissions" class="band">
     <div class="wrap">
       <div class="head rv">
         <span class="kicker"><span lang="en">Permissions</span><span lang="ar">الصلاحيات</span></span>
@@ -1114,30 +1413,31 @@
           <div class="prow"><span><span lang="en">Spotlight &amp; Shortcuts</span><span lang="ar">Spotlight و Shortcuts</span></span><span class="badge none"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span lang="en">Nothing</span><span lang="ar">لا شيء</span></span></div>
           <div class="prow"><span>Mic Mute</span><span class="badge none"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span lang="en">Nothing</span><span lang="ar">لا شيء</span></span></div>
           <div class="prow"><span>Stay Awake</span><span class="badge needs"><svg class="icon" aria-hidden="true"><use href="#i-lock"/></svg><span lang="en">Allow in the Background, once</span><span lang="ar">Allow in the Background، مرة واحدة</span></span></div>
+          <div class="prow"><span>Camera Lock</span><span class="badge needs"><svg class="icon" aria-hidden="true"><use href="#i-lock"/></svg><span lang="en">The same approval, and Touch ID</span><span lang="ar">نفس الموافقة، و Touch ID</span></span></div>
         </div>
         <div class="why rv">
-          <p><svg class="icon" aria-hidden="true"><use href="#i-shield"/></svg><span lang="en">Changing sleep settings needs administrator rights. Tapdeck uses a tiny helper that can do exactly one thing: switch <code>disablesleep</code> on or off. It only answers requests from Tapdeck itself.</span><span lang="ar">تغيير إعدادات النوم يحتاج صلاحيات مدير. لذلك يستخدم Tapdeck برنامجاً مساعداً صغيراً لا يستطيع إلا شيئاً واحداً: تشغيل <code>disablesleep</code> أو إيقافه، ولا يقبل الطلبات إلا من Tapdeck نفسه.</span></p>
-          <p><svg class="icon" aria-hidden="true"><use href="#i-lock"/></svg><span lang="en">No Accessibility, Input Monitoring or Screen Recording access. Lights Out notices your touch without reading any keys, and Mic Mute never listens to the microphone: it only flips its mute switch.</span><span lang="ar">لا يحتاج Accessibility ولا Input Monitoring ولا Screen Recording. يلاحظ Lights Out لمستك دون أن يقرأ أي زر تضغطه، و Mic Mute لا يستمع للميكروفون أبداً، بل يقلب مفتاح الكتم فقط.</span></p>
+          <p><svg class="icon" aria-hidden="true"><use href="#i-shield"/></svg><span lang="en">Changing sleep and camera settings needs administrator rights. Tapdeck uses a tiny helper that can do exactly two things: switch <code>disablesleep</code> on or off, and switch the system's camera access off or on. It only answers requests from Tapdeck itself.</span><span lang="ar">تغيير إعدادات النوم والكاميرا يحتاج صلاحيات مدير. لذلك يستخدم Tapdeck برنامجاً مساعداً صغيراً لا يستطيع إلا شيئين: تشغيل <code>disablesleep</code> أو إيقافه، وإيقاف وصول التطبيقات للكاميرا أو إعادته. ولا يقبل الطلبات إلا من Tapdeck نفسه.</span></p>
+          <p><svg class="icon" aria-hidden="true"><use href="#i-lock"/></svg><span lang="en">No Accessibility, Input Monitoring, Screen Recording or camera access. Lights Out notices your touch without reading any keys, Mic Mute never listens to the microphone, and Camera Lock never opens a camera: they only flip switches.</span><span lang="ar">لا يحتاج Accessibility ولا Input Monitoring ولا Screen Recording ولا إذن الكاميرا. يلاحظ Lights Out لمستك دون أن يقرأ أي زر تضغطه، و Mic Mute لا يستمع للميكروفون أبداً، و Camera Lock لا يفتح أي كاميرا: كلها تقلب مفاتيح فقط.</span></p>
         </div>
       </div>
     </div>
   </section>
 
   <!-- Help -->
-  <section id="help" class="band">
+  <section id="help">
     <div class="wrap help">
       <div class="head">
         <span class="kicker"><span lang="en">Help</span><span lang="ar">المساعدة</span></span>
         <h2><span lang="en">If something didn't go as planned</span><span lang="ar">إذا لم يسر شيء كما يجب</span></h2>
-        <p lang="en">Most problems come from a permission that was skipped or switched off. Each one takes a few seconds to fix.</p>
-        <p lang="ar">أغلب المشاكل سببها صلاحية تم تخطّيها أو إيقافها، وإصلاح كل منها يأخذ ثواني.</p>
+        <p lang="en">Most problems come from a permission that was skipped or switched off. Each one takes a few seconds to fix. Camera questions have <a href="#camera">their own list</a>.</p>
+        <p lang="ar">أغلب المشاكل سببها صلاحية تم تخطّيها أو إيقافها، وإصلاح كل منها يأخذ ثواني. أسئلة الكاميرا لها <a href="#camera">قائمتها الخاصة</a>.</p>
       </div>
       <div class="faq">
         <details>
           <summary><span lang="en">I clicked Cancel instead of Open System Settings</span><span lang="ar">ضغطت Cancel بدل Open System Settings</span><span class="pm" aria-hidden="true"></span></summary>
           <div class="answer">
-            <p lang="en">Nothing is broken. Tap Stay Awake again and the request comes back. Or go there yourself and turn on Tapdeck under <span class="ui">Allow in the Background</span>:</p>
-            <p lang="ar">لم يتعطل شيء. اضغط Stay Awake مرة أخرى وسيعود الطلب. أو اذهب بنفسك وفعّل Tapdeck تحت <span class="ui">Allow in the Background</span>:</p>
+            <p lang="en">Nothing is broken. Tap Stay Awake or Camera Lock again and the request comes back. Or go there yourself and turn on Tapdeck under <span class="ui">Allow in the Background</span>:</p>
+            <p lang="ar">لم يتعطل شيء. اضغط Stay Awake أو Camera Lock مرة أخرى وسيعود الطلب. أو اذهب بنفسك وفعّل Tapdeck تحت <span class="ui">Allow in the Background</span>:</p>
             <span class="crumbs"><b>System Settings</b><i></i><b>General</b><i></i><b>Login Items &amp; Extensions</b></span>
           </div>
         </details>
@@ -1230,15 +1530,15 @@ echo "Tapdeck version: $(defaults read /Applications/Tapdeck.app/Contents/Info.p
           <summary><span lang="en">How do I see what Tapdeck can control on my Mac?</span><span lang="ar">كيف أعرف ما يستطيع Tapdeck التحكم به في جهازي؟</span><span class="pm" aria-hidden="true"></span></summary>
           <div class="answer">
             <div class="code"><code>/Applications/Tapdeck.app/Contents/MacOS/Tapdeck --status</code><button class="copy" type="button" data-copy><span class="idle-t"><span lang="en">Copy</span><span lang="ar">نسخ</span></span><span class="done-t"><span lang="en">Copied</span><span lang="ar">تم النسخ</span></span></button></div>
-            <p lang="en">It lists your displays, brightness, keyboard light, Stay Awake and the helper's approval status, without changing anything.</p>
-            <p lang="ar">يعرض الشاشات والسطوع وإضاءة الكيبورد وحالة Stay Awake وحالة موافقة البرنامج المساعد، بدون أن يغيّر أي شيء.</p>
+            <p lang="en">It lists your displays, brightness, keyboard light, Stay Awake, Camera Lock, the cameras apps can see and the helper's approval status, without changing anything.</p>
+            <p lang="ar">يعرض الشاشات والسطوع وإضاءة الكيبورد وحالة Stay Awake و Camera Lock والكاميرات التي تراها التطبيقات وحالة موافقة البرنامج المساعد، بدون أن يغيّر أي شيء.</p>
           </div>
         </details>
         <details>
           <summary><span lang="en">How do I uninstall Tapdeck?</span><span lang="ar">كيف أحذف Tapdeck؟</span><span class="pm" aria-hidden="true"></span></summary>
           <div class="answer">
-            <p lang="en">Turn Stay Awake and Mic Mute off first. Then remove the helper and quit Tapdeck:</p>
-            <p lang="ar">أطفئ Stay Awake و Mic Mute أولاً. ثم احذف البرنامج المساعد وأغلق Tapdeck:</p>
+            <p lang="en">Turn Stay Awake, Mic Mute and Camera Lock off first. Then remove the helper and quit Tapdeck:</p>
+            <p lang="ar">أطفئ Stay Awake و Mic Mute و Camera Lock أولاً. ثم احذف البرنامج المساعد وأغلق Tapdeck:</p>
             <div class="code"><code>/Applications/Tapdeck.app/Contents/MacOS/Tapdeck --unregister-helper</code><button class="copy" type="button" data-copy><span class="idle-t"><span lang="en">Copy</span><span lang="ar">نسخ</span></span><span class="done-t"><span lang="en">Copied</span><span lang="ar">تم النسخ</span></span></button></div>
             <div class="code"><code>pkill -x Tapdeck</code><button class="copy" type="button" data-copy><span class="idle-t"><span lang="en">Copy</span><span lang="ar">نسخ</span></span><span class="done-t"><span lang="en">Copied</span><span lang="ar">تم النسخ</span></span></button></div>
             <p lang="en">Finally, move Tapdeck from Applications to the Trash.</p>
@@ -1255,8 +1555,8 @@ echo "Tapdeck version: $(defaults read /Applications/Tapdeck.app/Contents/Info.p
       <div class="final-card rv">
         <div>
           <h2><span lang="en">Put your Mac on one tap</span><span lang="ar">اجعل ماكك على بُعد ضغطة</span></h2>
-          <p lang="en">Free, 532 KB, and private. New tools land as simple updates.</p>
-          <p lang="ar">مجاني، بحجم <bdi>532 KB</bdi>، ويحترم خصوصيتك. والأدوات الجديدة تصل بتحديث بسيط.</p>
+          <p lang="en">Free, 811 KB, and private. New tools land as simple updates.</p>
+          <p lang="ar">مجاني، بحجم <bdi>811 KB</bdi>، ويحترم خصوصيتك. والأدوات الجديدة تصل بتحديث بسيط.</p>
           <div class="cta">
             <a class="btn btn-primary" href="https://github.com/Devehab/Tapdeck/releases/latest/download/Tapdeck.dmg">
               <svg class="icon" aria-hidden="true"><use href="#i-download"/></svg>
@@ -1328,6 +1628,38 @@ echo "Tapdeck version: $(defaults read /Applications/Tapdeck.app/Contents/Info.p
         document.querySelectorAll("[data-mic-toggle]").forEach(function (b) { b.setAttribute("aria-pressed", String(micMuted)); });
       });
     });
+
+    // Camera Lock: every demo shares one state. Like the real tool, unlocking asks for
+    // Touch ID, and the meeting app, which had the camera open, sees it again only after a restart.
+    var camLocked = false, camStale = false;
+    function renderCam() {
+      document.querySelectorAll("[data-cam-scope]").forEach(function (el) {
+        el.classList.toggle("cam-locked", camLocked);
+        el.classList.toggle("cam-stale", camStale);
+      });
+      document.querySelectorAll("[data-cam-toggle]").forEach(function (b) { b.setAttribute("aria-pressed", String(camLocked)); });
+    }
+    function closeTouchID() {
+      document.querySelectorAll("[data-tid]").forEach(function (el) { el.hidden = true; });
+    }
+    document.querySelectorAll("[data-cam-toggle]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        if (!camLocked) { camLocked = true; camStale = false; renderCam(); return; }
+        var prompt = button.closest("[data-cam-scope]").querySelector("[data-tid]");
+        prompt.hidden = false;
+        prompt.querySelector("[data-tid-ok]").focus({ preventScroll: true });
+      });
+    });
+    document.querySelectorAll("[data-tid-ok]").forEach(function (button) {
+      button.addEventListener("click", function () { camLocked = false; camStale = true; closeTouchID(); renderCam(); });
+    });
+    document.querySelectorAll("[data-tid-cancel]").forEach(function (button) {
+      button.addEventListener("click", closeTouchID);
+    });
+    document.querySelectorAll("[data-cam-reopen]").forEach(function (button) {
+      button.addEventListener("click", function () { camStale = false; renderCam(); });
+    });
+    window.addEventListener("keydown", function (event) { if (event.key === "Escape") closeTouchID(); });
 
     // Lights Out: like the real tool, ignore input briefly, then any input wakes the screen
     var armedAt = 0;

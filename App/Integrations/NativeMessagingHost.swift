@@ -38,7 +38,7 @@ enum NativeMessagingHost {
             return errorReply("Send a JSON object such as {\"command\": \"status\"} or {\"command\": \"mic\", \"action\": \"toggle\"}.", encoder)
         }
         guard let command = TapdeckCommand(tool: tool, action: object["action"] as? String) else {
-            return errorReply("Unknown command “\(tool)” with action “\(object["action"] as? String ?? "")”. Commands: status, mic, awake, lights.", encoder)
+            return errorReply("Unknown command “\(tool)” with action “\(object["action"] as? String ?? "")”. Commands: status, mic, camera, awake, lights.", encoder)
         }
         logger.notice("Request: \(tool, privacy: .public) \(object["action"] as? String ?? "status", privacy: .public)")
         return (try? encoder.encode(CommandRunner.run(command))) ?? Data("{}".utf8)
@@ -111,7 +111,7 @@ enum NativeMessagingHost {
             }
             let manifest: [String: Any] = [
                 "name": name,
-                "description": "Tapdeck: Mic Mute, Stay Awake and Lights Out",
+                "description": "Tapdeck: Mic Mute, Camera Lock, Stay Awake and Lights Out",
                 "path": executable,
                 "type": "stdio",
                 "allowed_origins": origins,

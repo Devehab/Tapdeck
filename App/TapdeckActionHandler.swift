@@ -13,6 +13,10 @@ enum TapdeckActionHandler {
             MicMuteController.shared.set(muted: true)
         case .micMuteOff:
             MicMuteController.shared.set(muted: false)
+        case .cameraLockOn:
+            await CameraLockController.shared.set(locked: true)
+        case .cameraLockOff:
+            await CameraLockController.shared.set(locked: false)
         }
     }
 }

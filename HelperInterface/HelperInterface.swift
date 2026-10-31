@@ -6,6 +6,14 @@ import Security
 @objc protocol TapdeckHelperProtocol {
     /// Runs `pmset -a disablesleep 1` or `0`. Replies nil on success, otherwise an error message.
     func setSleepDisabled(_ disabled: Bool, withReply reply: @escaping @Sendable (String?) -> Void)
+
+    /// Turns every camera off for all apps, cutting cameras already in use, or
+    /// back on. Replies nil on success, otherwise an error message.
+    func setCameraLocked(_ locked: Bool, withReply reply: @escaping @Sendable (String?) -> Void)
+
+    /// Makes sure a lock that's on stays in place, e.g. after an update
+    /// replaced the helper. Replies nil.
+    func resumeCameraLock(withReply reply: @escaping @Sendable (String?) -> Void)
 }
 
 /// Names and code-signing checks shared by the app and the helper.

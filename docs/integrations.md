@@ -17,6 +17,7 @@ Everything Tapdeck does from Control Center can also be read and switched from o
  A Chrome extension (via native messaging) ─┘        │
                                                      ├─ reads the state directly from macOS
                                                      │    microphone mute switch (CoreAudio)
+                                                     │    camera access (CoreMediaIO)
                                                      │    SleepDisabled (power management)
                                                      │    Lights Out state
                                                      │
@@ -27,7 +28,7 @@ Everything Tapdeck does from Control Center can also be read and switched from o
 
 - **Reading** is instant and always true. It comes straight from the system, so it's correct even if Tapdeck isn't running or another app changed a setting.
 - **Changing** goes through the Tapdeck app, exactly like tapping a Control Center button. The buttons update, a newly connected mic still gets muted, and Lights Out still wakes on your first touch. Tapdeck starts in the background if it isn't running and never takes focus.
-- **Security doesn't change.** Muting a microphone needs no permission. Stay Awake still goes through the root helper, which only accepts requests from Tapdeck itself. A browser can only reach Tapdeck from extensions you've allowed.
+- **Security doesn't change.** Muting a microphone needs no permission. Stay Awake and Camera Lock still go through the root helper, unlocking the camera still asks for Touch ID, and the helper only accepts requests from Tapdeck itself. A browser can only reach Tapdeck from extensions you've allowed.
 
 ---
 
@@ -48,6 +49,8 @@ This writes a small `tapdeck` script into `~/.local/bin`. If that folder isn't o
 | `tapdeck status` | The state of every tool |
 | `tapdeck mic` | Mic Mute state |
 | `tapdeck mic mute` / `unmute` / `toggle` | Mute or unmute every microphone at the hardware level |
+| `tapdeck camera` | Camera Lock state |
+| `tapdeck camera lock` / `unlock` / `toggle` | Turn every camera off for every app, or back on after Touch ID |
 | `tapdeck awake` | Stay Awake state |
 | `tapdeck awake on` / `off` / `toggle` | Keep the Mac running with the lid closed, or not |
 | `tapdeck lights` | Lights Out state |
@@ -64,6 +67,7 @@ Add `--json` to any command for machine-readable output.
 ```
 $ tapdeck mic mute
 Microphone   Muted  (MacBook Pro Microphone)
+Camera       On
 Stay Awake   Won't Sleep
 Lights Out   Off
 ```
@@ -73,6 +77,7 @@ $ tapdeck status --json
 {
   "ok" : true,
   "state" : {
+    "cameraLock" : { "locked" : false, "touchID" : true },
     "lightsOut" : { "out" : false },
     "micMute" : { "canMute" : true, "input" : "MacBook Pro Microphone", "muted" : true },
     "stayAwake" : { "helper" : "enabled", "on" : true }
@@ -87,6 +92,8 @@ $ tapdeck status --json
 | `state.micMute.muted` | The input apps use by default is muted |
 | `state.micMute.input` | That input's name |
 | `state.micMute.canMute` | `false` for inputs macOS gives no mute or volume control (an iPhone through Continuity, some virtual mics) |
+| `state.cameraLock.locked` | Every camera is hidden from apps |
+| `state.cameraLock.touchID` | Touch ID is ready. Camera Lock works only while it is, since only Touch ID unlocks it |
 | `state.stayAwake.on` | `pmset -a disablesleep` is in effect |
 | `state.stayAwake.helper` | `enabled`, `needs-approval` or `not-registered` (Stay Awake's one-time approval) |
 | `state.lightsOut.out` | Lights Out is active right now |
@@ -133,7 +140,7 @@ tapdeck awake on && tapdeck lights out
 
 **AI coding agents** (Claude Code, Cursor and others) can run `tapdeck status --json` to see the state and `tapdeck mic mute`, `tapdeck awake on` and so on to change it, like any other shell command.
 
-**Shortcuts app:** add a *Run Shell Script* action with `~/.local/bin/tapdeck mic toggle`. Tapdeck's own actions (*Toggle Mic Mute*, *Toggle Stay Awake*, *Lights Out*) are also there without any script.
+**Shortcuts app:** add a *Run Shell Script* action with `~/.local/bin/tapdeck mic toggle`. Tapdeck's own actions (*Toggle Mic Mute*, *Toggle Camera Lock*, *Toggle Stay Awake*, *Lights Out*) are also there without any script.
 
 ---
 
@@ -152,7 +159,7 @@ No port is opened, so no website can reach Tapdeck, and only the extensions list
 
 ### Quick start with the sample extension
 
-The repository includes a ready-made extension in [`extensions/chrome`](../extensions/chrome). Its popup shows all three tools with their live state. Its toolbar icon shows a red **MUTE** badge while the mic is muted, and **Alt+Shift+M** toggles the mic while Chrome is in front.
+The repository includes a ready-made extension in [`extensions/chrome`](../extensions/chrome). Its popup shows every tool with its live state. Its toolbar icon shows a red **MUTE** badge while the mic is muted, and **Alt+Shift+M** toggles the mic while Chrome is in front.
 
 1. **Install Tapdeck** in Applications and open it once.
 2. **Connect your browsers:**
@@ -211,6 +218,7 @@ IDs you add are kept the next time you run `chrome install`. `tapdeck chrome sta
 |---|---|
 | `{"command": "status"}` | Everything's state |
 | `{"command": "mic", "action": "mute" \| "unmute" \| "toggle" \| "status"}` | Mic Mute |
+| `{"command": "camera", "action": "lock" \| "unlock" \| "toggle" \| "status"}` | Camera Lock. Unlocking shows the Touch ID prompt and waits up to a minute for it |
 | `{"command": "awake", "action": "on" \| "off" \| "toggle" \| "status"}` | Stay Awake |
 | `{"command": "lights", "action": "out" \| "on" \| "status"}` | Lights Out |
 
@@ -235,6 +243,9 @@ Underneath, each message is a 32-bit length (native byte order) followed by that
 | Popup says **Tapdeck doesn't allow this extension yet** (*Access … is forbidden*) | Your extension's ID isn't in the manifest | Run `tapdeck chrome install <your extension ID>` |
 | *Native host has exited* | The manifest points to a Tapdeck that was moved or deleted | Put Tapdeck in Applications and run `tapdeck chrome install` again |
 | `"ok": false` for `awake on` with `"helper": "needs-approval"` | Stay Awake's one-time approval is missing | Turn Tapdeck on in System Settings › General › Login Items & Extensions › Allow in the Background |
+| `"ok": false` for `camera lock` with `"touchID": false` | Camera Lock works only while Touch ID is ready | Add a fingerprint in System Settings › Touch ID & Password, open the MacBook lid, or connect a Magic Keyboard with Touch ID |
+| `"ok": false`: *The camera is still locked: Touch ID didn't confirm it* | The Touch ID prompt was cancelled, didn't match, or wasn't answered within a minute | Run `tapdeck camera unlock` again and touch the sensor |
+| Camera unlocked, but an app still finds no camera | That app was using the camera when it was locked and doesn't look for it again by itself | Quit it completely (⌘Q; for a browser, the whole browser) and open it again |
 | `"ok": false` for `mic mute` with `"canMute": false` | The input in use has no mute control in macOS | Pick another input in System Settings › Sound. Every other mic was muted |
 | `"ok": false`: *Tapdeck didn't respond in time* | Tapdeck couldn't be started | Open Tapdeck once from Applications, then try again |
 

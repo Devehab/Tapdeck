@@ -6,16 +6,17 @@ import CoreAudio
 enum TapdeckCommand: Equatable {
     case status
     case micMute(Change)
+    case cameraLock(Change)
     case stayAwake(Change)
     case lightsOut(Change)
 
     /// What to do with a tool. "On" means the tool is doing its job: the mic
-    /// muted, the Mac kept awake, the lights out.
+    /// muted, the camera locked, the Mac kept awake, the lights out.
     enum Change: Equatable {
         case on, off, toggle, status
     }
 
-    /// Reads the words people type, e.g. `mic mute`, `awake on`, `lights out`.
+    /// Reads the words people type, e.g. `mic mute`, `camera lock`, `awake on`, `lights out`.
     /// A tool with no action asks for its status.
     init?(tool: String, action: String?) {
         let action = action?.lowercased()
@@ -25,6 +26,9 @@ enum TapdeckCommand: Equatable {
         case "mic", "microphone", "mic-mute":
             guard let change = Self.change(action, on: ["mute", "on"], off: ["unmute", "off"]) else { return nil }
             self = .micMute(change)
+        case "camera", "cam", "camera-lock":
+            guard let change = Self.change(action, on: ["lock", "off"], off: ["unlock", "on"]) else { return nil }
+            self = .cameraLock(change)
         case "awake", "stay-awake":
             guard let change = Self.change(action, on: ["on"], off: ["off"]) else { return nil }
             self = .stayAwake(change)
@@ -68,6 +72,23 @@ enum CommandRunner {
                          isOn: { AudioInputs.isDefaultInputMuted },
                          send: { $0 ? .micMuteOn : .micMuteOff },
                          failure: micMuteFailure)
+        case .cameraLock(let change):
+            if change != .status, let reason = TouchID.unavailableReason {
+                return Response(ok: false, state: .current(),
+                                error: "Camera Lock works only with Touch ID. \(TouchID.advice(for: reason))")
+            }
+            let wasLocked = CameraLockState.isLocked
+            let locking = change == .on || (change == .toggle && !wasLocked)
+            // Unlocking waits for Touch ID, so give people time.
+            let response = apply(change, timeout: locking ? 6 : 60,
+                                 hint: locking ? nil : "Touch the Touch ID sensor to turn the camera back on.",
+                                 isOn: { CameraLockState.isLocked },
+                                 send: { $0 ? .cameraLockOn : .cameraLockOff },
+                                 failure: cameraLockFailure)
+            if wasLocked, !CameraLockState.isLocked {
+                FileHandle.standardError.write(Data("\(CameraLockController.reopenAppsAdvice)\n".utf8))
+            }
+            return response
         case .stayAwake(let change):
             return apply(change, timeout: 5,
                          isOn: { SystemSleep.isDisabled },
@@ -85,6 +106,7 @@ enum CommandRunner {
     private static func apply(
         _ change: TapdeckCommand.Change,
         timeout: TimeInterval,
+        hint: String? = nil,
         isOn: () -> Bool,
         send: (Bool) -> TapdeckAction,
         failure: (Bool) -> String
@@ -98,6 +120,8 @@ enum CommandRunner {
         }
         if isOn() != target {
             handOff(send(target))
+            // stderr: stdout carries the reply, and for browsers the framed JSON.
+            if let hint { FileHandle.standardError.write(Data("\(hint)\n".utf8)) }
             let deadline = Date().addingTimeInterval(timeout)
             while isOn() != target, Date() < deadline {
                 RunLoop.current.run(until: Date().addingTimeInterval(0.1))
@@ -120,6 +144,15 @@ enum CommandRunner {
             return "“\(input.name)” has no mute control, so macOS can't mute it. Tapdeck muted every other microphone. Pick another input in System Settings › Sound to be fully muted."
         }
         return "Tapdeck didn't respond in time. Open Tapdeck once and try again."
+    }
+
+    private static func cameraLockFailure(_ locking: Bool) -> String {
+        if locking, PrivilegedHelper.shared.status != .enabled {
+            return "Camera Lock needs a one-time approval. Turn Tapdeck on in System Settings › General › Login Items & Extensions › Allow in the Background, then try again."
+        }
+        return locking
+            ? "Tapdeck didn't lock the camera in time. Open Tapdeck once and try again."
+            : "The camera is still locked: Touch ID didn't confirm it."
     }
 
     private static func stayAwakeFailure(_ turningOn: Bool) -> String {

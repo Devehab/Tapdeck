@@ -8,5 +8,6 @@ struct TapdeckBundle: WidgetBundle {
         LightsOutControl()
         StayAwakeControl()
         MicMuteControl()
+        CameraLockControl()
     }
 }
