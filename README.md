@@ -27,7 +27,7 @@ sudo pmset -a disablesleep 0   # off
 
 - ☀️ **Won't Sleep**: the Mac stays on, lid open or closed. 🌙 **Sleeps Normally**: regular macOS sleep.
 - It always reads the real system state, so it stays correct even if you change the setting from Terminal.
-- Changing the setting needs root, so a tiny helper does it. The helper can only run `pmset -a disablesleep 0|1` and switch Camera Lock, and only accepts calls from Tapdeck signed by the same team. macOS asks you to approve it once.
+- Changing the setting needs root, so a tiny helper does it. The helper can only run `pmset -a disablesleep 0|1` and switch Camera Lock. Tapdeck installs it in `/Library/PrivilegedHelperTools` after macOS asks for your password, once and again after each update, and it only accepts calls from the Tapdeck build it was installed for.
 
 > Don't carry a closed Mac in a bag with Stay Awake on. It keeps running, gets warm and drains the battery.
 
@@ -56,16 +56,16 @@ A toggle that turns off every camera for every app, including a camera already i
 - Camera Lock turns on only while Touch ID is ready (at least one fingerprint, lid open or a Magic Keyboard with Touch ID connected), so you can't lock a camera you can't unlock.
 - **After unlocking, quit and reopen any app that was using the camera** (⌘Q, not just its window; for a browser, the whole browser). Those apps lost the camera when it was locked and don't look for it again by themselves. Apps opened after unlocking see it right away; Tapdeck reminds you once per unlock until you turn the reminder off.
 - Covers every camera macOS offers apps: built-in, USB and iPhone Continuity Camera (Desk View included).
-- Needs the same one-time **Allow in the Background** approval as Stay Awake, and no camera permission: Tapdeck never opens a camera.
+- Uses the same helper as Stay Awake (one password prompt installs it for both), and needs no camera permission: Tapdeck never opens a camera.
 
 How it works: the helper sets the managed preference `Device Access Allowed = false` in `com.apple.coremediaio.support`, the same setting Apple's camera restriction profile writes, then tells running processes to drop their cached copy and restarts the camera services (`registerassistantservice`, `cameracaptured`, the built-in, USB, DriverKit and Continuity camera daemons) so open streams end. While locked, the helper stays running and puts the setting back if anything removes it.
 
 ## Install
 
 1. Download [Tapdeck.dmg](https://github.com/Devehab/Tapdeck/releases/latest/download/Tapdeck.dmg) and drag Tapdeck into Applications.
-2. Open it. This build isn't notarized yet, so the first time macOS says it can't verify Tapdeck: click **Done**, then **System Settings › Privacy & Security › Open Anyway**.
+2. Open it. Tapdeck is ad-hoc signed and not notarized, so the first time macOS says it can't verify Tapdeck: click **Done**, then **System Settings › Privacy & Security › Open Anyway**.
 3. Open **Control Center › Edit Controls › Tapdeck** and drag **Lights Out**, **Stay Awake**, **Mic Mute** and **Camera Lock** into Control Center, or up into the menu bar.
-4. The first time you tap Stay Awake or Camera Lock, click **Open System Settings** and turn on Tapdeck under **General › Login Items & Extensions › Allow in the Background**.
+4. The first time you tap Stay Awake or Camera Lock, macOS asks for your password to install Tapdeck's helper. It asks once more after each update.
 
 Spotlight: press ⌘ Space and type **Lights Out**, **Toggle Stay Awake**, **Toggle Mic Mute** or **Toggle Camera Lock**. For a keyboard shortcut (a mute key, say), add the action to a shortcut in the Shortcuts app and choose **Add Keyboard Shortcut**.
 
@@ -114,12 +114,13 @@ The full guide, with every command, the JSON format, building your own extension
 
 ## Build from source
 
-Requires Xcode 26 or later and an Apple Development certificate. Put your Team ID in a local config file (git ignores it):
+Requires Xcode 26 or later. Builds are ad-hoc signed, so no Apple account or certificate is needed:
 
 ```bash
-cp Config/Local.xcconfig.example Config/Local.xcconfig   # then edit DEVELOPMENT_TEAM
 ./scripts/install.sh
 ```
+
+To sign with your own certificate instead (a Developer ID for notarized releases, say), copy `Config/Local.xcconfig.example` to `Config/Local.xcconfig`, which git ignores, and fill it in.
 
 | Script | What it does |
 |---|---|
@@ -134,7 +135,7 @@ Every build gets a new build number because WidgetKit caches each extension's li
 
 ```bash
 ./scripts/make-dmg.sh
-gh release create v1.3 dist/Tapdeck.dmg dist/tapdeck-chrome-extension.zip --title "Tapdeck 1.3"
+gh release create v1.3.1 dist/Tapdeck.dmg dist/tapdeck-chrome-extension.zip --title "Tapdeck 1.3.1"
 ```
 
 The website's download buttons point to `releases/latest/download/Tapdeck.dmg`, so they always serve the newest release.
@@ -156,7 +157,7 @@ App/                 The app (not sandboxed). Does the real work.
   AppShortcuts.swift Spotlight and Shortcuts actions
 ControlsExtension/   WidgetKit extension with the Control Center controls
 Shared/              Code in both the app and the extension: TapdeckAction, ControlKind, App Intents, AudioInputs
-Helper/              TapdeckHelper, the root launchd daemon (SMAppService)
+Helper/              TapdeckHelper, the root launchd daemon and its installer
 HelperInterface/     XPC protocol shared by the app and the helper
 Config/              Info.plists, entitlements, the helper's launchd plist, Signing.xcconfig
 site/                The landing page
@@ -180,7 +181,7 @@ Anything that needs root becomes a new, narrowly scoped method on `TapdeckHelper
 /Applications/Tapdeck.app/Contents/MacOS/Tapdeck --status
 ```
 
-Prints what Tapdeck can see and control (displays, brightness, keyboard light, Stay Awake, Camera Lock and the cameras apps can see, Touch ID, helper approval, every microphone and whether it can be muted) without changing anything.
+Prints what Tapdeck can see and control (displays, brightness, keyboard light, Stay Awake, Camera Lock and the cameras apps can see, Touch ID, whether the helper is installed, every microphone and whether it can be muted) without changing anything.
 
 ```bash
 /usr/bin/log show --last 10m --style compact --predicate 'subsystem == "com.ibtkrgo.Tapdeck"'
@@ -188,14 +189,16 @@ Prints what Tapdeck can see and control (displays, brightness, keyboard light, S
 
 Logs from the app, the extension and the helper. In zsh, `log` is a shell builtin, so use the full path.
 
-To uninstall: turn Stay Awake, Mic Mute and Camera Lock off, run `Tapdeck --unregister-helper` (same path as above), quit with `pkill -x Tapdeck`, and move the app to the Trash.
+To uninstall: turn Stay Awake, Mic Mute and Camera Lock off, run `Tapdeck --unregister-helper` (same path as above; macOS asks for your password), quit with `pkill -x Tapdeck`, and move the app to the Trash.
 
 ## Notes
 
 - Display brightness and keyboard light use Apple's private `DisplayServices` and `CoreBrightness` frameworks. That rules out the Mac App Store and may break with a macOS update; `--status` shows it right away.
 - Camera Lock relies on how macOS applies its camera restriction and on the private `_CFPreferencesManagementStatusChangedForDomains` call, neither documented for third-party apps. A macOS update could change either; `--status` shows whether apps can still see cameras.
 - External displays without brightness control are painted black but keep their backlight on.
-- Builds are signed with an Apple Development certificate and aren't notarized, hence the one-time Open Anyway step. A Developer ID signature plus notarization would remove it.
+- Releases are ad-hoc signed and aren't notarized, hence the one-time Open Anyway step. A Developer ID signature plus notarization would remove it.
+- Versions 1.0 to 1.3 were signed with an Apple Development certificate, which Apple revoked in November 2026. macOS now reports those copies as malware (“Malware Blocked and Moved to Trash”); download 1.3.1 or later instead. An ad-hoc signature has no certificate to revoke.
+- Ad-hoc signing is also why the helper is a classic launchd daemon instead of an SMAppService one: SMAppService ties a daemon to the code hash of the build that first registered it, so launchd would refuse the helper after every update.
 
 ## License
 

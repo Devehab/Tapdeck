@@ -80,7 +80,7 @@ $ tapdeck status --json
     "cameraLock" : { "locked" : false, "touchID" : true },
     "lightsOut" : { "out" : false },
     "micMute" : { "canMute" : true, "input" : "MacBook Pro Microphone", "muted" : true },
-    "stayAwake" : { "helper" : "enabled", "on" : true }
+    "stayAwake" : { "helper" : "installed", "on" : true }
   }
 }
 ```
@@ -95,7 +95,7 @@ $ tapdeck status --json
 | `state.cameraLock.locked` | Every camera is hidden from apps |
 | `state.cameraLock.touchID` | Touch ID is ready. Camera Lock works only while it is, since only Touch ID unlocks it |
 | `state.stayAwake.on` | `pmset -a disablesleep` is in effect |
-| `state.stayAwake.helper` | `enabled`, `needs-approval` or `not-registered` (Stay Awake's one-time approval) |
+| `state.stayAwake.helper` | `installed`, `outdated` (installed for another Tapdeck build, e.g. before an update) or `not-installed`. Stay Awake and Camera Lock install it after your password |
 | `state.lightsOut.out` | Lights Out is active right now |
 
 **Exit codes:** `0` done, `1` the change didn't happen (the message says why), `2` the command wasn't understood.
@@ -242,7 +242,7 @@ Underneath, each message is a 32-bit length (native byte order) followed by that
 | Popup says **Chrome can't find Tapdeck yet** (*Specified native messaging host not found*) | The host manifest isn't installed for this browser | Run `tapdeck chrome install`, then reopen the popup. If the browser was never opened before, open it once first |
 | Popup says **Tapdeck doesn't allow this extension yet** (*Access … is forbidden*) | Your extension's ID isn't in the manifest | Run `tapdeck chrome install <your extension ID>` |
 | *Native host has exited* | The manifest points to a Tapdeck that was moved or deleted | Put Tapdeck in Applications and run `tapdeck chrome install` again |
-| `"ok": false` for `awake on` with `"helper": "needs-approval"` | Stay Awake's one-time approval is missing | Turn Tapdeck on in System Settings › General › Login Items & Extensions › Allow in the Background |
+| `"ok": false` for `awake on` with `"helper": "not-installed"` or `"outdated"` | The helper isn't installed for this Tapdeck build yet, and Tapdeck is asking for your password | Enter your Mac's password in the prompt, then run the command again |
 | `"ok": false` for `camera lock` with `"touchID": false` | Camera Lock works only while Touch ID is ready | Add a fingerprint in System Settings › Touch ID & Password, open the MacBook lid, or connect a Magic Keyboard with Touch ID |
 | `"ok": false`: *The camera is still locked: Touch ID didn't confirm it* | The Touch ID prompt was cancelled, didn't match, or wasn't answered within a minute | Run `tapdeck camera unlock` again and touch the sensor |
 | Camera unlocked, but an app still finds no camera | That app was using the camera when it was locked and doesn't look for it again by itself | Quit it completely (⌘Q; for a browser, the whole browser) and open it again |

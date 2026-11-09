@@ -23,6 +23,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         LightsOutController.shared.recoverIfNeeded()
         MicMuteController.shared.resume()
+        PrivilegedHelper.shared.removeLegacyRegistration()
         CameraLockController.shared.resume()
         restoreLightsOnSIGTERM()
         // Controls already placed in Control Center keep their last rendering,

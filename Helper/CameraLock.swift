@@ -27,7 +27,8 @@ enum CameraLock {
     /// Root-only record of the lock. launchd keeps the helper running while it
     /// exists (KeepAlive PathState); the app also asks the helper to resume
     /// the lock when it launches.
-    private static let stateFile = URL(fileURLWithPath: "/Library/Application Support/com.ibtkrgo.Tapdeck/camera-locked")
+    static let stateFilePath = "/Library/Application Support/com.ibtkrgo.Tapdeck/camera-locked"
+    private static let stateFile = URL(fileURLWithPath: stateFilePath)
 
     /// The camera hub and the services that stream camera video to apps:
     /// built-in cameras, USB cameras, DriverKit cameras and iPhone (Continuity)

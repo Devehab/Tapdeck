@@ -18,26 +18,30 @@ import Security
 
 /// Names and code-signing checks shared by the app and the helper.
 enum HelperInterface {
-    static let machServiceName = "com.ibtkrgo.Tapdeck.Helper"
-    static let launchdPlistName = "com.ibtkrgo.Tapdeck.Helper.plist"
+    /// The helper's launchd label and XPC service. Versions up to 1.3
+    /// registered "com.ibtkrgo.Tapdeck.Helper" through SMAppService instead.
+    static let machServiceName = "com.ibtkrgo.Tapdeck.PrivilegedHelper"
+    static let legacyLaunchdPlistName = "com.ibtkrgo.Tapdeck.Helper.plist"
     static let appIdentifier = "com.ibtkrgo.Tapdeck"
     static let helperIdentifier = "com.ibtkrgo.Tapdeck.Helper"
 
-    /// A code requirement matching `identifier` signed by the same team as the
-    /// running process, so each side only talks to the other half of this app.
-    static func requirement(forIdentifier identifier: String) -> String? {
-        guard let team = currentTeamID() else { return nil }
-        return #"anchor apple generic and identifier "\#(identifier)" and certificate leaf[subject.OU] = "\#(team)""#
-    }
+    /// Where the app installs the helper, as root, after asking for an
+    /// administrator's password. Root owns both files, so no app can swap them.
+    static let installedHelperPath = "/Library/PrivilegedHelperTools/\(machServiceName)"
+    static let launchdPlistPath = "/Library/LaunchDaemons/\(machServiceName).plist"
 
-    private static func currentTeamID() -> String? {
-        var code: SecCode?
+    /// A code requirement that only the app or helper of the build at hand
+    /// meets: the designated requirement of the code at `url`. Releases are
+    /// ad-hoc signed, so that's its exact code hash. A build signed with a
+    /// certificate gets that certificate's requirement instead.
+    static func requirement(ofCodeAt url: URL, identifier: String) -> String? {
         var staticCode: SecStaticCode?
-        var info: CFDictionary?
-        guard SecCodeCopySelf([], &code) == errSecSuccess, let code,
-              SecCodeCopyStaticCode(code, [], &staticCode) == errSecSuccess, let staticCode,
-              SecCodeCopySigningInformation(staticCode, SecCSFlags(rawValue: kSecCSSigningInformation), &info) == errSecSuccess
+        var requirement: SecRequirement?
+        var text: CFString?
+        guard SecStaticCodeCreateWithPath(url as CFURL, [], &staticCode) == errSecSuccess, let staticCode,
+              SecCodeCopyDesignatedRequirement(staticCode, [], &requirement) == errSecSuccess, let requirement,
+              SecRequirementCopyString(requirement, [], &text) == errSecSuccess, let text
         else { return nil }
-        return (info as? [String: Any])?[kSecCodeInfoTeamIdentifier as String] as? String
+        return #"identifier "\#(identifier)" and (\#(text as String))"#
     }
 }

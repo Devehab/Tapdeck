@@ -15,17 +15,8 @@ final class StayAwakeController {
         do {
             try await PrivilegedHelper.shared.setSleepDisabled(enabled)
             logger.notice("Stay Awake \(enabled ? "on" : "off", privacy: .public)")
-        } catch PrivilegedHelper.HelperError.needsApproval {
-            PrivilegedHelper.shared.askForApproval(
-                title: "Allow Stay Awake to change sleep settings",
-                message: """
-                    Stay Awake runs “pmset -a disablesleep” through a small Tapdeck helper, which needs your approval once.
-
-                    In System Settings › General › Login Items & Extensions, turn on Tapdeck under “Allow in the Background”. Stay Awake switches \(enabled ? "on" : "off") by itself as soon as you do.
-                    """
-            ) {
-                await StayAwakeController.shared.set(enabled)
-            }
+        } catch PrivilegedHelper.HelperError.cancelled {
+            logger.notice("Helper install cancelled; sleep settings unchanged")
         } catch {
             logger.error("Stay Awake failed: \(error.localizedDescription, privacy: .public)")
             showFailure(error)

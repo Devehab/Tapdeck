@@ -1,6 +1,5 @@
 import CoreGraphics
 import Foundation
-import ServiceManagement
 
 /// `Tapdeck --status`: prints what Lights Out can see and control,
 /// without changing anything. Handy when a control doesn't behave.
@@ -53,13 +52,11 @@ enum StatusReport {
         }
     }
 
-    private static func describe(_ status: SMAppService.Status) -> String {
+    private static func describe(_ status: PrivilegedHelper.Status) -> String {
         switch status {
-        case .enabled: "enabled"
-        case .requiresApproval: "waiting for approval in System Settings"
-        // A daemon reports notFound until its first registration.
-        case .notRegistered, .notFound: "not registered yet (the first Stay Awake or Camera Lock tap registers it)"
-        @unknown default: "unknown (\(status.rawValue))"
+        case .installed: "installed (\(HelperInterface.installedHelperPath))"
+        case .outdated: "installed for another Tapdeck build (the next Stay Awake or Camera Lock tap reinstalls it)"
+        case .notInstalled: "not installed yet (the first Stay Awake or Camera Lock tap installs it)"
         }
     }
 }

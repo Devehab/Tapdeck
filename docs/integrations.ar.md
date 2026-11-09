@@ -80,7 +80,7 @@ $ tapdeck status --json
     "cameraLock" : { "locked" : false, "touchID" : true },
     "lightsOut" : { "out" : false },
     "micMute" : { "canMute" : true, "input" : "MacBook Pro Microphone", "muted" : true },
-    "stayAwake" : { "helper" : "enabled", "on" : true }
+    "stayAwake" : { "helper" : "installed", "on" : true }
   }
 }
 ```
@@ -95,7 +95,7 @@ $ tapdeck status --json
 | `state.cameraLock.locked` | كل الكاميرات مخفية عن التطبيقات |
 | `state.cameraLock.touchID` | Touch ID جاهز. قفل الكاميرا لا يعمل إلا وهو جاهز، لأن Touch ID وحده يفك القفل |
 | `state.stayAwake.on` | `pmset -a disablesleep` مفعّل |
-| `state.stayAwake.helper` | `enabled` أو `needs-approval` أو `not-registered` (موافقة Stay Awake لمرة واحدة) |
+| `state.stayAwake.helper` | `installed` أو `outdated` (مثبّت لنسخة أخرى من Tapdeck، مثلاً قبل تحديث) أو `not-installed`. يثبّته Stay Awake و Camera Lock بعد كلمة سرك |
 | `state.lightsOut.out` | Lights Out مفعّل الآن |
 
 **رموز الخروج (exit codes):** `0` تم، `1` لم يحصل التغيير (الرسالة تشرح السبب)، `2` الأمر غير مفهوم.
@@ -242,7 +242,7 @@ tapdeck chrome install abcdefghijklmnopabcdefghijklmnop
 | الإضافة تقول **Chrome can't find Tapdeck yet** (*Specified native messaging host not found*) | ملف الربط غير مثبّت لهذا المتصفح | شغّل `tapdeck chrome install` ثم افتح الإضافة من جديد. إذا لم تفتح المتصفح من قبل، افتحه مرة أولاً |
 | الإضافة تقول **Tapdeck doesn't allow this extension yet** (*Access … is forbidden*) | معرّف إضافتك ليس في الملف | شغّل `tapdeck chrome install <معرّف إضافتك>` |
 | *Native host has exited* | الملف يشير إلى Tapdeck تم نقله أو حذفه | ضع Tapdeck في Applications وشغّل `tapdeck chrome install` من جديد |
-| `"ok": false` مع `awake on` و `"helper": "needs-approval"` | موافقة Stay Awake لمرة واحدة غير موجودة | فعّل Tapdeck في System Settings › General › Login Items & Extensions › Allow in the Background |
+| `"ok": false` مع `awake on` و `"helper": "not-installed"` أو `"outdated"` | البرنامج المساعد غير مثبّت لهذه النسخة من Tapdeck بعد، و Tapdeck يطلب كلمة سرك | أدخل كلمة سر الماك في النافذة، ثم شغّل الأمر من جديد |
 | `"ok": false` مع `camera lock` و `"touchID": false` | قفل الكاميرا لا يعمل إلا و Touch ID جاهز | أضف بصمة من System Settings › Touch ID & Password، أو افتح غطاء الماك بوك، أو وصّل Magic Keyboard with Touch ID |
 | `"ok": false`: *The camera is still locked: Touch ID didn't confirm it* | نافذة Touch ID أُلغيت، أو البصمة لم تتطابق، أو لم تُلمس خلال دقيقة | شغّل `tapdeck camera unlock` من جديد والمس الحساس |
 | فككت القفل، لكن تطبيقاً ما زال لا يجد الكاميرا | هذا التطبيق كان يستخدم الكاميرا لحظة القفل ولا يبحث عنها من جديد بنفسه | أغلقه كلياً (⌘Q؛ وفي المتصفح أغلق المتصفح كله) وافتحه من جديد |

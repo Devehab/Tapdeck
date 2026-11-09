@@ -1,44 +1,86 @@
 import AppKit
 import ServiceManagement
 
-/// The app's side of the root helper: registers it with launchd through
-/// SMAppService and calls it over XPC.
+/// The app's side of the root helper: installs it as a launchd daemon and
+/// calls it over XPC.
+///
+/// Installing copies the helper to /Library/PrivilegedHelperTools and runs it
+/// there as root, which takes an administrator's password once, and again
+/// after an update: the installed helper only accepts the app build it was
+/// installed for, and the app only talks to the helper it ships with.
 @MainActor
 final class PrivilegedHelper {
     static let shared = PrivilegedHelper()
 
     enum HelperError: LocalizedError {
-        case needsApproval
+        /// The password prompt was cancelled.
+        case cancelled
         case failed(String)
 
         var errorDescription: String? {
             switch self {
-            case .needsApproval: "The Tapdeck helper is waiting for approval in System Settings."
+            case .cancelled: "The Tapdeck helper wasn't installed."
             case .failed(let message): message
             }
         }
     }
 
-    private let service = SMAppService.daemon(plistName: HelperInterface.launchdPlistName)
-
-    var status: SMAppService.Status { service.status }
-
-    /// Registers the helper if needed. Throws `needsApproval` until it's turned
-    /// on in System Settings → General → Login Items & Extensions.
-    func ensureEnabled() throws {
-        if service.status == .enabled { return }
-        if service.status != .requiresApproval {
-            do {
-                try service.register()
-            } catch {
-                guard service.status == .requiresApproval else { throw error }
-            }
-        }
-        guard service.status == .enabled else { throw HelperError.needsApproval }
+    enum Status {
+        case installed
+        /// Installed for another build of Tapdeck, e.g. before an update.
+        case outdated
+        case notInstalled
     }
 
-    func unregister() throws {
-        try service.unregister()
+    private let bundledHelper = Bundle.main.bundleURL.appending(path: "Contents/MacOS/TapdeckHelper")
+
+    var status: Status {
+        guard let plist = NSDictionary(contentsOfFile: HelperInterface.launchdPlistPath),
+              let arguments = plist["ProgramArguments"] as? [String]
+        else { return .notInstalled }
+        let trusted = arguments.firstIndex(of: "--client").flatMap { arguments.indices.contains($0 + 1) ? arguments[$0 + 1] : nil }
+        let installed = HelperInterface.requirement(ofCodeAt: URL(fileURLWithPath: HelperInterface.installedHelperPath), identifier: HelperInterface.helperIdentifier)
+        guard trusted == appRequirement, installed != nil, installed == helperRequirement else { return .outdated }
+        return .installed
+    }
+
+    private var appRequirement: String? {
+        HelperInterface.requirement(ofCodeAt: Bundle.main.bundleURL, identifier: HelperInterface.appIdentifier)
+    }
+
+    private var helperRequirement: String? {
+        HelperInterface.requirement(ofCodeAt: bundledHelper, identifier: HelperInterface.helperIdentifier)
+    }
+
+    /// Installs the helper unless this build's helper is in place. macOS asks
+    /// for an administrator's password; throws `cancelled` if it's dismissed.
+    func ensureInstalled() async throws {
+        if status == .installed { return }
+        guard let appRequirement else { throw HelperError.failed("Can't read Tapdeck's signature. Reinstall Tapdeck.") }
+        let target = HelperInterface.installedHelperPath
+        try await runAsAdministrator(
+            "/bin/mkdir -p /Library/PrivilegedHelperTools"
+                + " && /usr/bin/ditto --noextattr --noqtn \(shellQuoted(bundledHelper.path)) \(shellQuoted(target))"
+                + " && \(shellQuoted(target)) --install \(shellQuoted(appRequirement))",
+            prompt: "Tapdeck wants to install its helper, so Stay Awake and Camera Lock can change system settings."
+        )
+        guard status == .installed else { throw HelperError.failed("The Tapdeck helper didn't install. Try again.") }
+    }
+
+    func uninstall() async throws {
+        guard FileManager.default.fileExists(atPath: HelperInterface.installedHelperPath) else { return }
+        try await runAsAdministrator(
+            "\(shellQuoted(HelperInterface.installedHelperPath)) --uninstall",
+            prompt: "Tapdeck wants to remove its helper."
+        )
+    }
+
+    /// Versions up to 1.3 registered the helper through SMAppService. That
+    /// registration is tied to their signing certificate, so drop it.
+    func removeLegacyRegistration() {
+        let legacy = SMAppService.daemon(plistName: HelperInterface.legacyLaunchdPlistName)
+        guard legacy.status == .enabled || legacy.status == .requiresApproval else { return }
+        try? legacy.unregister()
     }
 
     func setSleepDisabled(_ disabled: Bool) async throws {
@@ -55,7 +97,10 @@ final class PrivilegedHelper {
         if let failure { throw HelperError.failed(failure) }
     }
 
+    /// Never asks for a password: it runs at launch, and an older helper keeps
+    /// a lock in place by itself until the next tap installs the new one.
     func resumeCameraLock() async throws {
+        guard status == .installed else { return }
         let _: String? = try await call { helper, reply in
             helper.resumeCameraLock(withReply: reply)
         }
@@ -64,12 +109,13 @@ final class PrivilegedHelper {
     private func call<Value: Sendable>(
         _ send: (TapdeckHelperProtocol, @escaping @Sendable (Value) -> Void) -> Void
     ) async throws -> Value {
-        try ensureEnabled()
+        try await ensureInstalled()
+        guard let requirement = helperRequirement else {
+            throw HelperError.failed("Can't read the Tapdeck helper's signature. Reinstall Tapdeck.")
+        }
         let connection = NSXPCConnection(machServiceName: HelperInterface.machServiceName, options: .privileged)
         connection.remoteObjectInterface = NSXPCInterface(with: TapdeckHelperProtocol.self)
-        if let requirement = HelperInterface.requirement(forIdentifier: HelperInterface.helperIdentifier) {
-            connection.setCodeSigningRequirement(requirement)
-        }
+        connection.setCodeSigningRequirement(requirement)
         connection.resume()
         defer { connection.invalidate() }
 
@@ -87,33 +133,38 @@ final class PrivilegedHelper {
         }
     }
 
-    // MARK: Approval
+    // MARK: Administrator prompt
 
-    private var approvalWatch: Task<Void, Never>?
-
-    /// Explains why the helper is needed, opens Login Items, and runs `then`
-    /// as soon as the helper is approved.
-    func askForApproval(title: String, message: String, then: @escaping @MainActor () async -> Void) {
-        let alert = NSAlert()
-        alert.messageText = title
-        alert.informativeText = message
-        alert.addButton(withTitle: "Open System Settings")
-        alert.addButton(withTitle: "Cancel")
-        NSApp.activate()
-        guard alert.runModal() == .alertFirstButtonReturn else { return }
-        SMAppService.openSystemSettingsLoginItems()
-
-        approvalWatch?.cancel()
-        approvalWatch = Task {
-            for _ in 0..<300 {
-                try? await Task.sleep(for: .seconds(1))
-                guard !Task.isCancelled else { return }
-                if status == .enabled {
-                    await then()
-                    return
-                }
+    /// Runs `command` as root through the standard macOS administrator prompt.
+    private func runAsAdministrator(_ command: String, prompt: String) async throws {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
+        process.arguments = ["-e", "do shell script \(appleScriptQuoted(command)) with prompt \(appleScriptQuoted(prompt)) with administrator privileges"]
+        let errors = Pipe()
+        process.standardError = errors
+        process.standardOutput = FileHandle.nullDevice
+        let status: Int32 = try await withCheckedThrowingContinuation { continuation in
+            process.terminationHandler = { continuation.resume(returning: $0.terminationStatus) }
+            do {
+                try process.run()
+            } catch {
+                process.terminationHandler = nil
+                continuation.resume(throwing: error)
             }
         }
+        guard status != 0 else { return }
+        let message = String(decoding: errors.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
+        // -128: the user cancelled the prompt.
+        if message.contains("-128") { throw HelperError.cancelled }
+        throw HelperError.failed(message.trimmingCharacters(in: .whitespacesAndNewlines))
+    }
+
+    private func shellQuoted(_ text: String) -> String {
+        "'" + text.replacingOccurrences(of: "'", with: #"'\''"#) + "'"
+    }
+
+    private func appleScriptQuoted(_ text: String) -> String {
+        "\"" + text.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "\"", with: "\\\"") + "\""
     }
 }
 

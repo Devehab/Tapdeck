@@ -563,20 +563,9 @@
   .drops span { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; border: 1.5px dashed var(--amber); color: #8F5408; background: #FFF7E8; font-size: 12px; font-weight: 600; }
   .drops .icon { width: 14px; height: 14px; stroke-width: 2.4; }
   .edit-foot { margin-top: auto; font-size: 12px; color: #6E6E73; }
-  .login { padding: 16px; background: #fff; display: grid; gap: 10px; }
-  .login small { color: #6E6E73; font-size: 12px; font-weight: 600; }
-  .lrow { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px; background: #F5F5F7; }
-  .lrow svg { width: 34px; height: 34px; }
-  .lrow div { flex: 1; min-width: 0; }
-  .lrow b { display: block; font-size: 13px; }
-  .lrow span { color: #6E6E73; font-size: 11.5px; }
-  .lrow.hl { box-shadow: 0 0 0 3px var(--amber); background: #fff; }
-  .switch { width: 38px; height: 22px; border-radius: 11px; background: #D1D1D6; position: relative; flex: none; transition: background-color .3s ease .5s; }
-  .switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, .3); transition: transform .3s var(--ease) .5s; }
-  .step.is-active .hl .switch { background: #34C759; }
-  .step.is-active .hl .switch::after { transform: translateX(16px); }
-  .lrow.faint { opacity: .55; }
-  .lrow.faint i { width: 34px; height: 34px; border-radius: 8px; background: #D1D1D6; }
+  .auth .field { display: block; margin-top: 10px; padding: 6px 10px; border-radius: 7px; background: #fff; border: 1px solid #D1D1D6; color: #8E8E93; font-size: 12.5px; text-align: left; }
+  .auth .field.dots { margin-top: 6px; color: #1D1D1F; letter-spacing: .1em; box-shadow: 0 0 0 3px var(--amber); border-color: transparent; }
+  .auth .btns { grid-template-columns: 1fr 1fr; }
 
   /* Permissions */
   .perm { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; align-items: start; }
@@ -675,8 +664,6 @@
     .step-visual { opacity: 1; visibility: visible; transform: none; min-height: 0; margin-bottom: 28px; padding: 28px 18px; }
     .step:last-child .step-head { border-bottom: 0; }
     .step .ghost { animation: drag 2.6s var(--ease) infinite .4s; }
-    .step .hl .switch { background: #34C759; }
-    .step .hl .switch::after { transform: translateX(16px); }
     .term { width: 46%; }
   }
   @media (max-width: 860px) {
@@ -812,8 +799,8 @@
             </a>
             <a class="btn btn-ghost" href="#install"><span lang="en">How to install</span><span lang="ar">طريقة التثبيت</span></a>
           </div>
-          <p class="meta" lang="en">Free · Version 1.3 · macOS 26 Tahoe or later · Apple silicon &amp; Intel</p>
-          <p class="meta" lang="ar">مجاني · الإصدار 1.3 · <bdi>macOS 26 Tahoe</bdi> أو أحدث · Apple silicon و Intel</p>
+          <p class="meta" lang="en">Free · Version 1.3.1 · macOS 26 Tahoe or later · Apple silicon &amp; Intel</p>
+          <p class="meta" lang="ar">مجاني · الإصدار 1.3.1 · <bdi>macOS 26 Tahoe</bdi> أو أحدث · Apple silicon و Intel</p>
         </div>
       </div>
 
@@ -897,9 +884,9 @@
       </div>
 
       <div class="facts">
-        <div class="fact"><b>811 KB</b><span lang="en">One universal download for Apple silicon and Intel</span><span lang="ar">تحميل واحد يعمل على Apple silicon و Intel</span></div>
+        <div class="fact"><b>825 KB</b><span lang="en">One universal download for Apple silicon and Intel</span><span lang="ar">تحميل واحد يعمل على Apple silicon و Intel</span></div>
         <div class="fact"><b>0</b><span lang="en">Network requests. No account, no tracking</span><span lang="ar">طلبات إنترنت. بلا حساب وبلا تتبّع</span></div>
-        <div class="fact"><b>1</b><span lang="en">Approval to give, only for Stay Awake and Camera Lock</span><span lang="ar">موافقة واحدة فقط، لـ Stay Awake و Camera Lock</span></div>
+        <div class="fact"><b>1</b><span lang="en">Password prompt per install or update, only for Stay Awake and Camera Lock</span><span lang="ar">طلب كلمة سر واحد عند التثبيت أو التحديث، فقط لـ Stay Awake و Camera Lock</span></div>
       </div>
     </div>
   </div>
@@ -1122,8 +1109,8 @@
             <details>
               <summary><span lang="en">What does it need from me?</span><span lang="ar">ماذا يحتاج مني؟</span><span class="pm" aria-hidden="true"></span></summary>
               <div class="answer">
-                <p lang="en">Touch ID with at least one fingerprint, and the same one-time <span class="ui">Allow in the Background</span> approval as Stay Awake, because changing a system setting needs administrator rights. It needs no camera permission: Tapdeck never opens a camera or looks through one.</p>
-                <p lang="ar">Touch ID مع بصمة واحدة على الأقل، ونفس موافقة <span class="ui">Allow in the Background</span> التي يحتاجها Stay Awake مرة واحدة، لأن تغيير إعداد في النظام يحتاج صلاحيات مدير. ولا يحتاج إذن الكاميرا: Tapdeck لا يفتح أي كاميرا ولا ينظر من خلالها.</p>
+                <p lang="en">Touch ID with at least one fingerprint, and your Mac's password once to install the helper it shares with Stay Awake, because changing a system setting needs administrator rights. It needs no camera permission: Tapdeck never opens a camera or looks through one.</p>
+                <p lang="ar">Touch ID مع بصمة واحدة على الأقل، وكلمة سر الماك مرة واحدة لتثبيت البرنامج المساعد الذي يشاركه مع Stay Awake، لأن تغيير إعداد في النظام يحتاج صلاحيات مدير. ولا يحتاج إذن الكاميرا: Tapdeck لا يفتح أي كاميرا ولا ينظر من خلالها.</p>
               </div>
             </details>
           </div>
@@ -1145,9 +1132,8 @@
             <details>
               <summary><span lang="en">An app still shows my picture after I locked the camera</span><span lang="ar">تطبيق ما زال يعرض صورتي بعد قفل الكاميرا</span><span class="pm" aria-hidden="true"></span></summary>
               <div class="answer">
-                <p lang="en">Give it a second or two. If the picture keeps moving, run the status command above. <span class="ui">Cameras apps can see: none</span> means the lock is on, so quit and reopen that app and it will find no camera. If Camera Lock shows off, it's probably waiting for its one-time approval: turn Tapdeck on under <span class="ui">Allow in the Background</span> and tap Camera Lock again.</p>
-                <p lang="ar">انتظر ثانية أو اثنتين. وإذا بقيت الصورة تتحرك، شغّل أمر الحالة في الأعلى. <span class="ui">Cameras apps can see: none</span> تعني أن القفل مفعّل، فأغلق التطبيق وافتحه من جديد ولن يجد أي كاميرا. وإذا ظهر أن Camera Lock غير مفعّل، فهو غالباً ينتظر موافقته الأولى: فعّل Tapdeck تحت <span class="ui">Allow in the Background</span> واضغط Camera Lock من جديد.</p>
-                <span class="crumbs"><b>System Settings</b><i></i><b>General</b><i></i><b>Login Items &amp; Extensions</b></span>
+                <p lang="en">Give it a second or two. If the picture keeps moving, run the status command above. <span class="ui">Cameras apps can see: none</span> means the lock is on, so quit and reopen that app and it will find no camera. If Camera Lock shows off, its helper probably isn't installed yet: tap Camera Lock again and enter your Mac's password when macOS asks.</p>
+                <p lang="ar">انتظر ثانية أو اثنتين. وإذا بقيت الصورة تتحرك، شغّل أمر الحالة في الأعلى. <span class="ui">Cameras apps can see: none</span> تعني أن القفل مفعّل، فأغلق التطبيق وافتحه من جديد ولن يجد أي كاميرا. وإذا ظهر أن Camera Lock غير مفعّل، فبرنامجه المساعد غالباً لم يُثبَّت بعد: اضغط Camera Lock من جديد وأدخل كلمة سر الماك عندما يطلبها macOS.</p>
               </div>
             </details>
             <details>
@@ -1291,14 +1277,14 @@
             <span class="step-num">1</span>
             <span class="step-copy">
               <b><span lang="en">Download</span><span lang="ar">التحميل</span></b>
-              <span lang="en">Download <span class="ui">Tapdeck.dmg</span> (811 KB) and open it from your Downloads.</span>
-              <span lang="ar">حمّل <span class="ui">Tapdeck.dmg</span> (<bdi>811 KB</bdi>) وافتحه من مجلد التنزيلات.</span>
+              <span lang="en">Download <span class="ui">Tapdeck.dmg</span> (825 KB) and open it from your Downloads.</span>
+              <span lang="ar">حمّل <span class="ui">Tapdeck.dmg</span> (<bdi>825 KB</bdi>) وافتحه من مجلد التنزيلات.</span>
             </span>
           </button>
           <div class="step-visual" aria-hidden="true">
             <div class="mwin">
               <div class="win-bar"><i></i><i></i><i></i><span>Downloads</span></div>
-              <div class="dl"><span class="disk"><i></i></span><div><b>Tapdeck.dmg</b><small>811 KB · Done</small></div><span class="open">Open</span></div>
+              <div class="dl"><span class="disk"><i></i></span><div><b>Tapdeck.dmg</b><small>825 KB · Done</small></div><span class="open">Open</span></div>
             </div>
           </div>
         </li>
@@ -1380,19 +1366,19 @@
           <button class="step-head" type="button" aria-expanded="false">
             <span class="step-num">5</span>
             <span class="step-copy">
-              <b><span lang="en">Approve Stay Awake and Camera Lock</span><span lang="ar">وافق على Stay Awake و Camera Lock</span><span class="once"><span lang="en">once</span><span lang="ar">مرة واحدة</span></span></b>
-              <span lang="en">The first time you tap Stay Awake or Camera Lock, click <span class="ui">Open System Settings</span> and turn on Tapdeck under <span class="ui">Allow in the Background</span>. One approval covers both. Lights Out and Mic Mute need none.</span>
-              <span lang="ar">أول مرة تضغط Stay Awake أو Camera Lock، اضغط <span class="ui">Open System Settings</span> وفعّل Tapdeck تحت <span class="ui">Allow in the Background</span>. موافقة واحدة تكفي للاثنين. أما Lights Out و Mic Mute فلا يحتاجان أي موافقة.</span>
+              <b><span lang="en">Install the helper</span><span lang="ar">ثبّت البرنامج المساعد</span><span class="once"><span lang="en">once</span><span lang="ar">مرة واحدة</span></span></b>
+              <span lang="en">The first time you tap Stay Awake or Camera Lock, macOS asks for your Mac's password to install Tapdeck's helper. One install covers both, and macOS asks once more after each update. Lights Out and Mic Mute need none.</span>
+              <span lang="ar">أول مرة تضغط Stay Awake أو Camera Lock، يطلب macOS كلمة سر الماك لتثبيت البرنامج المساعد لـ Tapdeck. تثبيت واحد يكفي للاثنين، ويطلبها macOS مرة أخرى بعد كل تحديث. أما Lights Out و Mic Mute فلا يحتاجان شيئاً.</span>
             </span>
           </button>
           <div class="step-visual" aria-hidden="true">
-            <div class="mwin">
-              <div class="win-bar"><i></i><i></i><i></i><span>Login Items &amp; Extensions</span></div>
-              <div class="login">
-                <small>Allow in the Background</small>
-                <div class="lrow hl"><svg viewBox="0 0 32 32"><use href="#i-logo"/></svg><div><b>Tapdeck</b><span>1 item: TapdeckHelper</span></div><span class="switch"></span></div>
-                <div class="lrow faint"><i></i><div><b>Backup Agent</b><span>1 item</span></div><span class="switch"></span></div>
-              </div>
+            <div class="alert auth">
+              <svg viewBox="0 0 32 32"><use href="#i-logo"/></svg>
+              <b>Tapdeck wants to install its helper, so Stay Awake and Camera Lock can change system settings.</b>
+              <p>Enter your password to allow this.</p>
+              <span class="field">Your Name</span>
+              <span class="field dots">••••••••</span>
+              <div class="btns"><span class="hl">OK</span><span>Cancel</span></div>
             </div>
           </div>
         </li>
@@ -1412,11 +1398,11 @@
           <div class="prow"><span>Lights Out</span><span class="badge none"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span lang="en">Nothing</span><span lang="ar">لا شيء</span></span></div>
           <div class="prow"><span><span lang="en">Spotlight &amp; Shortcuts</span><span lang="ar">Spotlight و Shortcuts</span></span><span class="badge none"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span lang="en">Nothing</span><span lang="ar">لا شيء</span></span></div>
           <div class="prow"><span>Mic Mute</span><span class="badge none"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span lang="en">Nothing</span><span lang="ar">لا شيء</span></span></div>
-          <div class="prow"><span>Stay Awake</span><span class="badge needs"><svg class="icon" aria-hidden="true"><use href="#i-lock"/></svg><span lang="en">Allow in the Background, once</span><span lang="ar">Allow in the Background، مرة واحدة</span></span></div>
-          <div class="prow"><span>Camera Lock</span><span class="badge needs"><svg class="icon" aria-hidden="true"><use href="#i-lock"/></svg><span lang="en">The same approval, and Touch ID</span><span lang="ar">نفس الموافقة، و Touch ID</span></span></div>
+          <div class="prow"><span>Stay Awake</span><span class="badge needs"><svg class="icon" aria-hidden="true"><use href="#i-lock"/></svg><span lang="en">Your password, once per install or update</span><span lang="ar">كلمة السر، مرة عند التثبيت أو التحديث</span></span></div>
+          <div class="prow"><span>Camera Lock</span><span class="badge needs"><svg class="icon" aria-hidden="true"><use href="#i-lock"/></svg><span lang="en">The same helper, and Touch ID</span><span lang="ar">نفس البرنامج المساعد، و Touch ID</span></span></div>
         </div>
         <div class="why rv">
-          <p><svg class="icon" aria-hidden="true"><use href="#i-shield"/></svg><span lang="en">Changing sleep and camera settings needs administrator rights. Tapdeck uses a tiny helper that can do exactly two things: switch <code>disablesleep</code> on or off, and switch the system's camera access off or on. It only answers requests from Tapdeck itself.</span><span lang="ar">تغيير إعدادات النوم والكاميرا يحتاج صلاحيات مدير. لذلك يستخدم Tapdeck برنامجاً مساعداً صغيراً لا يستطيع إلا شيئين: تشغيل <code>disablesleep</code> أو إيقافه، وإيقاف وصول التطبيقات للكاميرا أو إعادته. ولا يقبل الطلبات إلا من Tapdeck نفسه.</span></p>
+          <p><svg class="icon" aria-hidden="true"><use href="#i-shield"/></svg><span lang="en">Changing sleep and camera settings needs administrator rights. Tapdeck uses a tiny helper that can do exactly two things: switch <code>disablesleep</code> on or off, and switch the system's camera access off or on. It's installed with your password, root owns it so no app can change it, and it only answers the Tapdeck build it was installed for.</span><span lang="ar">تغيير إعدادات النوم والكاميرا يحتاج صلاحيات مدير. لذلك يستخدم Tapdeck برنامجاً مساعداً صغيراً لا يستطيع إلا شيئين: تشغيل <code>disablesleep</code> أو إيقافه، وإيقاف وصول التطبيقات للكاميرا أو إعادته. يُثبَّت بكلمة سرك، ويملكه root فلا يستطيع أي تطبيق تغييره، ولا يقبل الطلبات إلا من نسخة Tapdeck التي ثُبّت لها.</span></p>
           <p><svg class="icon" aria-hidden="true"><use href="#i-lock"/></svg><span lang="en">No Accessibility, Input Monitoring, Screen Recording or camera access. Lights Out notices your touch without reading any keys, Mic Mute never listens to the microphone, and Camera Lock never opens a camera: they only flip switches.</span><span lang="ar">لا يحتاج Accessibility ولا Input Monitoring ولا Screen Recording ولا إذن الكاميرا. يلاحظ Lights Out لمستك دون أن يقرأ أي زر تضغطه، و Mic Mute لا يستمع للميكروفون أبداً، و Camera Lock لا يفتح أي كاميرا: كلها تقلب مفاتيح فقط.</span></p>
         </div>
       </div>
@@ -1429,24 +1415,29 @@
       <div class="head">
         <span class="kicker"><span lang="en">Help</span><span lang="ar">المساعدة</span></span>
         <h2><span lang="en">If something didn't go as planned</span><span lang="ar">إذا لم يسر شيء كما يجب</span></h2>
-        <p lang="en">Most problems come from a permission that was skipped or switched off. Each one takes a few seconds to fix. Camera questions have <a href="#camera">their own list</a>.</p>
-        <p lang="ar">أغلب المشاكل سببها صلاحية تم تخطّيها أو إيقافها، وإصلاح كل منها يأخذ ثواني. أسئلة الكاميرا لها <a href="#camera">قائمتها الخاصة</a>.</p>
+        <p lang="en">Most problems come from a step that was skipped, like Open Anyway or the password prompt. Each one takes a few seconds to fix. Camera questions have <a href="#camera">their own list</a>.</p>
+        <p lang="ar">أغلب المشاكل سببها خطوة تم تخطّيها، مثل Open Anyway أو نافذة كلمة السر، وإصلاح كل منها يأخذ ثواني. أسئلة الكاميرا لها <a href="#camera">قائمتها الخاصة</a>.</p>
       </div>
       <div class="faq">
         <details>
-          <summary><span lang="en">I clicked Cancel instead of Open System Settings</span><span lang="ar">ضغطت Cancel بدل Open System Settings</span><span class="pm" aria-hidden="true"></span></summary>
+          <summary><span lang="en">macOS says “Malware Blocked and Moved to Trash”</span><span lang="ar">يقول macOS إن Tapdeck برنامج خبيث (Malware Blocked and Moved to Trash)</span><span class="pm" aria-hidden="true"></span></summary>
           <div class="answer">
-            <p lang="en">Nothing is broken. Tap Stay Awake or Camera Lock again and the request comes back. Or go there yourself and turn on Tapdeck under <span class="ui">Allow in the Background</span>:</p>
-            <p lang="ar">لم يتعطل شيء. اضغط Stay Awake أو Camera Lock مرة أخرى وسيعود الطلب. أو اذهب بنفسك وفعّل Tapdeck تحت <span class="ui">Allow in the Background</span>:</p>
-            <span class="crumbs"><b>System Settings</b><i></i><b>General</b><i></i><b>Login Items &amp; Extensions</b></span>
+            <p lang="en">That's a copy of Tapdeck 1.3 or earlier. Those were signed with an Apple development certificate that Apple has since revoked, so macOS now treats them as malware. Nothing on your Mac was harmed. Download Tapdeck again from this page: version 1.3.1 and later carry no certificate that can be revoked. The first time you open it, confirm it with <span class="ui">Open Anyway</span> (step 3 of the <a href="#install">install guide</a>).</p>
+            <p lang="ar">هذه نسخة من Tapdeck 1.3 أو أقدم. كانت موقّعة بشهادة مطوّر من Apple ألغتها Apple لاحقاً، لذلك صار macOS يعتبرها برنامجاً خبيثاً. لم يتضرر أي شيء في ماكك. نزّل Tapdeck من جديد من هذه الصفحة: النسخة 1.3.1 وما بعدها ليس فيها شهادة يمكن إلغاؤها. وأول مرة تفتحه، أكّد ذلك بـ <span class="ui">Open Anyway</span> (الخطوة 3 في <a href="#install">دليل التثبيت</a>).</p>
           </div>
         </details>
         <details>
-          <summary><span lang="en">I turned Tapdeck off under Allow in the Background</span><span lang="ar">أوقفت Tapdeck من Allow in the Background</span><span class="pm" aria-hidden="true"></span></summary>
+          <summary><span lang="en">I cancelled the password prompt</span><span lang="ar">ألغيت نافذة كلمة السر</span><span class="pm" aria-hidden="true"></span></summary>
           <div class="answer">
-            <p lang="en">Stay Awake can't change sleep settings until it's back on, and it asks each time you tap it. Turn Tapdeck on again in the same place. If Tapdeck is missing from the list, tap Stay Awake once to add it back.</p>
-            <p lang="ar">لن يستطيع Stay Awake تغيير إعدادات النوم حتى تعيد تفعيله، وسيطلب ذلك كلما ضغطته. فعّل Tapdeck من نفس المكان. وإذا لم تجده في القائمة، اضغط Stay Awake مرة واحدة ليعود إليها.</p>
-            <span class="crumbs"><b>System Settings</b><i></i><b>General</b><i></i><b>Login Items &amp; Extensions</b></span>
+            <p lang="en">Nothing is broken. Tap Stay Awake or Camera Lock again and macOS asks again. Nothing changes until the helper is installed.</p>
+            <p lang="ar">لم يتعطل شيء. اضغط Stay Awake أو Camera Lock مرة أخرى وسيطلبها macOS من جديد. ولن يتغيّر شيء حتى يُثبَّت البرنامج المساعد.</p>
+          </div>
+        </details>
+        <details>
+          <summary><span lang="en">macOS asked for my password again after an update</span><span lang="ar">طلب macOS كلمة السر مرة أخرى بعد التحديث</span><span class="pm" aria-hidden="true"></span></summary>
+          <div class="answer">
+            <p lang="en">That's expected. The helper only answers the Tapdeck build it was installed for, so each update reinstalls it once, the first time you tap Stay Awake or Camera Lock. A Camera Lock that was on stays on meanwhile.</p>
+            <p lang="ar">هذا طبيعي. البرنامج المساعد لا يقبل إلا نسخة Tapdeck التي ثُبّت لها، لذلك يُعاد تثبيته مرة واحدة بعد كل تحديث، أول مرة تضغط Stay Awake أو Camera Lock. وإذا كان قفل الكاميرا مفعّلاً، يبقى مفعّلاً خلال ذلك.</p>
           </div>
         </details>
         <details>
@@ -1530,15 +1521,15 @@ echo "Tapdeck version: $(defaults read /Applications/Tapdeck.app/Contents/Info.p
           <summary><span lang="en">How do I see what Tapdeck can control on my Mac?</span><span lang="ar">كيف أعرف ما يستطيع Tapdeck التحكم به في جهازي؟</span><span class="pm" aria-hidden="true"></span></summary>
           <div class="answer">
             <div class="code"><code>/Applications/Tapdeck.app/Contents/MacOS/Tapdeck --status</code><button class="copy" type="button" data-copy><span class="idle-t"><span lang="en">Copy</span><span lang="ar">نسخ</span></span><span class="done-t"><span lang="en">Copied</span><span lang="ar">تم النسخ</span></span></button></div>
-            <p lang="en">It lists your displays, brightness, keyboard light, Stay Awake, Camera Lock, the cameras apps can see and the helper's approval status, without changing anything.</p>
-            <p lang="ar">يعرض الشاشات والسطوع وإضاءة الكيبورد وحالة Stay Awake و Camera Lock والكاميرات التي تراها التطبيقات وحالة موافقة البرنامج المساعد، بدون أن يغيّر أي شيء.</p>
+            <p lang="en">It lists your displays, brightness, keyboard light, Stay Awake, Camera Lock, the cameras apps can see and whether the helper is installed, without changing anything.</p>
+            <p lang="ar">يعرض الشاشات والسطوع وإضاءة الكيبورد وحالة Stay Awake و Camera Lock والكاميرات التي تراها التطبيقات وهل البرنامج المساعد مثبّت، بدون أن يغيّر أي شيء.</p>
           </div>
         </details>
         <details>
           <summary><span lang="en">How do I uninstall Tapdeck?</span><span lang="ar">كيف أحذف Tapdeck؟</span><span class="pm" aria-hidden="true"></span></summary>
           <div class="answer">
-            <p lang="en">Turn Stay Awake, Mic Mute and Camera Lock off first. Then remove the helper and quit Tapdeck:</p>
-            <p lang="ar">أطفئ Stay Awake و Mic Mute و Camera Lock أولاً. ثم احذف البرنامج المساعد وأغلق Tapdeck:</p>
+            <p lang="en">Turn Stay Awake, Mic Mute and Camera Lock off first. Then remove the helper (macOS asks for your password) and quit Tapdeck:</p>
+            <p lang="ar">أطفئ Stay Awake و Mic Mute و Camera Lock أولاً. ثم احذف البرنامج المساعد (يطلب macOS كلمة السر) وأغلق Tapdeck:</p>
             <div class="code"><code>/Applications/Tapdeck.app/Contents/MacOS/Tapdeck --unregister-helper</code><button class="copy" type="button" data-copy><span class="idle-t"><span lang="en">Copy</span><span lang="ar">نسخ</span></span><span class="done-t"><span lang="en">Copied</span><span lang="ar">تم النسخ</span></span></button></div>
             <div class="code"><code>pkill -x Tapdeck</code><button class="copy" type="button" data-copy><span class="idle-t"><span lang="en">Copy</span><span lang="ar">نسخ</span></span><span class="done-t"><span lang="en">Copied</span><span lang="ar">تم النسخ</span></span></button></div>
             <p lang="en">Finally, move Tapdeck from Applications to the Trash.</p>
@@ -1555,8 +1546,8 @@ echo "Tapdeck version: $(defaults read /Applications/Tapdeck.app/Contents/Info.p
       <div class="final-card rv">
         <div>
           <h2><span lang="en">Put your Mac on one tap</span><span lang="ar">اجعل ماكك على بُعد ضغطة</span></h2>
-          <p lang="en">Free, 811 KB, and private. New tools land as simple updates.</p>
-          <p lang="ar">مجاني، بحجم <bdi>811 KB</bdi>، ويحترم خصوصيتك. والأدوات الجديدة تصل بتحديث بسيط.</p>
+          <p lang="en">Free, 825 KB, and private. New tools land as simple updates.</p>
+          <p lang="ar">مجاني، بحجم <bdi>825 KB</bdi>، ويحترم خصوصيتك. والأدوات الجديدة تصل بتحديث بسيط.</p>
           <div class="cta">
             <a class="btn btn-primary" href="https://github.com/Devehab/Tapdeck/releases/latest/download/Tapdeck.dmg">
               <svg class="icon" aria-hidden="true"><use href="#i-download"/></svg>

@@ -146,9 +146,12 @@ enum CommandRunner {
         return "Tapdeck didn't respond in time. Open Tapdeck once and try again."
     }
 
+    /// The helper installs after an administrator's password, which the app asks for.
+    private static let helperInstallHint = "Tapdeck is asking for your Mac's password to install its helper (once, and again after each update). Enter it, then try again."
+
     private static func cameraLockFailure(_ locking: Bool) -> String {
-        if locking, PrivilegedHelper.shared.status != .enabled {
-            return "Camera Lock needs a one-time approval. Turn Tapdeck on in System Settings › General › Login Items & Extensions › Allow in the Background, then try again."
+        if locking, PrivilegedHelper.shared.status != .installed {
+            return helperInstallHint
         }
         return locking
             ? "Tapdeck didn't lock the camera in time. Open Tapdeck once and try again."
@@ -156,8 +159,8 @@ enum CommandRunner {
     }
 
     private static func stayAwakeFailure(_ turningOn: Bool) -> String {
-        if PrivilegedHelper.shared.status != .enabled {
-            return "Stay Awake needs a one-time approval. Turn Tapdeck on in System Settings › General › Login Items & Extensions › Allow in the Background, then try again."
+        if PrivilegedHelper.shared.status != .installed {
+            return helperInstallHint
         }
         return "Tapdeck didn't respond in time. Open Tapdeck once and try again."
     }

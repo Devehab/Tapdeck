@@ -1,5 +1,4 @@
 import CoreFoundation
-import ServiceManagement
 
 /// Everything the command line and browser extensions can see. It's read
 /// straight from the system rather than asked of the app, so it's right even
@@ -21,7 +20,7 @@ struct TapdeckState: Encodable {
 
     struct StayAwake: Encodable {
         let on: Bool
-        /// "enabled", "needs-approval" or "not-registered".
+        /// "installed", "outdated" (installed for another Tapdeck build) or "not-installed".
         let helper: String
     }
 
@@ -55,9 +54,9 @@ struct TapdeckState: Encodable {
     @MainActor
     private static var helperStatus: String {
         switch PrivilegedHelper.shared.status {
-        case .enabled: "enabled"
-        case .requiresApproval: "needs-approval"
-        default: "not-registered"
+        case .installed: "installed"
+        case .outdated: "outdated"
+        case .notInstalled: "not-installed"
         }
     }
 }

@@ -75,18 +75,8 @@ final class CameraLockController {
             if !locked, !CameraLockState.isLocked {
                 remindToReopenApps()
             }
-        } catch PrivilegedHelper.HelperError.needsApproval {
-            PrivilegedHelper.shared.askForApproval(
-                title: "Allow Camera Lock",
-                message: """
-                    Camera Lock turns cameras off through a small Tapdeck helper, which needs your approval once.
-
-                    In System Settings › General › Login Items & Extensions, turn on Tapdeck under “Allow in the Background”. Camera Lock continues by itself as soon as you do.
-                    """
-            ) {
-                // Unlocking asks for Touch ID again before going ahead.
-                await CameraLockController.shared.set(locked: locked)
-            }
+        } catch PrivilegedHelper.HelperError.cancelled {
+            logger.notice("Helper install cancelled; camera unchanged")
         } catch {
             logger.error("Camera Lock failed: \(error.localizedDescription, privacy: .public)")
             showMessage(locked ? "Camera Lock couldn't lock the camera" : "Camera Lock couldn't turn the camera back on", error.localizedDescription)

@@ -72,8 +72,8 @@ enum CommandLineInterface {
             camera += "  (Camera Lock needs Touch ID)"
         }
         var awake = state.stayAwake.on ? "Won't Sleep" : "Sleeps Normally"
-        if state.stayAwake.helper != "enabled" {
-            awake += "  (needs one-time approval)"
+        if state.stayAwake.helper != "installed" {
+            awake += "  (the next switch asks for your password to install the helper)"
         }
         print("Microphone   \(mic)")
         print("Camera       \(camera)")
@@ -177,12 +177,32 @@ enum CommandLineInterface {
 
     private static func unregisterHelper() -> Int32 {
         do {
-            try PrivilegedHelper.shared.unregister()
-            print("Root helper unregistered.")
+            PrivilegedHelper.shared.removeLegacyRegistration()
+            try runBlocking { try await PrivilegedHelper.shared.uninstall() }
+            print("Root helper removed.")
             return 0
         } catch {
-            print("Couldn't unregister the root helper: \(error.localizedDescription)")
+            print("Couldn't remove the root helper: \(error.localizedDescription)")
             return 1
         }
+    }
+
+    /// Waits for async work from this synchronous command line, keeping the
+    /// main run loop turning so the work can finish.
+    private static func runBlocking(_ work: @escaping @MainActor () async throws -> Void) throws {
+        final class Outcome { var result: Result<Void, Error>? }
+        let outcome = Outcome()
+        Task { @MainActor in
+            do {
+                try await work()
+                outcome.result = .success(())
+            } catch {
+                outcome.result = .failure(error)
+            }
+        }
+        while outcome.result == nil {
+            RunLoop.current.run(until: Date().addingTimeInterval(0.1))
+        }
+        try outcome.result?.get()
     }
 }
